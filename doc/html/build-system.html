@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="Owner" content="Andrey V.Kosteltsev">
+  <meta name="author" content="Andrey V.Kosteltsev">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <META HTTP-EQUIV="Content-script-type" CONTENT="text/javascript">
+  <META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+  <!-- ****** faviconit.com favicons
+  <link rel="shortcut icon" href="./build-system.ico" type="image/x-icon">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="./build-system.ico" type="image/x-icon">
+       ****** -->
+
+  <!-- ****** faviconit.com favicons ****** -->
+  <link rel="shortcut icon" href="./_pixmaps/favicon/build-system.ico">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="./_pixmaps/favicon/build-system.ico">
+  <link rel="icon" type="image/png" sizes="196x196" href="./_pixmaps/favicon/build-system-196.png">
+  <link rel="icon" type="image/png" sizes="160x160" href="./_pixmaps/favicon/build-system-160.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="./_pixmaps/favicon/build-system-96.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="./_pixmaps/favicon/build-system-64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./_pixmaps/favicon/build-system-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./_pixmaps/favicon/build-system-16.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./_pixmaps/favicon/build-system-152.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="./_pixmaps/favicon/build-system-144.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="./_pixmaps/favicon/build-system-120.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="./_pixmaps/favicon/build-system-114.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="./_pixmaps/favicon/build-system-76.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="./_pixmaps/favicon/build-system-72.png">
+  <link rel="apple-touch-icon" href="./_pixmaps/favicon/build-system-57.png">
+  <meta name="msapplication-TileColor" content="#FFFFFF">
+  <meta name="msapplication-TileImage" content="./_pixmaps/favicon/build-system-144.png">
+  <meta name="msapplication-config" content="./_pixmaps/favicon/browserconfig.xml">
+  <!-- ****** faviconit.com favicons ****** -->
+
+
+  <title>Build System</title>
+
+
+<!-- styles .css -->
+
+<style>
+@import url(http://fonts.googleapis.com/css?family=Roboto:300,400,700italic,700,500italic,500,300italic,400italic&subset=cyrillic-ext,latin);
+@import url(http://fonts.googleapis.com/css?family=Cousine:400,400italic,700,700italic&subset=cyrillic-ext,latin);
+</style>
+
+<style>
+body, html {
+  margin: 0 0 0 0;
+}
+
+#front_wrapper {
+  margin: 0 auto;
+  height: 100vh;
+  position: relative;
+  overflow: auto;
+  background-color: #ececec;
+}
+
+#header_wrapper {
+  height: 160px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  background: transparent;
+}
+
+#content_wrapper {
+  background-color: #ffffff;
+}
+
+#footer_wrapper {
+  background: #ececec;
+}
+
+#content {
+  width: 1018px;
+  min-height: 256px;
+  padding: 18px 2px 12px 2px; /* top, right, bottom, left */
+  margin: 0 auto;
+  background-color: #fdfdfd;
+  position: relative;
+  overflow: hidden;
+  align: center;
+  border: 1px solid #e7e7e7;
+}
+
+#footer {
+  width: 1022px;
+  height: 48px;
+  margin: 0 auto;
+
+  -moz-border-radius-topleft: 0px;
+  -moz-border-radius-topright: 0px;
+  -moz-border-radius-bottomright: 8px;
+  -moz-border-radius-bottomleft: 8px;
+
+  -webkit-border-top-left-radius: 0px;
+  -webkit-border-top-right-radius: 0px;
+  -webkit-border-bottom-left-radius: 8px;
+  -webkit-border-bottom-right-radius: 8px;
+
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  border: 1px solid #f7f7f7;
+  background: #979797;
+}
+
+div#footer_top {
+  margin: 2px auto 1px auto;
+  color: #ffffff;
+  text-align: center;
+}
+
+div#footer_bottom {
+  margin: 0 8px 0 8px;
+  min-height: 20px;
+  color: #ffffff;
+  font-size: 10px;
+}
+
+#logo {
+  height: 80px;
+  width: 1024px;
+  margin: 0 auto;
+  background-color: transparent;
+}
+#navigator {
+  height: 79px;
+  width: 1024px;
+  margin: 0 auto;
+  padding: 1px 0 0; /* top, right, bottom, left */
+
+  -moz-border-radius-topleft: 8px;
+  -moz-border-radius-topright: 8px;
+  -moz-border-radius-bottomright: 0px;
+  -moz-border-radius-bottomleft: 0px;
+
+  -webkit-border-top-left-radius: 8px;
+  -webkit-border-top-right-radius: 8px;
+  -webkit-border-bottom-left-radius: 0px;
+  -webkit-border-bottom-right-radius: 0px;
+
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+
+  border: 1px solid #f7f7f7;
+  background: #979797;
+}
+
+#copyright {
+  color: #ffffff;
+  text-decoration: none;
+  font-family: 'Roboto', helvetica, arial, sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 11px;
+}
+
+#tree_view {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  margin: 0 auto;
+  min-height: 256px;
+  width: 2720px;
+  border: 0px solid #e7e7e7;
+}
+
+.node {
+  cursor: pointer;
+}
+
+/* Requires Tree Styling Examples *
+ **********************************
+.node {
+  cursor: pointer;
+}
+.node circle {
+  fill: #ffffff;
+  stroke: SteelBlue;
+  stroke-width: 1.5px;
+}
+.link {
+  fill: none;
+  stroke: #cccccc;
+  stroke-width: 1.5px;
+}
+.node text {
+  font: 12px sans-serif;
+  font-weight: bold;
+}
+ **********************************/
+
+
+#document_view {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  margin: 0 auto;
+  min-height: 256px;
+  width: 1018px;
+  border: 0px solid #e7e7e7;
+}
+</style>
+
+<style>
+
+
+#document_body {
+  font: 12px 'Roboto', sans-serif;
+  padding-left: 3.5em;
+  padding-right: 1.1em;
+  padding-top: 1.em;
+  padding-bottom: 4.0em;
+}
+
+p {
+  text-align: justify;
+  padding-left: .1em;
+  padding-right: 1.5em;
+  padding-top: .2em;
+  padding-bottom: .2em;
+  font: 14px 'Roboto', sans-serif;
+}
+
+#head_1 {
+  padding-top: 2.0em;
+  padding-bottom: .2em;
+  font: 28px 'Roboto', sans-serif;
+  font-weight: bold;
+  color: #777777;
+}
+#head_2 {
+  padding-top: 1.0em;
+  padding-bottom: .2em;
+  font: 24px 'Roboto', sans-serif;
+  font-weight: bold;
+  color: #797979;
+}
+#head_3 {
+  padding-top: 1.0em;
+  padding-bottom: .2em;
+  font: 20px 'Roboto', sans-serif;
+  font-weight: bold;
+  color: #7a7a7a;
+}
+#head_4 {
+  padding-top: 1.0em;
+  padding-bottom: .2em;
+  font: 18px 'Roboto', sans-serif;
+  font-weight: bold;
+  color: #797979;
+}
+
+#code {
+  margin-left: .2em;
+  margin-right: 1.5em;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  padding-top: .8em;
+  padding-bottom: .9em;
+  text-align: left;
+  font: 14px 'Cousine', monospace;
+  border: 1px solid #d9d9d9;
+  background-color: #efefef;
+}
+
+#mono {
+  font: 14px 'Cousine', monospace;
+}
+#mono_bold {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+}
+#mono_bold_italic {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  font-style: italic;
+}
+#make_tab {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  background-color: #e7e7e7;
+}
+
+#bold {
+  font-weight: bold;
+}
+#italic {
+  font-style: italic;
+}
+#bold_italic {
+  font-style: italic;
+  font-weight: bold;
+}
+
+#build_system_name {
+  font-style: italic;
+  font-weight: bold;
+  color: #1e5b51;
+}
+
+/* build-system variable */
+#bs_var {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  color: #5e0000;
+}
+/* build-system special directory */
+#bs_dir {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  color: #0000c5;
+}
+#bs_tmpdir {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  color: #1e5b51;
+}
+/* build-system script */
+#bs_script {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  font-style: italic;
+  color: #00005e;
+}
+/* build-system file */
+#bs_file {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  color: #c50000;
+}
+
+/* GNU make keywords */
+#make_keyword {
+  font: 14px 'Cousine', monospace;
+  font-weight: bold;
+  color: DeepPink;
+}
+
+#picture {
+  margin-left: .2em;
+  margin-right: 1.5em;
+  padding-left: 2.0em;
+  padding-right: 2.0em;
+  padding-top: 1.0em;
+  padding-bottom: .9em;
+  align: center;
+  text-align: left;
+  font: 14px 'Cousine', monospace;
+}
+
+#pix_area {
+  margin-left: .2em;
+  margin-right: .2em;
+  align: center;
+}
+
+#pix_note {
+  margin-left: .2em;
+  margin-right: .2em;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  padding-top: 1.2em;
+  padding-bottom: .4em;
+  text-align: center;
+  font: 13px 'Roboto', sans-serif;
+}
+
+#pix_toolchain_sysroot {
+  align: center;
+  margin-top: auto;
+  margin-buttom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  width: 720px;
+  height: 220px;
+  overflow: hidden;
+}
+
+#numbered_list {
+  text-align: justify;
+  font-size: 14px;
+  padding-right: 3.0em;
+}
+
+#table_of_contents {
+  text-align: left;
+  padding-left: .1em;
+  padding-right: 1.5em;
+  padding-top: .5em;
+  padding-bottom: 4.2em;
+  font: 14px 'Roboto', sans-serif;
+  color: #646464;
+}
+#tc_link {
+  color: #646464;
+  text-decoration: none;
+}
+#tc_level_2 {
+  padding-left: 1.1em;
+  font-size: 16px;
+  text-decoration: none;
+}
+#tc_level_3 {
+  padding-left: 2.5em;
+  font-size: 14px;
+  text-decoration: none;
+}
+#tc_level_4 {
+  font-size: 14px;
+  padding-left: 4.1em;
+  text-decoration: none;
+}
+#tc_level_5 {
+  font-size: 13px;
+  padding-left: 6.1em;
+  text-decoration: none;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: left;
+  padding: 10px;
+  font: 11px Cousine,monospace;
+  background: lightsteelblue;
+  border: 1px solid #0000e7;
+  border-radius: 8px;
+  pointer-events: none;
+}
+</style>
+<!-- End of styles .css -->
+
+<!-- scripts -->
+
+  <!-- jQuery -->
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <!-- jQuery UI -->
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+  <!-- D3 -->
+  <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+
+  <script>
+/***
+  $(function() {
+    $( "#document_view" ).draggable();
+  });
+ ***/
+  </script>
+  <script>
+  $(function() {
+    $( "#tree_view" ).draggable();
+  });
+  </script>
+  <script>
+  $(function() {
+    $( "[title]" ).tooltip({
+      content: function() {
+        var text = $(this).attr("title");
+        return "<div style='font: 12px Roboto,sans-serif; font-weight: bold; color: #1e5b51;'>" + text + "</div>";
+      },
+      position: {
+        my: "left+100 top-10",
+        at: "left bottom"
+      }
+    });
+  });
+  </script>
+  <script type="text/javascript">
+  function show_link( id )
+  {
+    var label = document.getElementById( id );
+    label.style.textDecoration = "underline";
+  }
+  function hide_link( id )
+  {
+    var label = document.getElementById( id );
+    label.style.textDecoration = "none";
+  }
+  </script>
+<!-- End of scripts -->
+
+</head>
+
+<body>
+
+<div id="front_wrapper">
+  <div id="header_wrapper">
+    <div id="logo">
+    </div> <!-- "logo" -->
+    <div id="navigator">
+      <div style="height: 36px;"></div>
+      <div style="height: 42px; padding-left: 16px; font: 28px 'Roboto', sans-serif; font-weight: bold; color: White;">
+      Build System
+      </div>
+    </div> <!-- "navigator" -->
+  </div> <!-- "header_wrapper" -->
+
+  <div id="content_wrapper">
+    <div id="content">
+
+      <div id="document_view">
+        <div id="document_body">
+
+<a name="top_of_contents"></a>
+<div id="head_2">
+Table of Contents
+</div>
+
+<div id="table_of_contents">
+<div id="tc_level_2">
+<a id="Introduction_tc" style="text-decoration: none; color: #646464;"
+   href="#Introduction"
+   onmouseover="show_link( 'Introduction_tc' );"
+   onmouseout="hide_link( 'Introduction_tc' );">Introduction</a>
+</div>
+<div id="tc_level_3">
+<a id="directory_sources_tc" style="text-decoration: none; color: #646464;"
+   href="#directory_sources"
+   onmouseover="show_link( 'directory_sources_tc' );"
+   onmouseout="hide_link( 'directory_sources_tc' );">Каталог sources</a>
+</div>
+<div id="tc_level_3">
+<a id="directory_dist_tc" style="text-decoration: none; color: #646464;"
+   href="#directory_dist"
+   onmouseover="show_link( 'directory_dist_tc' );"
+   onmouseout="hide_link( 'directory_dist_tc' );">Каталог dist</a>
+</div>
+<div id="tc_level_3">
+<a id="hello_world_tc" style="text-decoration: none; color: #646464;"
+   href="#hello_world"
+   onmouseover="show_link( 'hello_world_tc' );"
+   onmouseout="hide_link( 'hello_world_tc' );">Hello, World</a>
+</div>
+
+<div id="tc_level_2">
+<a id="main_target_dirs_tc" style="text-decoration: none; color: #646464;"
+   href="#main_target_dirs"
+   onmouseover="show_link( 'main_target_dirs_tc' );"
+   onmouseout="hide_link( 'main_target_dirs_tc' );">Main Targets and Build Directories</a>
+</div>
+<div id="tc_level_3">
+<a id="tmp_build_dirs_tc" style="text-decoration: none; color: #646464;"
+   href="#tmp_build_dirs"
+   onmouseover="show_link( 'tmp_build_dirs_tc' );"
+   onmouseout="hide_link( 'tmp_build_dirs_tc' );">Temporary Build Directories</a>
+</div>
+<div id="tc_level_3">
+<a id="main_targets_tc" style="text-decoration: none; color: #646464;"
+   href="#main_targets"
+   onmouseover="show_link( 'main_targets_tc' );"
+   onmouseout="hide_link( 'main_targets_tc' );">Main Targets</a>
+</div>
+<div id="tc_level_3">
+<a id="tmp_dest_dirs_tc" style="text-decoration: none; color: #646464;"
+   href="#tmp_dest_dirs"
+   onmouseover="show_link( 'tmp_dest_dirs_tc' );"
+   onmouseout="hide_link( 'tmp_dest_dirs_tc' );">Temporary Destination Directories</a>
+</div>
+
+<div id="tc_level_4">
+<a id="target_dest_dir_tc" style="text-decoration: none; color: #646464;"
+   href="#target_dest_dir"
+   onmouseover="show_link( 'target_dest_dir_tc' );"
+   onmouseout="hide_link( 'target_dest_dir_tc' );">Target Destination Directory</a>
+</div>
+<div id="tc_level_4">
+<a id="target_products_dir_tc" style="text-decoration: none; color: #646464;"
+   href="#target_products_dir"
+   onmouseover="show_link( 'target_products_dir_tc' );"
+   onmouseout="hide_link( 'target_products_dir_tc' );">Target Products Directory</a>
+</div>
+<div id="tc_level_4">
+<a id="target_rootfs_dir_tc" style="text-decoration: none; color: #646464;"
+   href="#target_rootfs_dir"
+   onmouseover="show_link( 'target_rootfs_dir_tc' );"
+   onmouseout="hide_link( 'target_rootfs_dir_tc' );">Target Root File System Directory</a>
+</div>
+
+<div id="tc_level_2">
+<a id="support_targets_tc" style="text-decoration: none; color: #646464;"
+   href="#support_targets"
+   onmouseover="show_link( 'support_targets_tc' );"
+   onmouseout="hide_link( 'support_targets_tc' );">Support Targets</a>
+</div>
+
+<div id="tc_level_3">
+<a id="requires_tree_tc" style="text-decoration: none; color: #646464;"
+   href="#requires_tree"
+   onmouseover="show_link( 'requires_tree_tc' );"
+   onmouseout="hide_link( 'requires_tree_tc' );">Requires Tree</a>
+</div>
+
+<div id="tc_level_2">
+<a id="naming convention_tc" style="text-decoration: none; color: #646464;"
+   href="#naming convention"
+   onmouseover="show_link( 'naming convention_tc' );"
+   onmouseout="hide_link( 'naming convention_tc' );">Naming Convention</a>
+</div>
+
+<div id="tc_level_2">
+<a id="toolchains_tc" style="text-decoration: none; color: #646464;"
+   href="#Toolchains"
+   onmouseover="show_link( 'toolchains_tc' );"
+   onmouseout="hide_link( 'toolchains_tc' );">Toolchains</a>
+</div>
+
+<div id="tc_level_2">
+<a id="toolchain_connection_tc" style="text-decoration: none; color: #646464;"
+   href="#toolchain_connection"
+   onmouseover="show_link( 'toolchain_connection_tc' );"
+   onmouseout="hide_link( 'toolchain_connection_tc' );">Connection of the New Toolchain to Build System</a>
+</div>
+<div id="tc_level_3">
+<a id="hardware_IDs_tc" style="text-decoration: none; color: #646464;"
+   href="#hardware_IDs"
+   onmouseover="show_link( 'hardware_IDs_tc' );"
+   onmouseout="hide_link( 'hardware_IDs_tc' );">Using Hardware IDs in source code</a>
+</div>
+
+<div id="tc_level_2">
+<a id="ccache_tc" style="text-decoration: none; color: #646464;"
+   href="#ccache"
+   onmouseover="show_link( 'ccache_tc' );"
+   onmouseout="hide_link( 'ccache_tc' );">CCACHE</a>
+</div>
+
+
+</div> <!-- "table_of_contents" -->
+
+
+<a name="Introduction"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Introduction
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span> представляет собой набор <span id="mono">Make</span>-файлов
+и скриптов, написанных на языках
+<span id="mono_bold">Bash</span> и <span id="mono_bold">Perl</span>. На следующем листинге приведено
+краткое дерево <span id="build_system_name">системы сборки</span>. Основу системы составляет файл
+<span id="mono">'</span><span id="bs_file">core.mk</span><span id="mono">'</span>, именно в нем содержатся
+все основные правила сборки, позволяющие упростить создание
+пользовательских <span id="mono">Make</span>-файлов.
+</p>
+
+<div id="code">
+<br/>
+&nbsp;.<br/>
+&nbsp;├── Makefile<br/>
+&nbsp;├── _kxLab.pm<br/>
+&nbsp;├── apply_patches<br/>
+&nbsp;├── build-config.mk.template<br/>
+&nbsp;├── build_packages_list<br/>
+&nbsp;├── build_pkg_requires<br/>
+&nbsp;├── build_requires<br/>
+&nbsp;├── build_requires_tree<br/>
+&nbsp;├── build_src_requires<br/>
+&nbsp;├── canonical-build<br/>
+&nbsp;├── <span id="bs_file">constants.mk</span><br/>
+&nbsp;├── <span id="bs_file">core.mk</span><br/>
+&nbsp;├── dist_clean<br/>
+&nbsp;├── downloads_clean<br/>
+&nbsp;├── global_clean<br/>
+&nbsp;├── install_pkgs<br/>
+&nbsp;├── install_targets<br/>
+&nbsp;├── rootfs_clean<br/>
+&nbsp;├── target-setup.mk<br/>
+&nbsp;├── tree-build-system.mk<br/>
+&nbsp;├── tree-src.mk<br/>
+&nbsp;├── tree.mk<br/>
+&nbsp;├── <span id="bs_dir">3pp</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">fakeroot</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">0.18</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── Makefile<br/>
+&nbsp;├── <span id="bs_dir">pkgtool</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── change-refs<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── check-db-integrity.in<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── check-package.in<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── check-requires.in<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── install-package.in<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── install-pkglist<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── make-package<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── make-pkglist<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── pkginfo<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;├── pkglog<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── remove-package.in<br/>
+&nbsp;├── <span id="bs_dir">html</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── requires_tree_html.template<br/>
+&nbsp;└── <span id="bs_dir">scripts</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── fill_align<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── fill_to_size<br/>
+<br/>
+</div>
+
+<p>
+Обычного пользователя <span id="build_system_name">системы сборки</span>, из всего набора файлов,
+интересуют лишь файлы
+<span id="mono">'</span><span id="bs_file">constants.mk</span><span id="mono">'</span>
+и
+<span id="mono">'</span><span id="bs_file">core.mk</span><span id="mono">'</span>,
+которые необходимо включать с помощью директивы
+<span id="mono">'</span><span id="make_keyword">include</span><span id="mono">'</span>,
+в пользовательские <span id="mono">Make</span>-файлы.
+</p>
+
+<p>
+Дерево <span id="build_system_name">системы сборки</span>, монтируется в каталог
+<span id="mono">'</span><span id="bs_dir">build-system</span><span id="mono">'</span>
+общего дерева исходных текстов, собираемых пакетов программ для различных устройств. Общее дерево может выглядеть,
+например, так:
+</p>
+
+<div id="code">
+<br/>
+&nbsp;.<br/>
+&nbsp;├── <span id="mono_bold" style="color: SeaGreen;">.svn</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">app</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">base</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">boot</span><br/>
+&nbsp;├── <span id="bs_dir">build-system</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">dev</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">doc</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">hal</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">libs</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">net</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">products</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">secure</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">share</span><br/>
+&nbsp;├── <span id="bs_dir">sources</span><br/>
+&nbsp;├── <span id="mono_bold" style="color: SeaGreen;">.svnignore</span><br/>
+&nbsp;└── <span id="bs_file">Makefile</span><br/>
+<br/>
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span> не имеет никаких предположений по поводу структуры общего дерева исходных текстов за исключением
+нескольких каталогов. Рассмотрим эти каталоги.
+</p>
+
+
+<a name="directory_sources"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Каталог sources
+</div>
+
+<p>
+В каталоге
+<span id="mono">'</span><span id="bs_dir">sources</span><span id="mono">'</span>
+предусмотрено создание <span id="mono">Make</span>-файлов, с помощью которых осуществляется загрузка исходных
+пакетов программ для последующей сборки. Структура <span id="mono">Make</span>-файлов, здесь, коренным образом
+отличается от остальных каталогов поскольку они предназначены не для сборки компонентов программ, а лишь для
+загрузки архивов с <span id="mono">FTP</span>-сервера.
+</p>
+
+<a name="directory_dist"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Каталог dist
+</div>
+
+<p>
+Каталог
+<span id="mono">'</span><span id="bs_tmpdir">dist</span><span id="mono">'</span> -
+является временным каталогом. Он создается автоматически и предназначен для хранения результатов сборки.
+Структуру данного каталога мы рассмотрим, когда опишем некоторые возможности
+<span id="build_system_name">системы сборки</span>.
+</p>
+
+<a name="hello_world"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Hello, World
+</div>
+
+<p>
+Как известно, наилучшим способом изучения какой-либо системы является практика. Поэтому, прежде
+чем мы перейдем к подробному описанию <span id="build_system_name">системы сборки</span>, приступим
+сразу к написанию простых программ и <span id="mono">Make</span>-файлов.
+</p>
+
+<p>
+<span id="build_system_name">Система сборки</span> создана для того, чтобы упростить написание пользовательских <span id="mono">Make</span>-файлов,
+с помощью которых можно собирать программы одновременно для нескольких различных устройств, используя соответствующие
+этим устройствам кросс-компиляторы. Исходя из этого, первые строчки любого <span id="mono">Make</span>-файла должны
+содержать список устройств, для которых предназначен данный <span id="mono">Make</span>-файл.
+</p>
+
+<div id="code">
+<span id="bs_var">COMPONENT_TARGETS</span> &nbsp;= $(HARDWARE_BUILD)<br/>
+<span id="bs_var">COMPONENT_TARGETS</span> += $(HARDWARE_AT91S)<br/>
+</div>
+
+<p>
+Здесь мы описали две цели, во-первых, это машина разработчика <span id="mono_bold">HARDWARE_BUILD</span>,
+на которой можно сразу проверить полученную программу на работоспособность и, во-вторых, плата построенная
+на основе микроконтроллера
+<span id="mono">Atmel AT91SAM7S (</span><span id="mono_bold">HARDWARE_AT91S</span><span id="mono">)</span>.
+Используемые имена конечных устройств можно увидеть в файле
+<span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span>.
+И нам, естественно, необходимо иметь определения, декларированные в
+<span id="mono">'</span><span id="bs_file">constants.mk</span><span id="mono">'</span>, в нашем
+<span id="mono">Make</span>-файле. Для этого мы воспользуемся директивой
+<span id="mono">'</span><span id="make_keyword">include</span><span id="mono">'</span>.
+</p>
+
+<div id="code">
+<span id="bs_var">COMPONENT_TARGETS</span> &nbsp;= $(HARDWARE_BUILD)<br/>
+<span id="bs_var">COMPONENT_TARGETS</span> += $(HARDWARE_AT91S)<br/>
+<br/>
+<span id="make_keyword">include</span>
+../../<span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><br/>
+</div>
+
+<p>
+Важно отметить, что для включения файлов, принадлежащих <span id="build_system_name">системе сборки</span>,
+необходимо использовать относительный путь.
+</p>
+
+<p>
+Поскольку мы работаем на машине с архитектурой <span id="mono_bold">x86_64</span>, было бы неплохо, одновременно
+построить и <span id="mono">32</span>-х битную версию нашей программы. Для этого зададим еще один вариант целевого
+устройства, но уже с помощью такого понятия <span id="build_system_name">системы сборки</span>, как
+<span id="bs_var">FLAVOUR</span>. Такая возможность предусмотрена, в основном, для того, чтобы разработчик мог
+различать некоторые модификации целевых устройств в рамках одной линейки продуктов, построенных на одном и том же
+центральном процессоре но, имеющих некоторые отличия в периферии. Разумеется, путь по которому мы идем здесь, для
+создания <span id="mono">32</span>-х битного приложения не совсем пригоден для этой работы при создании "боевых"
+комплексов программ и, здесь, мы применили его лишь для демонстрации возможностей системы. Итак, определим еще
+одну модификацию конечной программы:
+</p>
+
+<div id="code">
+<span id="bs_var">COMPONENT_TARGETS</span> &nbsp;= $(HARDWARE_BUILD)<br/>
+<span id="bs_var">COMPONENT_TARGETS</span> += $(HARDWARE_AT91S)<br/>
+<br/>
+<span id="make_keyword">include</span>
+../../<span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><br/>
+<br/>
+<span id="bs_var">BUILD_FLAVOURS</span> = hello-32compat<br/>
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span>, для обеспечения параллелизма во время работы, создаст структуру каталогов, приведенную
+на следующем листинге. Такая структура формируется автоматически и, пользователь должен использовать
+данные каталоги для того, чтобы исключить взаимное влияние программ во время сборки.
+</p>
+
+<div id="code">
+&nbsp;.<br/>
+&nbsp;├── <span id="bs_tmpdir">.a1x-newlib</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">cb1n</span><br/>
+&nbsp;├── <span id="bs_tmpdir">.build-machine</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">build</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">hello-32compat</span><br/>
+&nbsp;├── Makefile<br/>
+&nbsp;└── main.c<br/>
+<br/>
+</div>
+
+<p>
+Чтобы не утруждать пользователя необходимостью указывать полные пути к созданным каталогам,
+<span id="build_system_name">система сборки</span>
+автоматически создает переменную <span id="bs_var">TARGET_BUILD_DIR</span>. Значение данной переменной
+меняется в зависимости от того, на какую именно цель в данный момент идет сборка нашей программы
+<span id="mono">'</span><span id="mono_bold">main.c</span><span id="mono">'</span>. Так во время сборки
+программы на цель <span id="mono_bold">HARDWARE_AT91S</span>, значение переменной
+<span id="bs_var">TARGET_BUILD_DIR</span> равно
+<span id="mono">'</span><span id="bs_tmpdir">.a1x-newlib/cb1n</span><span id="mono">'</span>. Во время
+сборки на машину разработчика <span id="mono_bold">HARDWARE_BUILD</span>, значением переменной
+<span id="bs_var">TARGET_BUILD_DIR</span> является
+<span id="mono">'</span><span id="bs_tmpdir">.build-machine/build</span><span id="mono">'</span>. И,
+наконец, когда идет сборка <span id="mono">32</span>-х битной версии программы, переменной
+<span id="bs_var">TARGET_BUILD_DIR</span> присваивается значение
+<span id="mono">'</span><span id="bs_tmpdir">.build-machine/build/hello-32compat</span><span id="mono">'</span>.
+Стоит отметить, что путь <span id="bs_var">TARGET_BUILD_DIR</span> считается от текущего каталога, в котором
+расположен наш <span id="mono">Make</span>-файл. Пользователь может узнать абсолютное значение текущего пути по
+значению переменной <span id="mono">$(</span><span id="make_keyword">CURDIR</span><span id="mono">)</span>, за
+которую отвечает утилита <span id="mono_bold">make</span>.
+</p>
+
+<p>
+Продолжим написание нашего <span id="mono">Make</span>-файла. Наша программа
+<span id="mono">"</span><span id="mono_bold">Здравствуй, Мир</span><span id="mono">"</span> состоит всего лишь
+из одного файла <span id="mono">'</span><span id="mono_bold">main.c</span><span id="mono">'</span>, и список
+исходных файлов будет коротким:
+</p>
+
+<div id="code">
+bin_srcs = main.c<br/>
+<br/>
+<span id="bs_var">SRCS</span> = $(bin_srcs)<br/>
+</div>
+
+<p>
+Переменная <span id="bs_var">SRCS</span>, в <span id="build_system_name">системе сборки</span>,
+является ключевой. Для всех файлов, входящих в этот список, в соответствии с расширением имени файла,
+будет вызван кросс-компилятор для получения объектного файла.
+</p>
+
+<p>
+Для того, чтобы получаемые объектные файлы были расположены в каталоге
+<span id="bs_var">TARGET_BUILD_DIR</span>, о котором мы говорили ранее, нам надо определить список
+этих объектных файлов:
+</p>
+
+<div id="code">
+bin_objs = $(<span id="make_keyword">addprefix</span> $(<span id="bs_var">TARGET_BUILD_DIR</span>)/,$(bin_srcs:.c=.o))<br/>
+</div>
+
+<p>
+Естественно, теперь, нам необходимо определить имя результирующей программы:
+</p>
+
+<div id="code">
+bin_target = $(<span id="bs_var">TARGET_BUILD_DIR</span>)/main<br/>
+</div>
+
+<p>
+Поскольку для сборки программы под <span id="mono">32</span>-х битную <span id="mono_bold">Intel</span>
+архитектуру, мы используем компилятор, который установлен на машине разработчика и способный генерировать
+код под две архитектуры, нам понадобится переопределить управления компилятора во время сборки
+<span id="mono_bold">x86_32</span> модификации нашей программы:
+</p>
+
+<div id="code">
+<span id="make_keyword">ifeq</span> ($(<span id="bs_var">FLAVOUR</span>),hello-32compat)<br/>
+ARCH_FLAGS := -m32 -march=i486 -mtune=i686<br/>
+CFLAGS &nbsp;&nbsp;&nbsp;&nbsp;+= -D<span id="bs_var">FLAVOUR</span>=32<br/>
+LDFLAGS &nbsp;&nbsp;&nbsp;+= $(ARCH_FLAGS)<br/>
+<span id="make_keyword">endif</span>
+</div>
+
+<p>
+Теперь мы можем определить заключительные строки нашего <span id="mono">Make</span>-файла, в которых, используя
+директиву
+<span id="mono">'</span><span id="make_keyword">include</span><span id="mono">'</span>
+включим в наш файл ядро <span id="build_system_name">системы сборки</span>
+<span id="mono">'</span><span id="bs_dir">build-system</span></span>
+<span id="mono">/</span><span id="bs_file">core.mk</span><span id="mono">'</span>.
+</p>
+
+<p>
+Приведем <span id="mono">Make</span>-файл целиком:
+</p>
+
+
+<div id="code">
+<span id="bs_var">COMPONENT_TARGETS</span> &nbsp;= $(HARDWARE_BUILD)<br/>
+<span id="bs_var">COMPONENT_TARGETS</span> += $(HARDWARE_AT91S)<br/>
+<br/>
+<span id="make_keyword">include</span>
+../../<span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><br/>
+<br/>
+<span id="bs_var">BUILD_FLAVOURS</span> = hello-32compat<br/>
+<br/>
+bin_srcs = main.c<br/>
+<br/>
+<span id="bs_var">SRCS</span> = $(bin_srcs)<br/>
+<br/>
+bin_objs = $(<span id="make_keyword">addprefix</span> $(<span id="bs_var">TARGET_BUILD_DIR</span>)/,$(bin_srcs:.c=.o))<br/>
+<br/>
+bin_target = $(<span id="bs_var">TARGET_BUILD_DIR</span>)/main<br/>
+<br/>
+<span id="make_keyword">ifeq</span> ($(<span id="bs_var">FLAVOUR</span>),hello-32compat)<br/>
+ARCH_FLAGS := -m32 -march=i486 -mtune=i686<br/>
+CFLAGS &nbsp;&nbsp;&nbsp;&nbsp;+= -D<span id="bs_var">FLAVOUR</span>=32<br/>
+LDFLAGS &nbsp;&nbsp;&nbsp;+= $(ARCH_FLAGS)<br/>
+<span id="make_keyword">endif</span><br/>
+<br/>
+<span id="bs_var">BUILD_TARGETS</span> = $(bin_target)<br/>
+<br/>
+<span id="make_keyword">include</span>
+../../<span id="bs_dir">build-system</span>/<span id="bs_file">core.mk</span><br/>
+<br/>
+$(bin_target): $(bin_objs)<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>$(<span id="bs_var">LINK</span>)<br/>
+</div>
+
+<p>
+Итак, наш <span id="mono">Make</span>-файл готов. Отдельно надо упомянуть переменную
+<span id="bs_var">BUILD_TARGETS</span>. Список
+<span id="bs_var">BUILD_TARGETS</span> является ключевым.
+Для целей, упомянутых в этом списке, <span id="build_system_name">система сборки</span> не производит
+никаких действий, однако, до тех пор, пока эти цели не построены,
+<span id="build_system_name">система сборки</span> не может приступить к остальным задачам.
+Основная работа по сборке объектного кода осуществляется с помощью вызова
+<span id="mono">$(</span><span id="bs_var">LINK</span><span id="mono">)</span>. Команда
+<span id="mono">$(</span><span id="bs_var">LINK</span><span id="mono">)</span> является ключевой
+и описана в секции общих правил <span id="build_system_name">системы сборки</span>. Данные правила
+предназначены для сборки пользовательских программ, находящихся непосредственно в дереве исходных
+текстов, в отличие от сторонних программ, которые, как правило, поступают на сборку в виде архивированных
+исходных пакетов.
+</p>
+
+<p>
+Для выполнения сборки нашей программы по запросу
+<span id="mono">$(</span><span id="bs_var">LINK</span><span id="mono">)</span>, система автоматически,
+в зависимости от содержимого списка
+<span id="mono">$(</span><span id="bs_var">SRCS</span><span id="mono">)</span>, выберет соответствующий
+компилятор и компоновщик, вызовет команду, представленную значением переменной
+<span id="mono">$(</span><span id="bs_var">LINK</span><span id="mono">)</span>, дождётся ее выполнения,
+а именно, выполнения всех целей, из списка <span id="bs_var">BUILD_TARGETS</span>, и завершит работу.
+</p>
+
+<p>
+Теперь, выполнив команду <span id="mono_bold">make</span>, мы получим набор файлов, который легче всего представить в виде дерева:
+</p>
+
+
+<div id="code">
+&nbsp;.<br/>
+&nbsp;├── <span id="bs_tmpdir">.a1x-newlib</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">cb1n</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span id="mono_bold" style="color: Red;">main</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── main.d<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── main.linkmap<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── main.o<br/>
+&nbsp;├── <span id="bs_tmpdir">.build-machine</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: SteelBlue;">build</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span id="mono_bold" style="color: SteelBlue;">hello-32compat</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span id="mono_bold" style="color: Red;">main</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── main.d<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── main.linkmap<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── main.o<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span id="mono_bold" style="color: Red;">main</span><br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── main.d<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── main.linkmap<br/>
+&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── main.o<br/>
+&nbsp;├── <span id="bs_tmpdir">.makefile</span><br/>
+&nbsp;├── <span id="bs_tmpdir">.src_requires</span><br/>
+&nbsp;├── <span id="bs_tmpdir">.src_requires_depend</span><br/>
+&nbsp;├── Makefile<br/>
+&nbsp;└── main.c<br/>
+</div>
+
+<p>
+Если наша исходная программа
+<span id="mono">'</span><span id="mono_bold">main.c</span><span id="mono">'</span>,
+выглядела следующим образом:
+</p>
+
+<div id="code">
+<span id="mono_bold" style="color: DarkBlue;">#include</span> &lt;stdlib.h&gt;<br/>
+<span id="mono_bold" style="color: DarkBlue;">#include</span> &lt;stdio.h&gt;<br/>
+<br/>
+<span id="mono" style="color: ForestGreen;">int</span> <span id="mono_bold">main</span><span id="mono" style="color: DarkRed;">()</span><br/>
+{<br/>
+<span id="mono_bold" style="color: DarkBlue;">#if</span> <span id="bs_var">FLAVOUR</span> == <span id="mono" style="color: Purple;">32</span><br/>
+&nbsp;&nbsp; <span id="mono_bold">printf</span></span><span id="mono" style="color: DarkRed;">(</span> <span id="mono" style="color: Teal;">"</span><span id="mono" style="color: DarkMagenta;">\n</span><span id="mono" style="color: Teal;">Hello, World! (x86_32 object built for running on x86_64 machine)</span><span id="mono" style="color: DarkMagenta;">\n\n</span><span id="mono" style="color: Teal;">"</span> <span id="mono" style="color: DarkRed;">)</span>;<br/>
+<span id="mono_bold" style="color: DarkBlue;">#else</span><br/>
+&nbsp;&nbsp; <span id="mono_bold">printf</span><span id="mono" style="color: DarkRed;">(</span> <span id="mono" style="color: Teal;">"</span><span id="mono" style="color: DarkMagenta;">\n</span><span id="mono" style="color: Teal;">Hello, World!</span><span id="mono" style="color: DarkMagenta;">\n\n</span><span id="mono" style="color: Teal;">"</span> <span id="mono" style="color: DarkRed;">)</span>;<br/>
+<span id="mono_bold" style="color: DarkBlue;">#endif</span><br/>
+&nbsp;&nbsp; <span id="mono_bold">return</span><span id="mono" style="color: DarkRed;">(</span> <span id="mono" style="color: Purple;">0</span> <span id="mono" style="color: DarkRed;">)</span>;<br/>
+}<br/>
+</div>
+
+<p>
+то выполнение программы <span id="mono_bold" style="color: Red;">main</span> в каталоге
+<span id="mono">'</span><span id="bs_tmpdir">.build-machine/build/hello-32compat</span><span id="mono">'</span>,
+даст следующий результат:
+</p>
+
+<div id="code">
+$ cd <span id="bs_tmpdir">.build-machine/build/hello-32compat</span><br/>
+$ ./<span id="mono_bold" style="color: Red;">main</span><br/>
+<br/>
+Hello, World! (x86_32 object built for running on x86_64 machine)<br/>
+<br/>
+<br/>
+$<br/>
+</div>
+
+<p>
+В следующих разделах мы будем рассматривать аспекты применения
+<span id="build_system_name">системы сборки</span> более подробно, но уже сейчас можно сказать,
+что наилучшим способом изучения системы является практика. Кроме того, пользователь всегда имеет
+возможность начать разработку собственных <span id="mono">Make</span>-файлов не с нуля, а скопировав
+в свой каталог один из множества уже готовых <span id="mono">Make</span>-файлов, созданных другими
+разработчиками, и отредактировав его под собственные задачи.
+</p>
+
+<a name="main_target_dirs"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Main Targets and Build Directories
+</div>
+
+<p>
+В предыдущем разделе мы упомянули о таких понятиях, как временный каталог сборки
+<span id="bs_var">TARGET_BUILD_DIR</span> и список главных целей сборки
+<span id="bs_var">BUILD_TARGETS</span>, в понимании утилиты
+<span id="mono_bold">make</span>. Рассмотрим эти понятия более подробно.
+</p>
+
+<a name="tmp_build_dirs"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Temporary Build Directories
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span>, в первую очередь, рассчитана на то, что один и тот же
+исходный код может собираться одновременно для нескольких целевых устройств. Другими словами, один и тот же
+<span id="mono">Make</span>-файл может быть использован многократно для сборки одной и той же программы для
+различных устройств. И если предположить, что сборка программы будет осуществляться параллельно, то есть
+одновременно, для всех целей, то необходимо позаботится о том, чтобы, по крайней мере, промежуточные
+объектные файлы и результирующие программы, во время сборки, располагались в разных каталогах.
+</p>
+
+<p>
+Для разделения промежуточных результатов сборки под разные устройства
+<span id="build_system_name">система сборки</span> автоматически создает временные каталоги. Принцип
+формирования имен этих каталогов прост. Поскольку <span id="build_system_name">система сборки</span>
+оперирует всего лишь тремя понятиями, а именно <span id="bs_var">TOOLCHAIN</span>,
+<span id="bs_var">HARDWARE</span>, <span id="bs_var">FLAVOUR</span>, причем <span id="bs_var">FLAVOUR</span>
+может быть опущен, имя временного каталога формируется по следующей формуле.
+</p>
+
+<div id="code">
+<span id="bs_var">TARGET_BUILD_DIR</span> = .$(<span id="bs_var">TOOLCHAIN</span>)/$(<span id="bs_var">HARDWARE</span>)$(<span id="make_keyword">if</span> $(<span id="bs_var">FLAVOUR</span>),/$(<span id="bs_var">FLAVOUR</span>)))<br/>
+</div>
+
+<p>
+Естественно, пользователю всегда доступны переменные <span id="bs_var">TOOLCHAIN</span>,
+<span id="bs_var">HARDWARE</span>,
+<span id="bs_var">FLAVOUR</span>,
+которые имеют актуальные значения, соответствующие текущей цели. Анализируя значения этих переменных
+в собственном <span id="mono">Make</span>-файле, пользователь может узнать, например, с помощью какого
+<span id="mono">toolchain</span>-а идет сборка в данный момент. Здесь также необходимо подчеркнуть,
+что имя каталога формируется относительно текущего каталога, в котором расположен
+<span id="mono">Make</span>-файл пользователя, и начинается с точки. С точки зрения
+<span id="mono">unix</span>-подобных систем, каталоги и файлы, имена которых начинаются с точки,
+являются скрытыми. Использование скрытых каталогов позволяет не загромождать список файлов пользователя и,
+кроме того, уберечь систему от потенциальных ошибок при очистке (при выполнении команды
+<span id="mono">'make</span> <span id="mono_bold">clean</span><span id="mono">'</span>), когда,
+в общем случае, можно обойтись удалением скрытых файлов и каталогов.
+</p>
+
+<p>
+Пользователям <span id="build_system_name">системы сборки</span> следует взять за правило то, что
+создавать все промежуточные цели лучше всего в каталоге <span id="bs_var">TARGET_BUILD_DIR</span>.
+Это позволит избежать множество проблем, особенно при параллельной сборке.
+</p>
+
+<a name="main_targets"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Main Targets
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span> подразумевает наличие трех списков основных целей,
+в понимании утилиты <span id="mono_bold">make</span>.
+</p>
+
+<p>
+Самым важным и обязательным списком, который должен быть определен в пользовательском
+<span id="mono">Make</span>-файле, является список целей сборки
+<span id="bs_var">BUILD_TARGETS</span>. Если этот список пуст,
+<span id="build_system_name">система сборки</span> не произведет никаких действий. В общем случае,
+главной целью должно быть создание пакета, который, в свою очередь, может являться предметом поставки
+потребителю и быть инсталлирован в корневую файловую систему целевого устройства. Здесь следует отметить,
+что <span id="build_system_name">система сборки</span> всего лишь добивается выполнения целей, указанных
+в списке <span id="bs_var">BUILD_TARGETS</span> и не предпринимает более никаких действий.
+</p>
+
+<p>
+Два других списка не являются обязательными и связаны лишь с инсталляцией готовых пакетов.
+К ним относятся список продуктов <span id="bs_var">PRODUCT_TARGETS</span>
+и список целей, предназначенных для инсталляции во временную корневую систему устройства,
+а именно <span id="bs_var">ROOTFS_TARGETS</span>.
+</p>
+
+<p>
+Прежде чем рассматривать эти списки, необходимо сказать еще об одной функциональной
+особенности <span id="build_system_name">системы сборки</span>.
+</p>
+
+<a name="tmp_dest_dirs"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Temporary destination directories
+</div>
+
+<p>
+Для временного хранения результатов сборки, в корне исходного дерева, создается каталог
+<span id="mono">'</span><span id="bs_tmpdir">dist</span><span id="mono">'</span>.
+Этот каталог содержит подкаталоги трех типов.
+</p>
+
+<ol id="numbered_list">
+ <li>Каталоги для временного хранения окружения разработки.</li>
+ <li>Каталоги для временного хранения готовых пакетов.</li>
+ <li>Каталоги для временного хранения образов корневых файловых систем
+     с инсталлированными пакетами программ в том виде, в котором они будут
+     находиться в целевой файловой системе.</li>
+</ol>
+
+<p>
+Рассмотрим более подробно структуру и назначение каталогов.
+</p>
+
+<p>
+К первому типу относятся каталоги, имена которых определяются переменной
+<span id="bs_var">TARGET_DEST_DIR</span>.
+</p>
+
+
+<a name="target_dest_dir"></a>
+<div id="head_4" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Target Destination Directory
+</div>
+
+<p>
+Каталог <span id="bs_var">TARGET_DEST_DIR</span> служит для временного хранения окружения
+разработчика целевой платформы. Туда следует инсталлировать все программы и заголовочные файлы
+необходимые для сборки программного обеспечения. Полное имя данного каталога формируется
+следующим образом.
+</p>
+
+<div id="code">
+<span id="bs_var">TARGET_DEST_DIR</span> = $(<span id="bs_var">TOP_BUILD_DIR_ABS</span>)/<span id="bs_tmpdir">dist</span>/.$(<span id="bs_var">TOOLCHAIN</span>)/$(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+Здесь переменная <span id="bs_var">TOP_BUILD_DIR_ABS</span> указывает
+полный путь к корню дерева исходников. Этот путь определяется <span id="build_system_name">системой сборки</span>
+автоматически, что позволяет хранить локальные копии веток репозитория в любом месте файловой системы без
+дополнительных настроек системы со стороны пользователя.
+</p>
+
+<p>
+Инсталлировать результаты сборки в каталог <span id="bs_var">TARGET_DEST_DIR</span>
+можно двумя способами. Первый способ заключается в использовании команды
+<span id="mono">'</span> <span id="mono_bold">cp</span><span id="mono">'</span>, например следующим образом.
+</p>
+
+<div id="code">
+$ cp -<span id="mono_bold">a</span> $(<span id="bs_var">TARGET_BUILD_DIR</span>)/build/libintl.h $(<span id="bs_var">TARGET_DEST_DIR</span>)/usr/include<br/>
+</div>
+
+<p>
+Однако в случае использования команды
+<span id="mono">'</span> <span id="mono_bold">cp</span><span id="mono">'</span>, пользователю
+необходимо явно создать целевой каталог:
+</p>
+
+<div id="code">
+$ mkdir -<span id="mono_bold">p</span> $(<span id="bs_var">TARGET_DEST_DIR</span>)/usr/include<br/>
+</div>
+
+<p>
+перед тем, как копировать файлы.
+</p>
+
+<p>
+Наилучшим способом копирования файлов в каталоги
+<span id="bs_var">TARGET_DEST_DIR</span> является использование
+утилиты <span id="bs_script">install_targets</span> <span id="build_system_name">системы сборки</span>.
+Утилита <span id="bs_script">install_targets</span> представляет собой простой скрипт на языке
+<span id="mono_bold">Perl</span>. В <span id="mono">Make</span>-файлах пользователю рекомендуется
+указывать полный путь при вызове утилиты
+<span id="bs_script">install_targets</span>. Для этого, в <span id="build_system_name">системе сборки</span>,
+предусмотрена переменная <span id="bs_var">BUILDSYSTEM</span>, указывающая путь к каталогу
+<span id="mono">'</span><span id="bs_dir">build-system</span><span id="mono">'</span>
+текущего дерева исходников. Так, для копирования файла
+<nobr><span id="mono">'$(</span><span id="bs_var">TARGET_BUILD_DIR</span><span id="mono">)/build/libintl.h'</span></nobr>
+во временное хранилище достаточно записать:
+</p>
+
+<div id="code">
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>$(<span id="bs_var">BUILDSYSTEM</span>)/<span id="bs_script">install_targets</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $(<span id="bs_var">TARGET_BUILD_DIR</span>)/build/libintl.h \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; $(<span id="bs_var">TARGET_DEST_DIR</span>)/usr/include $(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+Утилита <span id="bs_script">install_targets</span> позволяет инсталлировать множество файлов
+воспроизводя исходное дерево каталогов в <span id="bs_var">TARGET_DEST_DIR</span>.
+Приведем более сложный пример использования утилиты
+<span id="bs_script">install_targets</span>.
+</p>
+
+<div id="code">
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span id="mono_bold">@</span>cd $(<span id="bs_var">TARGET_BUILD_DIR</span>) && \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp; CWD=$(<span id="make_keyword">CURDIR</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;&nbsp; $(<span id="bs_var">BUILDSYSTEM</span>)/<span id="bs_script">install_targets</span> --preserve-source-dir=true \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $$(find * -path 'lib*' -type f -print) $(<span id="bs_var">TARGET_DEST_DIR</span>) $(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+Здесь происходит копирование всех файлов из каталогов, начинающихся с <span id="mono_bold">lib</span>,
+такими каталогами могут быть, напрмер,
+<nobr><span id="mono">'$(</span><span id="bs_var">TARGET_BUILD_DIR</span><span id="mono">)/lib'</span></nobr>
+и <nobr><span id="mono">'$(</span><span id="bs_var">TARGET_BUILD_DIR</span><span id="mono">)/libexec'</span></nobr>.
+</p>
+
+<p>
+Важно отметить, что использование утилиты
+<span id="bs_SCRIPT">install_targets</span> избавляет пользователя от необходимости вручную
+создавать целевые каталоги перед копированием файлов.
+</p>
+
+<p>
+Вернемся к нашему примеру
+<span id="mono">"</span><span id="mono_bold" onclick="window.location.href='#hello_world';" title="Click to go to 'Hello, World'">Здравствуй, Мир</span><span id="mono">"</span> и добавим в
+<span id="mono">Make</span>-файл строчку, отвечающую за инсталляцию нашей программы в каталог
+<span id="mono">$(</span><span id="bs_var">TARGET_DEST_DIR</span><span id="mono">)</span>:
+</p>
+
+<div id="code">
+$(bin_target): $(bin_objs)<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>@$(<span id="bs_var">LINK</span>)<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>@CWD=$(<span id="make_keyword">CURDIR</span>) $(<span id="bs_var">BUILDSYSTEM</span>)/<span id="bs_script">install_targets</span> $(bin_target) \<br/>
+<span id="make_tab">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $(<span id="bs_var">TARGET_DEST_DIR</span>)/bin $(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+Тогда после выполнения мы получим следующее дерево каталогов.
+</p>
+
+<div id="code">
+&nbsp;.<br/>
+&nbsp;└── <span id="bs_tmpdir">dist</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span id="bs_tmpdir">.at91sam7s-newlib</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: DarkRed;">at91s</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── bin<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: Red;">main</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="bs_tmpdir">.build-machine</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: DarkRed;">build</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── bin<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span id="mono_bold" style="color: Red;">main</span><br/>
+</div>
+
+<p>
+Здесь важно пояснить, что <span id="build_system_name">система сборки</span> не поддерживает модификации
+устройств (&nbsp;<span id="bs_var">FLAVOURS</span>&nbsp;) с точки зрения автоматической
+инсталляции. Это связано с тем, что для отдельных модификаций нет необходимости строить полный
+набор целевого программного обеспечения. Как правило, от конкретной модификации зависит лишь
+ограниченный набор программ или драйверов устройств. Поэтому пользователь должен самостоятельно
+определять, какая именно модификация программы должна быть установлена в систему. Принимать такого
+рода решения следует на этапе формирования дистрибутива из общего набора пакетов.
+</p>
+
+<a name="target_products_dir"></a>
+<div id="head_4" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Target Products Directory
+</div>
+
+<p>
+Каталог <span id="bs_var">PRODUCTS_DEST_DIR</span> предназначен для хранения
+собранных пакетов прикладных программ. Пакеты, собранные для последующего распространения, инсталлируются
+в данный каталог согласно именам групп. Для каждой группы пакетов, создается отдельный подкаталог в каталоге
+<span id="bs_var">PRODUCTS_DEST_DIR</span>. Имя данного каталога формируется
+автоматически, согласно текущей цели.
+</p>
+
+<div id="code">
+<span id="bs_var">PRODUCTS_DEST_DIR</span> = $(<span id="bs_var">TOP_BUILD_DIR_ABS</span>)/<span id="bs_tmpdir">dist</span>/products/$(<span id="bs_var">TOOLCHAIN</span>)/$(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+Пользователю не надо явным образом создавать данный каталог. Достаточно лишь задать список
+<span id="bs_var">PRODUCT_TARGETS</span> и <span id="build_system_name">система сборки</span> автоматически
+создаст необходимые каталоги и поместит в них целевые файлы.
+</p>
+
+<p>
+<span id="build_system_name">Система сборки</span> создаст необходимые каталоги и инсталлирует в них файлы,
+представленные в списке <span id="bs_var">PRODUCT_TARGETS</span> автоматически. Как правило пакет сопровождается
+двумя файлами, которые содержат хеш сумму и текстовое описание пакета.
+<span id="build_system_name">Система сборки</span> предоставляет пользователю функции, облегчающие создание
+списка продуктов в пользовательских <span id="mono">Make</span>-файлах. Практически, создание списка
+<span id="bs_var">PRODUCT_TARGETS</span> выглядит следующим образом.
+</p>
+
+<div id="code">
+pkg_basename &nbsp;&nbsp; = $(NAME)-$(VERSION)-$(ARCH)-$(DISTRO_NAME)-$(DISTRO_VERSION)<br/>
+<br/>
+pkg_archive &nbsp;&nbsp;&nbsp; = $(TARGET_BUILD_DIR)/$(<span id="mono_bold" style="color: DarkBlue;">GROUP</span>)/$(pkg_basename).$(<span id="bs_var">pkg_arch_suffix</span>)<br/>
+pkg_signature &nbsp; = $(call <span id="bs_var">sign-name</span>,$(pkg_archive))<br/>
+pkg_description = $(call <span id="bs_var">desc-name</span>,$(pkg_archive))<br/>
+<span id="mono_bold" style="color: DarkBlue;">products</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = $(call <span id="bs_var">pkg-files</span>,$(pkg_archive))<br/>
+<br/>
+<span id="bs_var">PRODUCT_TARGETS</span> = $(<span id="mono_bold" style="color: DarkBlue;">products</span>)<br/>
+</div>
+
+<p>
+Здесь ключевыми являются:
+</p>
+
+<p>
+Имя группы пакета $(<span id="mono_bold" style="color: DarkBlue;">GROUP</span>) определяется пользователем.
+</p>
+
+<ol id="numbered_list" type="a">
+<li>переменная <span id="bs_var">pkg_arch_suffix</span>, определяющая расширение имени пакета. На данный момент, расширение равно <span id="mono">'</span><span id="mono_bold">tgz</span><span id="mono">'</span>;</li>
+<li>функция <span id="bs_var">sign-name</span>, заменяющая суффикс $(<span id="bs_var">pkg_arch_suffix</span>) на <span id="mono">'</span><span id="mono_bold">sha256</span><span id="mono">'</span>;</li>
+<li>функция <span id="bs_var">desc-name</span>, заменяющая суффикс $(<span id="bs_var">pkg_arch_suffix</span>) на <span id="mono">'</span><span id="mono_bold">txt</span><span id="mono">'</span>;</li>
+<li>функция <span id="bs_var">pkg-files</span>, формирующая полный список файлов, предназначенных для инсталляции в <span id="bs_var">PRODUCTS_DEST_DIR</span>.</li>
+</ol>
+
+<p>
+Более подробную информацию о пакетах и группах пакетов можно получить в разделе, посвященном утилитам менеджера пакетов <span id="bs_dir">pkgtool</span>.
+</p>
+
+<a name="target_rootfs_dir"></a>
+<div id="head_4" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Target Root File System Directory
+</div>
+
+<p>
+Каталог <span id="bs_var">ROOTFS_DEST_DIR</span> содержит целевую корневую файловую систему. Имя этого каталога формируется по правилу:
+</p>
+
+<div id="code">
+<span id="bs_var">ROOTFS_DEST_DIR</span> = $(<span id="bs_var">TOP_BUILD_DIR_ABS</span>)/<span id="bs_tmpdir">dist</span>/rootfs/$(<span id="bs_var">TOOLCHAIN</span>)/$(<span id="bs_var">HARDWARE</span>)<br/>
+</div>
+
+<p>
+В данный каталог инсталлируются пакеты, представленные в списке <span id="bs_var">ROOTFS_TARGETS</span>
+автоматически. Пользователю достаточно определить список, например, следующим образом.
+</p>
+
+<div id="code">
+<span id="bs_var">ROOTFS_DEST_DIR</span> = $(<span id="mono_bold" style="color: DarkBlue;">pkg_archive</span>)<br/>
+</div>
+
+<p>
+Здесь, переменная <span id="mono_bold" style="color: DarkBlue;">pkg_archive</span> содержит относительное
+имя файла пакета.
+</p>
+
+<a name="support_targets"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Support Targets
+</div>
+
+<p>
+Для облегчения поиска информации в <span id="build_system_name">системе сборки</span> предусмотрены специальные
+цели. Так, например, для вывода всех допустимых целей на экран, разработчик может воспользоваться командой
+</p>
+
+<div id="code">
+$ make <span id="mono_bold">help</span><br/>
+</div>
+
+<p>
+Данная команда выведет на экран список всех допустимых целей и, кроме того, выведет список устройств,
+для которых разработан <span id="mono">Make</span>-файл текущего каталога.
+</p>
+
+<a name="requires_tree"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Requires Tree
+</div>
+
+<p>
+После выполнения всех целей сборки, существует возможность создания дерева зависимостей пакетов
+или каталогов исходного дерева друг от друга, представленного в <span id="mono">JSON</span>-формате.
+При этом создается <span id="mono">HTML</span>-документ, который сопровождается структурой
+данных <span id="mono">JSON</span>, расположенной в отдельном файле с расширением
+<span id="mono">'.json'</span>.
+</p>
+
+<p>
+Для получения такого дерева, необходимо выполнить следующую команду.
+</p>
+
+<div id="code">
+$ make <span id="mono_bold">requires_tree</span><br/>
+</div>
+
+<p>
+Если не указать целевое устройство, то данная команда построит деревья для всех типов устройств,
+поддерживаемых <span id="mono">'Make'</span>-файлом текущего каталога.
+</p>
+
+<p>
+На рис.1 приведен пример дерава зависимостей пакета <span id="mono_bold">bind-9.10.1</span>.
+Мы построили его с помощью команды
+</p>
+
+<div id="code">
+$ <span id="bs_var">HARDWARE</span>=<span id="mono_bold" style="color: DarkBlue;">omap5uevm</span> make <span id="mono_bold">requires_tree</span><br/>
+</div>
+
+<p>
+После выполнения данной команды, в текущем каталоге, было получено три файла с именами
+<span id="mono">'</span><span id="bs_tmpdir">.omap5uevm_requires.html</span><span id="mono">'</span>,
+<span id="mono">'</span><span id="bs_tmpdir">.omap5uevm_requires.json</span><span id="mono">'</span>, и
+<span id="mono">'</span><span id="bs_tmpdir">.omap5uevm_requires.pkglist</span><span id="mono">'</span>.
+Последний из которых, представляет собой список пакетов, организованный в порядке инсталлирования на
+целевую систему и предназначенный для использования утилитой <span id="bs_script">install-pkglist</span>,
+входящей в состав набора
+<span id="bs_dir">pkgtool</span>.
+</p>
+
+<p>
+Все приготовленные файлы являются временными для дерева исходных текстов. Поэтому их имена начинаются с точки
+<span id="mono">'</span><span id="mono_bold">.</span><span id="mono">'</span>. Это общий подход, который
+используется как дополнительная возможность избежать нежелательных комитов в репозиторий.
+</p>
+
+
+<div id="picture">
+ <div id="pix_area">
+  <div id="dependencies_tree" style="overflow: hidden; margin-left: auto; margin-right: auto; width: 700px; height: 720px; background-color: #ffffff; border: 1px solid #d7d7d7;">
+    <div id="tree_view">
+<!--    <div id="tree_view" class="ui-widget-content"> -->
+    </div>
+  </div>
+ </div> <!-- "pix_area" -->
+ <div id="pix_note">
+  Fig.1. Requires Tree
+ </div> <!-- "pix_note" -->
+</div> <!-- "picture" -->
+
+<p>
+Деревья зависимостей, подобные представленному на рис.1, весьма полезны как для разработчика, который может
+использовать его для оптимизации зависимостей пакетов друг от друга и отладки информации о пакетах, так и
+для инженера, выпускающего продукт, который может воспользоваться результатом создания деревьев для
+формирования дистрибутива, а так же в сопроводительной документации на конечный продукт.
+</p>
+
+
+<a name="naming convention"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Naming Convention
+</div>
+
+<p>
+<span style="color: DarkRed;">
+В именах <span id="mono">toolchain</span>-ов, устройств и модификаций устройств нельзя применять символы
+подчеркивания (<span id="mono">'</span><span id="mono_bold">_</span><span id="mono">'</span>). Исключением
+является имя <span id="mono">toolchain</span>-а, в которое входит аббревиатура
+<span id="mono_bold">x86_64</span>, например,
+<span id="mono">'</span><span id="mono_bold" style="color: DarkBlue;">x86_64-eglibc</span><span id="mono">'</span>.
+Такие имена обрабатываются <span id="build_system_name">системой сборки</span> корректно.
+</span>
+</p>
+
+<a name="Toolchains"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Toolchains
+</div>
+
+<p>
+<span id="bold">Toolchain</span> - набор пакетов программ, необходимых для компиляции и генерации выполняемого
+кода из исходных текстов. Здесь и далее будут рассматриваться наборы программ, предназначенные для
+кросс-компиляции и генерации кода для различных целевых платформ, работающие на на персональных машинах
+(как правило <span id="mono_bold">x86_64</span>) и составленные в рамках проекта <span id="bold">GNU</span>.
+<span id="bold">GNU Toolchain</span> в общем случае состоит из кросс-компилятора <span id="bold">GCC</span>,
+компоновщика объектных кодов (входящего в состав пакета <span id="mono_bold">binutils</span>) и библиотек,
+предназначенных для работы на целевой машине. Основной библиотекой, без которой не может работать ни одна
+программа, является стандартная библиотека языка <span id="bold">C</span>. Данная библиотека должна входить
+в состав <span id="mono">toolchain</span>-а и, кроме того, быть инсталлирована на целевую систему.
+Важным здесь является то, что на целевой системе должна присутствовать именно та библиотека, с которой были
+связаны программы, созданные с помощью <span id="mono">toolchain</span>-a. Для обеспечения такого соответствия
+существует два способа:
+</p>
+
+<ol id="numbered_list" style="font-weight: bold;">
+<li>Копирование библиотеки из <span id="mono_bold">toolchain</span>-а на целевую систему.</li>
+<li>Сборка новой библиотеки и использование ее при сборке всех программ вместо той, которая присутствует в <span id="mono_bold">toolchain</span>-е.</li>
+</ol>
+
+<p>
+Второй способ наиболее предпочтителен с точки зрения обеспечения монолитности целевой системы и устойчивости
+ее работы. Большинство разработчиков встроенных систем идут по первому пути, который пригоден лишь в том случае,
+если набор и функциональность целевых библиотек, входящих в состав <span id="mono">toolchain</span>-а, полностью
+удовлетворяет конечным задачам программного обеспечения. Однако если это не так, то разработчики будут обязаны,
+либо построить новый <span id="mono">toolchain</span> с необходимым набором библиотек, либо пойти по второму пути.
+</p>
+
+<p>
+Второй путь связан с необходимостью указания компилятору каталога для поиска библиотек, с которыми ему надлежит
+связывать строящиеся программы. Эта функциональность заложена в компилятор <span id="bold">GCC</span> и,
+может быть задействована как на этапе сборки самого компилятора, так и при его использовании. В первом случае,
+каталог поиска библиотек задается на этапе конфигурирования с помощью опции <span id="italic">configure</span> скрипта:
+</p>
+
+<div id="code">
+$ ./configure <span id="mono_bold">--with-sysroot</span>=<span id="mono_bold">DIR</span><br/>
+</div>
+
+<p>
+а, во втором случае, с помощью управления
+<span id="mono">'</span><span id="mono_bold">--sysroot</span><span id="mono">'</span>:
+</p>
+
+<div id="code">
+$ gcc -c <span id="mono_bold">--sysroot</span>=<span id="mono_bold">DIR</span> -o main main.c<br/>
+</div>
+
+<p>
+Допустим, что наши <span id="mono">toolchain</span>-ы расположены в каталоге
+<span id="mono">'</span><span id="mono_bold">/opt/toolchain</span><span id="mono">'</span>. Тогда полное
+имя <span id="mono_bold">cross-gcc</span> может быть, например, таким:
+</p>
+
+<div id="code">
+<span id="mono_bold">/opt/toolchain/arm-OMAP543X-linux-eglibc/1.0.7/bin/arm-omap543x-linux-gnueabihf-gcc</span><br/>
+</div>
+
+<p>
+В свою очередь путь к системному каталогу, который является образом корневой файловой системы целевой машины
+и, в котором находятся библиотеки, будет, например, таким:
+</p>
+
+<div id="code">
+<span id="mono_bold">/opt/toolchain/<span id="mono_bold" style="color: DeepPink;">arm-OMAP543X-linux-eglibc</span>/<span id="mono_bold" style="color: DarkGreen;">1.0.7</span>/<span id="mono_bold" style="color: DarkBlue;">arm-omap543x-linux-gnueabihf</span>/<span id="mono_bold" style="color: Red;">sys-root</span></span><br/>
+</div>
+
+<p>
+Здесь следует отменить, что путь
+<nobr><span id="mono">'</span><span id="mono_bold">/opt/toolchain/arm-OMAP543X-linux-eglibc/1.0.7</span><span id="mono">'</span></nobr>
+является произвольным, т.е. выбран произвольно для размещения <span id="mono">toolchain</span>-а на машине
+разработчика. Имя каталога, выделенное синим цветом,
+<nobr><span id="mono">'</span><span id="mono_bold" style="color: DarkBlue;">arm-omap543x-linux-gnueabihf</span><span id="mono">'</span></nobr>
+определено автоматически и говорит о том, что при создании <span id="mono">'toolchain</span>-а на этапе
+конфигурирования перед сборкой была задана архитектура целевого процессора с помощью следующей опции:
+</p>
+
+<div id="code">
+$ ./configure ... --target=<span id="mono_bold" style="color: DarkBlue;">arm-omap543x-linux-gnueabihf</span> ...
+</div>
+
+<p>
+И наконец, имя каталога, выделенное красным цветом, выбрано автором сборки посредством опции:
+</p>
+
+<div id="code">
+$ ./configure \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; --with-sysroot=$(<span id="bs_var">TOOLCHAIN_PATH</span>)/$(<span id="bs_var">TOOLCHAIN_VERSION</span>)/$(<span id="bs_var">TARGET</span>)/<span id="mono_bold" style="color: Red;">sys-root</span><br/>
+</div>
+
+<p>
+Все это мы рассказали для того, чтобы перейти описанию процесса подключения новых
+<span id="mono">toolchain</span>-ов к <span id="build_system_name">системе сборки</span>
+(&nbsp;<span id="bs_dir">build-system</span>&nbsp;).
+</p>
+
+
+<a name="toolchain_connection"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Connection of the New Toolchain to Build System
+</div>
+
+<p>
+Для подключения нового <span id="mono">toolchain</span>-а к <span id="build_system_name">системе сборки</span>
+необходимо добавить несколько строк в файл
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>.
+Рассмотрим это на примере.
+</p>
+
+<p>
+Вначале файла
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>
+определен путь ко всем <span id="mono">toolchain</span>-ам, используемым в
+<span id="build_system_name">системе сборки</span>:
+</p>
+
+<div id="code">
+<span id="bs_var">TOOLCHAINS_BASE_PATH</span> = <span id="mono_bold">/opt/toolchain</span><br/>
+</div>
+
+<p>
+Все подключаемые <span id="mono">toolchain</span>-ы должны располагаться в одном каталоге.
+Для разделения <span id="mono">toolchain</span>-ов по целям и версиям пользователи, естественно,
+должны использовать соответствующие подкаталоги. Для предоставления информации о действительном
+расположении <span id="mono">toolchain</span>-ов, <span id="build_system_name">система сборки</span>
+предусматривает набор переменных, которые будут рассмотрены далее.
+</p>
+
+<p>
+Поскольку мы добавляем новый <span id="mono">toolchain</span>, мы наверное определились с кодовыми
+названиями целевых устройств, для которых будем вести разработку. Допустим это платы
+<span id="mono_bold">omap5 uevm</span> (pandaboard 2) и <span id="mono_bold">DRA7XX evm</span>
+от <span id="bold">Texas Instruments Inc</span>.
+Следовательно нам необходимо определить две новые переменные, определяющие названия наших машин:
+</p>
+
+<div id="code">
+<span id="bs_var">HARDWARE_OMAP5UEVM</span> = omap5uevm<br/>
+<span id="bs_var">HARDWARE_DRA7XXEVM</span> = dra7xxevm<br/>
+</div>
+
+<p>
+Кроме того, надо присвоить уникальные числовые идентификаторы, которые понадобятся в процессе
+разработки программ для наших целевых устройств.
+</p>
+
+<div id="code">
+<span id="bs_var">OMAP5UEVM_ID_STD</span> = 70<br/>
+<span id="bs_var">DRA7XXEVM_ID_STD</span> = 71<br/>
+</div>
+
+<p>
+Здесь важно отметить, что при задании переменных, необходимо обеспечить точное соответствие имен
+и значений переменных следующим требованиям.
+</p>
+
+<p>
+Имя целевого устройства должно быть равно суффиксу имени переменной
+<span id="mono">'</span><span id="mono_bold">HARDWARE_...</span><span id="mono">'</span>,
+записанному в нижнем регистре.
+Другими словами, части имен, выделенные <span style="color: Red;">красным</span> цветом, должны
+быть равны между собой и, кроме того, если эти части перевести в нижний регистр, мы должны получить
+имя устройства, выделенное <span style="color: Blue;">синим</span> цветом:
+</p>
+
+<div id="code">
+<span id="mono_bold">HARDWARE_</span><span id="mono_bold" style="color: Red;">OMAP5UEVM</span> = <span id="mono_bold" style="color: Blue;">omap5uevm</span><br/>
+<span id="mono_bold" style="color: Red;">OMAP5UEVM</span>_ID_STD</span> = 70<br/>
+</div>
+
+<p>
+Теперь мы можем описать, непосредственно, <span id="mono">toolchain</span> с кодовым именем
+<span id="mono">'</span><span id="mono_bold" style="color: Blue;">omap543x-eglibc</span><span id="mono">'</span>:
+</p>
+
+<div id="code">
+<span id="mono_bold">TOOLCHAIN_</span><span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span> &nbsp;&nbsp; = <span id="mono_bold" style="color: Blue;">omap543x-eglibc</span><br/>
+<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_ARCH</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = arm-omap543x-linux-gnueabihf<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_VERSION</span> &nbsp;&nbsp;&nbsp;&nbsp; = 1.0.7<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_DIR</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = arm-OMAP543X-linux-eglibc<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_PATH</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = $(<span id="bs_var">TOOLCHAINS_BASE_PATH</span>)/$(<span id="mono_bold">OMAP543X_EGLIBC_DIR</span>)<br/>
+<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_ARCH_DEFS</span> &nbsp;&nbsp; = -D<span id="mono_bold">__OMAP543X__</span>=1<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_ARCH_FLAGS</span> &nbsp; = -march=armv7-a -mtune=cortex-a15 &nbsp;&nbsp;&nbsp;&nbsp; \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -mfloat-abi=softfp -mfpu=neon-vfpv4 &nbsp; \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -mabi=aapcs-linux -fomit-frame-pointer<br/>
+<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_SYSROOT</span> &nbsp;&nbsp;&nbsp;&nbsp; = <span id="mono_bold">sys-root</span><br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_DEST_SYSROOT</span> = yes<br/>
+<br/>
+<span id="mono_bold" style="color: Red;">OMAP543X_EGLIBC</span><span id="mono_bold">_HARDWARE_VARIANTS</span> := $(<span id="bs_var">HARDWARE_OMAP5UEVM</span>) \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $(<span id="bs_var">HARDWARE_DRA7XXEVM</span>)<br/>
+</div>
+
+
+<p>
+Заметим, что здесь соблюдается тот же принцип формирования имен переменных, который мы использовали
+при определении кодовых имен целевых устройств, с тем лишь дополнением, что при переводе в нижний регистр,
+символ подчеркивания
+<span id="mono">'</span><span id="mono_bold">_</span><span id="mono">'</span>
+ переводится в дефис
+<span id="mono">'</span><span id="mono_bold">-</span><span id="mono">'</span>,
+и наоборот. Если говорить на языке команд <span id="bold">Linux</span>, то перевод из нижнего регистра
+в верхний можно осуществить так:
+</p>
+
+<div id="code">
+$ OMAP543X_EGLIBC=`echo omap543x-eglibc | tr '[a-z-]' '[A-Z_]'`
+</div>
+
+<p>
+Рассмотрим подробно заданные переменные и их значения. Прежде всего, кодовое имя
+<span id="mono">toolchain</span>-а выбираемое пользователем, в нашем случае
+<nobr><span id="mono">'</span><span id="mono_bold" style="color: Blue;">omap543x-eglibc</span><span id="mono">'</span></nobr>.
+Это имя должно быть кратким но информативным. Данное имя говорит о том, что
+<span id="mono">toolchain</span> предназначен для сборки программ на линейку устройств, основанных на
+<span id="bold">SoCs</span> <span id="mono_bold">OMAP5430</span> и <span id="mono_bold">OMAP5432</span>
+от <span id="bold">Texas Instruments Inc</span>. Кроме того, целевые программы компонуются с
+<span id="bold">EGLIBC</span> [<a id="eglibc_org" style="text-decoration: none; color: #646464;"
+   href="http://www.eglibc.org/home"
+   onmouseover="show_link( 'eglibc_org' );"
+   onmouseout="hide_link( 'eglibc_org' );">www.eglibc.org</a>],
+которая является доработанной версией <span id="bold">GNU Glibc</span> специально для встраиваемой техники.
+И, наконец, то, что целевой системой является операционная система на базе ядра <span id="bold">Linux</span>,
+понятно из контекста.
+</p>
+
+<p>
+Переменная <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_VERSION</span> определяет версию
+<span id="mono">toolchain</span>-а и, одновременно, подкаталог
+<span id="mono">'</span><span id="mono_bold" style="color: SeaGreen;">1.0.7</span><span id="mono">'</span>
+в котором расположен <span id="mono">toolchain</span>. <span id="build_system_name">Система сборки</span>
+автоматически использует эту переменную для определения полного имени кросс компилятора или другими словами,
+пути к кросс-компилятору. Пользователю не надо использовать эту переменную напрямую. Переменные
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DIR</span>,
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_PATH</span>
+задаются пользователем согласно реальному размещению <span id="mono">toolchain</span>-а на машине разработчика
+или <span id="mono">build</span>-сервере. Переменная
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_SYSROOT</span>
+задает имя конечного подкаталога пути к системному корневому каталогу, который был задан при создании
+<span id="mono">toolchain</span>-а с помощью опции
+<span id="mono">'</span><span id="mono_bold">--with-sysroot</span><span id="mono">'</span>
+скрипта конфигурирования. Значение переменной
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH</span>
+должно в точности соответствовать значению управления
+<span id="mono">'</span><span id="mono_bold">--target</span><span id="mono">'</span>, используемого при создании
+кросс-компилятора. В рассматриваемом нами случае, целевая архитектура описана строкой
+<nobr><span id="mono">'</span><span id="mono_bold" style="color: DarkBlue;">arm-omap543x-linux-gnueabihf</span><span id="mono">'</span></nobr>.
+</p>
+
+<p>
+Следующий рисунок поясняет использование этих переменных.
+</p>
+
+<div id="picture">
+ <div id="pix_area">
+  <div id="pix_toolchain_sysroot">
+   <div style="align: center; margin: auto; overflow: hidden;">
+<!--
+  Table IDs:
+
+   arrow_toolchains_base_path   arrow_toolchain_dir   arrow_toolchain_version   arrow_toolchain_arch   arrow_toolchain_sysroot
+  braces_toolchains_base_path  braces_toolchain_dir  braces_toolchain_version  braces_toolchain_arch  braces_toolchain_sysroot
+
+   ############# ######################### ##### ############################ ########
+  /opt/toolchain/arm-OMAP543X-linux-eglibc/1.0.7/arm-omap543x-linux-gnueabihf/sys-root
+  ############################################## ############################
+
+  braces_toolchain_path   braces_target
+  arrow_toolchain_path     arrow_target
+  -->
+     <table border="0" cellpadding="0" cellspacing="0" align="center">
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td colspan="3" valign="middle" align="left">
+          <span id="bs_var"">TOOLCHAINS_BASE_PATH</span>
+        </td>
+        <td valign="middle"></td><td valign="middle"></td><td valign="middle"></td>
+        <td colspan="3" valign="middle" align="right">
+          <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_SYSROOT</span>
+        </td>
+       </tr>
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td rowspan="3" valign="middle">
+          <div id="arrow_toolchains_base_path" style="width: 100%; height: 80px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td colspan="5" valign="middle" align="center">
+          <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_VERSION</span>
+        </td>
+        <td valign="middle"></td>
+        <td rowspan="3" valign="middle">
+          <div id="arrow_toolchain_sysroot" style="width: 100%; height: 80px;"></div>
+        </td>
+       </tr>
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td colspan="3" valign="middle" align="center">
+          <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DIR</span>
+        </td>
+        <td rowspan="2" valign="middle">
+          <div id="arrow_toolchain_version" style="width: 100%; height: 60px;"></div>
+        </td>
+        <td colspan="3" valign="middle" align="center">
+          <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH</span>
+        </td>
+       </tr>
+       <tr style="height: 40px;">
+        <td valign="middle"></td><td  valign="middle"></td>
+        <td valign="middle">
+          <div id="arrow_toolchain_dir" style="width: 100%; height: 40px;"></div>
+        </td>
+        <td valign="middle"></td><td  valign="middle"></td>
+        <td valign="middle">
+          <div id="arrow_toolchain_arch" style="width: 100%; height: 40px;"></div>
+        </td>
+        <td valign="middle"></td>
+       </tr>
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_toolchains_base_path" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_toolchain_dir" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_toolchain_version" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_toolchain_arch" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_toolchain_sysroot" style="width: 100%; height: 20px;"></div>
+        </td>
+       </tr>
+
+       <tr>
+        <td valign="middle">/</td><td valign="middle"><span id="mono_bold" style="color: DarkRed;">opt/toolchain</span></td>
+        <td valign="middle">/</td><td valign="middle"><span id="mono_bold" style="color: DeepPink;">arm-OMAP543X-linux-eglibc</span></td>
+        <td valign="middle">/</td><td valign="middle"><span id="mono_bold" style="color: SeaGreen;">1.0.7</span></td>
+        <td valign="middle">/</td><td valign="middle"><span id="mono_bold" style="color: DarkBlue;">arm-omap543x-linux-gnueabihf</span></td>
+        <td valign="middle">/</td><td valign="middle"><span id="mono_bold" style="color: Red;">sys-root</span></td>
+       </tr>
+
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td colspan="5" valign="middle">
+          <div id="braces_toolchain_path" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="braces_target" style="width: 100%; height: 20px;"></div>
+        </td>
+        <td valign="middle"></td><td valign="middle"></td>
+       </tr>
+       <tr style="height: 40px;">
+        <td valign="middle"></td>
+        <td colspan="5" valign="middle">
+          <div id="arrow_toolchain_path" style="width: 100%; height: 40px;"></div>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle">
+          <div id="arrow_target" style="width: 100%; height: 40px;"></div>
+        </td>
+        <td valign="middle"></td><td valign="middle"></td>
+       </tr>
+       <tr style="height: 20px;">
+        <td valign="middle"></td>
+        <td colspan="5" valign="middle" align="center">
+          <span id="bs_var">TOOLCHAIN_PATH</span>
+        </td>
+        <td valign="middle"></td>
+        <td valign="middle" align="center">
+          <span id="bs_var">TARGET</span>
+        </td>
+        <td valign="middle"></td><td valign="middle"></td>
+       </tr>
+     </table>
+   </div>
+  </div> <!-- "pix_toolchain_sysroot" -->
+ </div> <!-- "pix_area" -->
+ <div id="pix_note">
+  Fig.2. Toolchain's System Root
+ </div> <!-- "pix_note" -->
+</div> <!-- "picture" -->
+
+<p>
+На рис.2 синим цветом выделены переменные, задаваемые пользователем в файле
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>.
+Переменные <span id="bs_var">TOOLCHAIN_PATH</span>, <span id="bs_var">TARGET</span> автоматически определяются
+<span id="build_system_name">системой сборки</span> согласно текущей цели, и могут быть использованы
+в собственных <span id="mono">Make-файлах. В дальнейшем мы рассмотрим использование данных переменных.
+</p>
+
+<p>
+Переменные <span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH_DEFS</span>,
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH_FLAGS</span> предназначены для задания
+дополнительных управлений кросс-компилятору во время его использования в составе
+<span id="build_system_name">системы сборки</span>.
+Так, например, переменная
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH_FLAGS</span>
+служит для того, чтобы при сборке программ использовались такие управления, которые, во-первых, соответствуют
+конфигурации заданной во время сборки самого кросс-компилятора и, во-вторых, для задания параметров необходимых
+для настройки целевых программ, которые будут в свою очередь работать на целевом железе.
+</p>
+
+<p>
+Отдельно следует пояснить значение переменной
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DEST_SYSROOT</span>. Если значение данной
+переменной равно
+<span id="mono">'</span><span id="mono_bold" style="color: Blue;">yes</span><span id="mono">'</span>,
+то при вызове кросс-компилятора будет использовано управление
+<span id="mono">'</span><span id="mono_bold">--sysroot=DIR</span><span id="mono">'</span>,
+причем
+<span id="mono">'</span><span id="mono_bold">DIR</span><span id="mono">'</span>
+будет представлять собой не путь к системному каталогу <span id="mono">toolchain</span>-а, а так называемый
+<span id="bs_var">TARGET_DEST_DIR</span>
+путь, определяющий положение целевого каталога, который используется во время сборки всех программ в качестве
+временного системного окружения, в котором представлена будущая целевая система. Таким образом при конфигурировании
+и сборке программ на цель, будут использоваться заголовочные и объектные файлы которые представляют
+текущее состояние целевой системы, и именно с ними будут связаны строящиеся программы.
+</p>
+
+<p>
+Разумеется такое перенаправление системного каталога целесообразно при сборке пользовательских приложений,
+а в случае сборки ядра, модулей ядра или системных загрузчиков не нужно, так как построение такого рода
+системного программного обеспечения не нуждается в использовании других библиотек. Для того, чтобы собрать
+целевые программы, при заданной переменной
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DEST_SYSROOT</span>
+со значением
+<span id="mono">'</span><span id="mono_bold" style="color: Blue;">yes</span><span id="mono">'</span>,
+без использования управления
+<span id="mono">'</span><span id="mono_bold">--sysroot=DIR</span><span id="mono">'</span>,
+пользователь может отменить такое перенаправление, в отдельно взятом <span id="mono">Make</span>-файле,
+определив в нем переменную
+<span id="mono_bold">USE_TARGET_DEST_DIR_SYSROOT</span>
+со значением, отличным от слова
+<span id="mono">'</span><span id="mono_bold" style="color: Blue;">yes</span><span id="mono">'</span>.
+Например так:
+</p>
+
+<div id="code">
+<span id="mono_bold">USE_TARGET_DEST_DIR_SYSROOT</span> = <span id="mono_bold" style="color: Blue;">no</span><br/>
+</div>
+
+<p>
+Сделать это, разумеется, нужно до включения файлов <span id="build_system_name">системы сборки</span>,
+чтобы значение было прочитано вовремя.
+</p>
+
+<p>
+Если же значение переменной
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DEST_SYSROOT</span>
+равно
+<span id="mono">'</span><span id="mono_bold" style="color: Blue;">no</span><span id="mono">'</span>,
+</p>
+
+<div id="code">
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_DEST_SYSROOT</span> = <span id="mono_bold" style="color: Blue;">no</span><br/>
+</div>
+
+<p>
+то управление
+<span id="mono">'</span><span id="mono_bold">--sysroot=DIR</span><span id="mono">'</span>
+использоваться не будет. Такое поведение характерно при сборке программного обеспечения для систем,
+основанных на микроконтроллерах с использованием библиотек предоставленных в составе
+<span id="mono">toolchain</span>-а или вообще без каких-либо системных библиотек.
+</p>
+
+<p>
+И наконец, переменная
+</span><span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_HARDWARE_VARIANTS</span>
+служит для того, чтобы задать список устройств, программное обеспечение для которых, должно собираться
+с использованием данного кросс-компилятора.
+</p>
+
+<p>
+В качестве итога, приведем полный список переменных, которые мы ввели в файле
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>
+для подключения нового <span id="mono">toolchain</span>-а:
+</p>
+
+<div id="code">
+<span id="bs_var">HARDWARE_OMAP5UEVM</span> = omap5uevm<br/>
+<span id="bs_var">HARDWARE_DRA7XXEVM</span> = dra7xxevm<br/>
+<br/>
+<span id="bs_var">OMAP5UEVM_ID_STD</span> = 70<br/>
+<span id="bs_var">DRA7XXEVM_ID_STD</span> = 71<br/>
+<br/>
+<span id="bs_var">TOOLCHAIN_OMAP543X_EGLIBC</span> &nbsp;&nbsp; = <span id="mono_bold" style="color: Blue;">omap543x-eglibc</span><br/>
+<br/>
+<span id="bs_var">OMAP543X_EGLIBC_ARCH</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = arm-omap543x-linux-gnueabihf<br/>
+<span id="bs_var">OMAP543X_EGLIBC_VERSION</span> &nbsp;&nbsp;&nbsp;&nbsp; = 1.0.7<br/>
+<span id="bs_var">OMAP543X_EGLIBC_DIR</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = arm-OMAP543X-linux-eglibc<br/>
+<span id="bs_var">OMAP543X_EGLIBC_PATH</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = $(<span id="bs_var">TOOLCHAINS_BASE_PATH</span>)/$(<span id="mono_bold">OMAP543X_EGLIBC_DIR</span>)<br/>
+<br/>
+<span id="bs_var">OMAP543X_EGLIBC_ARCH_DEFS</span> &nbsp;&nbsp; = -D<span id="mono_bold">__OMAP543X__</span>=1<br/>
+<span id="bs_var">OMAP543X_EGLIBC_ARCH_FLAGS</span> &nbsp; = -march=armv7-a -mtune=cortex-a15 &nbsp;&nbsp;&nbsp;&nbsp; \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -mfloat-abi=softfp -mfpu=neon-vfpv4 &nbsp; \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -mabi=aapcs-linux -fomit-frame-pointer<br/>
+<br/>
+<span id="bs_var">OMAP543X_EGLIBC_SYSROOT</span> &nbsp;&nbsp;&nbsp;&nbsp; = <span id="mono_bold">sys-root</span><br/>
+<span id="bs_var">OMAP543X_EGLIBC_DEST_SYSROOT</span> = yes<br/>
+<br/>
+<span id="bs_var">OMAP543X_EGLIBC_HARDWARE_VARIANTS</span> := $(<span id="bs_var">HARDWARE_OMAP5UEVM</span>) \<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $(<span id="bs_var">HARDWARE_DRA7XXEVM</span>)<br/>
+</div>
+
+<p>
+</p>
+
+<a name="hardware_IDs"></a>
+<div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Using Hardware IDs in source code
+</div>
+
+<p>
+Во время сборки собственных программ, с использованием рассматриваемой
+<span id="build_system_name">системы сборки</span>, инженеру может
+понадобится отслеживать текущее значение уникального идентификатора устройства, для которого предназначена
+определенная часть исходного кода программы. Допустим основная часть программы остается независимой и может
+выполняться на обоих устройствах, которые мы определили ранее в файле
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>.
+Но некоторая часть кода является зависимой от конкретного устройства и, следовательно, при сборке программы,
+инженеру необходимо знать, для какого устройства в данный момент идет сборка. Для этого в
+<span id="build_system_name">системе сборки</span>
+предусмотрено автоматическое создание и использование макро-определений, которые подаются на вход компилятору.
+Итак, первое макро-определение, которое создается для всех устройств, это переменная
+<nobr><span id="mono">'</span><span id="bs_var">__HARDWARE__</span><span id="mono">'</span></nobr>.
+Данной переменной присваивается значение текущего идентификатора устройства, для которого в данный момент
+идет компиляция. Кроме того, для всех устройств, декларированных в файле
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>,
+создаются переменные, имя которых равно имени устройства, переведенному в верхний регистр. Так, в нашем случае,
+</p>
+
+<div id="code">
+<span id="bs_var">HARDWARE_OMAP5UEVM</span> = omap5uevm<br/>
+<span id="bs_var">HARDWARE_DRA7XXEVM</span> = dra7xxevm<br/>
+<br/>
+<span id="bs_var">OMAP5UEVM_ID_STD</span> = 70<br/>
+<span id="bs_var">DRA7XXEVM_ID_STD</span> = 71<br/>
+</div>
+
+<p>
+будут определены три переменные, и компилятор будет вызываться со следующими управлениями:
+</p>
+
+<div id="code">
+$ gcc -D<span id="bs_var">__HARDWARE__</span>=70 -D<span id="bs_var">OMAP5UEVM</span>=70 -D<span id="bs_var">DRA7XXEVM</span>=71
+</div>
+
+<p>
+для устройства
+<span id="mono">'</span><span id="mono_bold" style="color: DarkBlue;">omap5uevm</span><span id="mono">'</span>,
+и с управлениями
+</p>
+
+<div id="code">
+$ gcc -D<span id="bs_var">__HARDWARE__</span>=71 -D<span id="bs_var">OMAP5UEVM</span>=70 -D<span id="bs_var">DRA7XXEVM</span>=71
+</div>
+
+<p>
+для устройства
+<span id="mono">'</span><span id="mono_bold" style="color: DarkBlue;">dra7xxevm</span><span id="mono">'</span>.
+</p>
+
+<p>
+Используя данные переменные, инженер в собственном коде может делать проверки, например, такие как показано
+на следующем листинге.
+</p>
+
+<div id="code">
+<span id="mono" style="color: Teal;">/* HW independent code */</span><br/>
+<br/>
+<span id="mono_bold" style="color: DarkBlue;">#if</span> <span id="bs_var">__HARDWARE__</span> == <span id="bs_var">OMAP5UEVM</span><br/>
+<br/>
+<span id="mono" style="color: Teal;">/* OMAP5UEVM specific code */</span><br/>
+<br/>
+<span id="mono_bold" style="color: DarkBlue;">#elif</span> <span id="bs_var">__HARDWARE__</span> == <span id="bs_var">DRA7XXEVM</span><br/>
+<br/>
+<span id="mono" style="color: Teal;">/* DRA7XXEVM specific code */</span><br/>
+<br/>
+<span id="mono_bold" style="color: DarkBlue;">#endif</span><br/>
+</div>
+
+<p>
+Используя переменную
+<span id="mono_bold" style="color: DarkBlue;">OMAP543X_EGLIBC_ARCH_DEFS</span>, пользователь
+<span id="build_system_name">системы сборки</span> вправе задавать любые переменные. Однако следует помнить,
+что заданные пользователем переменные ни в коем случае не должны совпадать с предопределенными макро, как самим
+компилятором, так и другими собираемыми компонентами.
+</p>
+
+<p>
+Для того, чтобы получить список предопределенных констант, можно воспользоваться следующей командой:
+</p>
+
+<div id="code">
+$ gcc -d<span id="mono_bold">M</span> -<span id="mono_bold">E</span> -<span id="mono_bold">x c</span> /dev/null
+</div>
+
+<p>
+Здесь, управление
+<span id="mono">'-d</span><span id="mono_bold">M</span><span id="mono">'</span>
+&#8211; отвечает за вывод предопределенных макро-определений, управление
+<span id="mono">'-</span><span id="mono_bold">E</span><span id="mono">'</span>
+&#8211; инициирует печать в стандартный поток вывода и, наконец,
+<span id="mono">'-</span><span id="mono_bold">x c</span><span id="mono">'</span>
+&#8211; выбирает язык <span id="bold">C</span>.
+</p>
+
+
+<a name="ccache"></a>
+<div id="head_2" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+CCACHE
+</div>
+
+<p>
+<span id="build_system_name">Система сборки</span> использует утилиту
+<span id="mono_bold">CCACHE</span><span id="mono">(</span><span id="mono_bold">1</span><span id="mono">)</span>
+для сокращения времени сборки. В файле
+<nobr><span id="mono">'</span><span id="bs_dir">build-system</span>/<span id="bs_file">constants.mk</span><span id="mono">'</span></nobr>
+определена переменная
+</p>
+
+<div id="code">
+<span id="bs_var">CACHED_CC_OUTPUT</span> = <span id="mono_bold">/opt/extra/ccache</span>
+</div>
+
+<p>
+значением которой является рабочий каталог утилиты <span id="mono_bold">ccache</span>. В этом каталоге
+содержится кешированный вывод кросс-компиляторов, работающих при сборке целей.
+</p>
+
+<p>
+Для вывода статистики работы, пользователь <span id="build_system_name">системы сборки</span> может выполнить команду
+<span id="mono">'</span>make <span id="mono_bold">ccache_stats</span><span id="mono">'</span>
+в любом каталоге дерева.
+</p>
+
+<p>
+Установить максимальный размер кэша можно с помощью команды
+</p>
+
+<div id="code">
+$ <span id="mono_bold">CACHE_DIR</span>=/opt/extra/ccache <span id="mono_bold">ccache</span> -<span id="mono_bold">M</span> 64<span id="mono_bold">G</span>
+</div>
+
+<p>
+где, размер можно задавать в <span id="bold">кило</span>байтах, <span id="bold">мега</span>байтах
+и <span id="bold">гига</span>байтах, используя суффиксы числового значения
+<span id="mono">'</span><span id="mono_bold">K</span><span id="mono">'</span>,
+<span id="mono">'</span><span id="mono_bold">M</span><span id="mono">'</span>,
+<span id="mono">'</span><span id="mono_bold">G</span><span id="mono">'</span>, соответственно.
+</p>
+
+
+
+
+<p>
+</p>
+
+<p>
+</p>
+
+<p>
+</p>
+
+<p>
+</p>
+
+<p>
+</p>
+
+<p>
+</p>
+
+<p>
+</p>
+
+
+
+
+        </div> <!-- "document_body" -->
+      </div> <!-- "document_view" -->
+
+    </div> <!-- "content" -->
+  </div> <!-- "content_wrapper" -->
+
+  <div id="footer_wrapper">
+    <div id="footer">
+
+      <div id="footer_top">
+        <a id="copyright" target="_blank" href="http://www.radix.pro"
+          onmouseover="show_link( 'copyright' );"
+          onmouseout="hide_link( 'copyright' );">Copyright</a>
+      </div>
+      <div id="footer_bottom">
+      </div>
+    </div> <!-- "footer" -->
+  </div> <!-- "footer_wrapper" -->
+</div> <!-- "front_wrapper" -->
+
+
+<script type="text/javascript">
+  var margin = {top: 20, right: 120, bottom: 20, left: 160},
+      width = 2720 - margin.right - margin.left,
+      height = 720 - margin.top - margin.bottom;
+
+  var i = 0,
+      duration = 750,
+      root;
+
+  var tree = d3.layout.tree()
+      .size([height, width]);
+
+  var diagonal = d3.svg.diagonal()
+      .projection(function(d) { return [d.y, d.x]; });
+
+  var svg = d3.select(document.getElementById( 'tree_view' )).append("svg")
+      .attr("width", width + margin.right + margin.left)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var div = d3.select(document.getElementById( 'front_wrapper' )).append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+  d3.json("./_data/bind-requires-tree.json", function(error, requires) {
+    root = requires;
+    root.x0 = height / 2;
+    root.y0 = 0;
+
+    function collapse(d) {
+      if (d.children) {
+        d._children = d.children;
+        d._children.forEach(collapse);
+        d.children = null;
+      }
+    }
+
+    root.children.forEach(collapse);
+    update(root);
+  });
+
+  function update(source) {
+
+    /* Compute the new tree layout. */
+    var nodes = tree.nodes(root).reverse(),
+        links = tree.links(nodes);
+
+    /* Normalize for fixed-depth. */
+    nodes.forEach(function(d) { d.y = d.depth * 160; });
+
+    /* Update the nodes . . . */
+    var node = svg.selectAll("g.node")
+        .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+    /* Enter any new nodes at the parent's previous position. */
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .on("click", click)
+        .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .92);
+            if (d.group == undefined) {
+              if (d.name == "void") {
+                div.html('<div style="text-align: left; padding-left: 0.5em; padding-right: 0.5em; font: 11px Cousine,monospace; font-weight: bold; color: DarkRed;">' + "void" + "</div>")
+                    .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+                    .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
+              }
+              else
+              {
+                div.html('<div style="text-align: left; padding-left: 0.5em; padding-right: 0.5em; font: 11px Cousine,monospace; font-weight: bold; color: DarkRed;">' + "not packaged collection" + "</div>")
+                    .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+                    .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
+              }
+            }
+            else
+            {
+              div.html('<div style="text-align: left; font: 14px Roboto,sans-serif; font-weight: bold; color: DarkRed;">' +
+                       d.name + "</div>" +
+                       '<div style="text-align: left; padding-left: 1.5em; padding-top: .5em; font: 14px Roboto,sans-serif; font-weight: bold; font-style: italic; color: DarkBlue;">' +
+                       d.description + "</div><br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group: " + d.group + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;architecture: " + d.arch + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hardware: " + d.hardware + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;distribution name: " + root.distro[0] + "<br/>" +
+                       "distribution version: " + root.distro[1] + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bug report url: " + root.distro[2] + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package tarball: " + d.name + "-" +
+                          d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "tgz" + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;uncompressed size: " + d.uncompressed_size + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of files: " + d.total_files + "<br/>" +
+                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;license: " + d.license)
+                  .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+                  .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
+            }
+        })
+        .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+
+    nodeEnter.append("circle")
+    /* Additional attributes (see the 'style' section) */
+        .attr("stroke", "DarkBlue")
+        .attr("stroke-width", "1.0")
+    /* End of additional attributes */
+        .attr("r", 1e-6)
+        .style("fill", function(d) { return d._children ? "DodgerBlue" : "#fff"; });
+
+    nodeEnter.append("text")
+        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        .attr("dy", "-.35em")
+        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .text(function(d) { return d.version ? d.name + "-" + d.version : d.name; })
+        .style("fill-opacity", 1e-6);
+
+    /* Transition nodes to their new position. */
+    var nodeUpdate = node.transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+    nodeUpdate.select("circle")
+        .attr("r", 4.5)
+        .style("fill", function(d) {
+          if( d._children )
+          {
+            return "DodgerBlue";
+          }
+          else
+          {
+            if( d.children == undefined )
+            {
+              if( d.name == "void" )
+              {
+                return "#c9c9c9";
+              }
+              else
+              {
+                return "#fff";
+              }
+            }
+            else
+            {
+              return "lightblue";
+            }
+          }
+        });
+
+    nodeUpdate.select("text")
+        .style("fill-opacity", 1);
+
+    /* Transition exiting nodes to the parent's new position. */
+    var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+        .remove();
+
+    nodeExit.select("circle")
+        .attr("r", 1e-6);
+
+    nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+
+    /* Update the links . . . */
+    var link = svg.selectAll("path.link")
+        .data(links, function(d) { return d.target.id; });
+
+    /* Enter any new links at the parent's previous position. */
+    link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", function(d) {
+          var o = {x: source.x0, y: source.y0};
+          return diagonal({source: o, target: o});
+        });
+
+    /* Transition links to their new position. */
+    link.transition()
+        .duration(duration)
+    /* Additional attributes (see the 'style' section) */
+        .style("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "1.5")
+    /* End of additional attributes */
+        .attr("d", diagonal);
+
+    /* Transition exiting nodes to the parent's new position. */
+    link.exit().transition()
+        .duration(duration)
+        .attr("d", function(d) {
+          var o = {x: source.x, y: source.y};
+          return diagonal({source: o, target: o});
+        })
+        .remove();
+
+    /* Stash the old positions for transition. */
+    nodes.forEach(function(d) {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+  }
+
+  /* Toggle children on click. */
+  function click(d) {
+    if (d.children) {
+      d._children = d.children;
+      d.children = null;
+    } else {
+      d.children = d._children;
+      d._children = null;
+    }
+    update(d);
+  }
+</script>
+
+<script type="text/javascript">
+
+/* http://www.w3.org/TR/SVG/paths.html#PathElement */
+
+function draw_brace( self, up ) {
+  var width  = $(self).width();
+  var height = $(self).height();
+
+  var svg = d3.select( self )
+      .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+      .append("g")
+        .attr("transform",
+              "translate(" + 0 + "," + 0 + ")");
+
+  var w = width;
+  var h = height;
+  var p1, p2, p3, p4, l1, l2;
+
+<!--
+  if( w > h*4 )
+  -->
+  {
+
+    if( up )
+    {
+      p1 = "M" + 1 + "," + (h-1) + " C" + 1 + "," + (h/2) + " " + (h/4) + "," + (h/2) + " " + (h) + "," + (h/2);
+      l1 = "M " + (h) + " " + (h/2) + " L " + (w/2-h) + " " + (h/2);
+      p2 = "M" + (w/2-h) + "," + (h/2) + " C" + (w/2-h/4) + "," + (h/2) + " " + (w/2) + "," + h/2 + " " + (w/2) +","+ 0;
+      p3 = "M" + (w/2) + "," + 0 + " C" + (w/2) + "," + (h/2) + " " + (w/2+h/4) + "," + (h/2) + " " + (w/2+h) + "," + (h/2);
+      l2 = "M " + (w/2+h) + " " + (h/2) + " L " + (w-h) + " " + (h/2);
+      p4 = "M" + (w-h) + "," + (h/2) + " C" + (w-h/4) + "," + (h/2) + " " + (w-2) + "," + (h/2) + " " + (w-1) + "," + (h-1);
+    }
+    else
+    {
+      p1 = "M" + 1 + "," + 1 + " C" + 1 + "," + (h/2) + " " + (h/2) + "," + (h/2) + " " + (h) + "," + (h/2);
+      l1 = "M " + (h) + " " + (h/2) + " L " + (w/2-h) + " " + (h/2);
+      p2 = "M" + (w/2-h) + "," + (h/2) + " C" + (w/2-h/4) + "," + (h/2) + " " + (w/2) + "," + h/2 + " " + (w/2) +","+ h;
+      p3 = "M" + (w/2) + "," + h + " C" + (w/2) + "," + (h/2) + " " + (w/2+h/4) + "," + (h/2) + " " + (w/2+h) + "," + (h/2);
+      l2 = "M " + (w/2+h) + " " + (h/2) + " L " + (w-h) + " " + (h/2);
+      p4 = "M" + (w-h) + "," + (h/2) + " C" + (w-h/4) + "," + (h/2) + " " + (w-2) + "," + (h/2) + " " + (w-1) + "," + (1);
+    }
+
+    svg.append("path")
+        .attr("d", p1)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+    svg.append("path")
+        .attr("d", l1)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+    svg.append("path")
+        .attr("d", p2)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+    svg.append("path")
+        .attr("d", p3)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+    svg.append("path")
+        .attr("d", l2)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+    svg.append("path")
+        .attr("d", p4)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+
+  }
+  else
+  {
+    if( up )
+    {
+      p1 = "M" + 1 + "," + (h) + " Q" + 1 + "," + (h/2) + " " + (w/4) + "," + (h/2) + " " + (w/2) + "," + (h/2) + " " + (w/2) + "," + 0;
+      p2 = "M" + (w/2) + "," + 0 + " Q" + (w/2) + "," + (h/2) + " " + (w*3/4) + "," + (h/2) + " " + (w-2) + "," + (h/2) + " " + (w-1) + "," + (h-1);
+    }
+    else
+    {
+      p1 = "M" + 1 + "," + 1 + " Q" + 1 + "," + (h/2) + " " + (w/4) + "," + (h/2) + " " + (w/2) + "," + (h/2) + " " + (w/2) + "," + h;
+      p2 = "M" + (w/2) + "," + h + " Q" + (w/2) + "," + (h/2) + " " + (w*3/4) + "," + (h/2) + " " + (w-2) + "," + (h/2) + " " + (w-1) + "," + 1;
+    }
+
+    svg.append("path")
+        .attr("d", p1)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+     svg.append("path")
+        .attr("d", p2)
+        .attr("fill", "none")
+        .attr("stroke", "DarkGray")
+        .attr("stroke-width", "2.0");
+  }
+}
+
+
+$( "#braces_toolchains_base_path" ).after(function() { draw_brace( this, 1 ); });
+$( "#braces_toolchain_dir" )       .after(function() { draw_brace( this, 1 ); });
+$( "#braces_toolchain_version" )   .after(function() { draw_brace( this, 1 ); });
+$( "#braces_toolchain_arch" )      .after(function() { draw_brace( this, 1 ); });
+$( "#braces_toolchain_sysroot" )   .after(function() { draw_brace( this, 1 ); });
+
+$( "#braces_toolchain_path" ).after(function() { draw_brace( this, 0 ); });
+$( "#braces_target" )        .after(function() { draw_brace( this, 0 ); });
+
+
+function draw_arrow( self, up ) {
+  var width  = $(self).width();
+  var height = $(self).height();
+
+  var svg = d3.select( self )
+      .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+      .append("g")
+        .attr("transform",
+              "translate(" + 0 + "," + 0 + ")");
+
+  var m = width / 2;
+  var h = height;
+  var p;
+
+  if( up )
+  {
+    p = "M " + (m+4) + " " + (h-5) +
+       " L " + (m+4) + " " +   19  +
+       " L " + (m+7) + " " +   19  +
+       " L " +   m   + " " +   10  +
+       " L " + (m-7) + " " +   19  +
+       " L " + (m-4) + " " +   19  +
+       " L " + (m-4) + " " + (h-5) +
+       " z";
+  }
+  else
+  {
+    p = "M " + (m-4) + " " +    10  +
+       " L " + (m-4) + " " + (h-14) +
+       " L " + (m-7) + " " + (h-14) +
+       " L " +   m   + " " +  (h-5) +
+       " L " + (m+7) + " " + (h-14) +
+       " L " + (m+4) + " " + (h-14) +
+       " L " + (m+4) + " " +    10  +
+       " z";
+  }
+
+  svg.append("path")
+      .attr("d", p)
+      .attr("fill", "LightBlue")
+      .attr("stroke", "Blue")
+      .attr("stroke-width", "1");
+}
+
+
+$( "#arrow_toolchains_base_path" ).after(function() { draw_arrow( this, 0 ); });
+$( "#arrow_toolchain_dir" )       .after(function() { draw_arrow( this, 0 ); });
+$( "#arrow_toolchain_version" )   .after(function() { draw_arrow( this, 0 ); });
+$( "#arrow_toolchain_arch" )      .after(function() { draw_arrow( this, 0 ); });
+$( "#arrow_toolchain_sysroot" )   .after(function() { draw_arrow( this, 0 ); });
+
+$( "#arrow_toolchain_path" ).after(function() { draw_arrow( this, 1 ); });
+$( "#arrow_target" )        .after(function() { draw_arrow( this, 1 ); });
+
+</script>
+
+</body>
+</html>

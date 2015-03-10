@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+use _kxLab;
+
+my $filename = shift or die "Error: Need a patch file";
+my $arg2 = shift;
+my $depmode = 0;
+my $dir = ".";
+if( defined( $arg2 ) )
+{
+  if( $arg2 eq "-dep-" )
+  {
+    $depmode = 1;
+  }
+  else
+  {
+    $dir = $arg2;
+  }
+}
+
+open( PATCH, "<$filename" ) or die "Error: Could not open patch file: $filename: $!";
+while( <PATCH> )
+{
+  next if /^#/;
+  if (/(\S+)\s*(.*)/)
+  {
+    if( $depmode )
+    {
+      print "$1 ";
+    }
+    else
+    {
+      my $arg = $2 || "-p0";
+      print "======= Applying $1 =======\n";
+      _kxLab::system( "patch -d $dir $arg < $1" );
+    }
+  }
+}
+close PATCH;
+if( $depmode )
+{
+  print "$filename\n";
+}
+

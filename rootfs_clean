@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Basename;
+use _kxLab;
+
+my $distro = _kxLab::distro_name();
+
+my @arguments;
+my ( $base, $hardware );
+
+my $curdir     = $ENV{CWD};
+my $removepkg  = $ENV{REMOVE_PACKAGE};
+my $fname      = "";
+my $pkg        = "";
+
+my $pkg_name   = "";
+my $pkg_dir    = "";
+my $rootfs_dir = "";
+
+
+foreach ( @ARGV )
+{
+  push @arguments, $_;
+}
+
+$hardware = pop @arguments;
+$base     = pop @arguments;
+
+if ( $curdir )
+{
+  $fname = "$curdir/.$hardware.rootfs";
+}
+else
+{
+  $fname = ".$hardware.rootfs";
+}
+
+
+open( F, '<', $fname ) or die "Could not open '$fname'";
+
+
+while( <F> )
+{
+  chomp;
+
+  $pkg        = "$base/$_";
+  $pkg_name   = basename( $pkg );
+  $pkg_dir    = dirname( $pkg );
+  $rootfs_dir = $pkg_dir;
+  $rootfs_dir =~ s!/var/log/_$distro/packages$!!;
+
+  _kxLab::system( "cd $pkg_dir && $removepkg --skip-refs --root $rootfs_dir $pkg_name" );
+}

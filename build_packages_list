@@ -1,0 +1,493 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use IO::Handle;
+use File::Basename;
+use File::Temp;
+
+use _kxLab;
+
+#
+# Generate .$(HARDWARE)_requires.pkglist file for current directory
+#
+# usage:
+#   $0 topdir toolchain hardware
+#
+# where:
+#      'topdir' - is a absolute path to the top directory of checked out branch
+#   'toolchain' - is a TOOLCHAIN name
+#    'hardware' - is a HARDWARE variant
+#
+
+# global variables
+my ($topdir, $toolchain, $hardware, $build_system, $requires_file, $pkglist_file);
+my ( $distro_name, $distro_version, $url );
+my $tarball_suffix = "tgz";
+
+sub usage
+{
+  print <<EOF;
+
+Usage: $0 topdir toolchain hardware
+Where:
+          topdir - is a absolute path to the top of checked out branch;
+       toolchain - is a TOOLCHAIN name;
+        hardware - is a HARDWARE variant.
+
+EOF
+  exit;
+}
+
+
+sub distro_name
+{
+  my $build_system = shift;
+  my $name;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^DISTRO_NAME(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub distro_version
+{
+  my $build_system = shift;
+  my $name;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^DISTRO_VERSION(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub bug_url
+{
+  my $build_system = shift;
+  my $url;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^BUG_URL(.+= +)(.+)/ )
+    {
+      $url = $2;
+    }
+  }
+  close( FILE );
+
+  return $url;
+}
+
+sub pkg_rootfs_target
+{
+  my $makefile = shift;
+  my $install = "";
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^ROOTFS_TARGETS(.+= +)(.+)/ )
+    {
+      $install = $2;
+    }
+  }
+  close( FILE );
+
+  if( $install eq "" ) { $install = "no";  }
+  else                 { $install = "yes"; }
+
+  return $install;
+}
+
+
+sub pkg_group
+{
+  my $makefile = shift;
+  my $group;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^PKG_GROUP(.+= +)(.+)/ )
+    {
+      $group = $2;
+    }
+  }
+  close( FILE );
+
+  return $group;
+}
+
+sub pkg_name
+{
+  my $makefile = shift;
+  my $name = "";
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_NAME(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub pkg_version
+{
+  my $makefile = shift;
+  my $version;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_VERSION(.+= +)(.+)/ )
+    {
+      $version = $2;
+    }
+  }
+  close( FILE );
+
+  return $version;
+}
+
+sub pkg_short_description
+{
+  my $makefile = shift;
+  my $description;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_SHORT_DESCRIPTION(.+= +)(.+)/ )
+    {
+      $description = $2;
+    }
+  }
+  close( FILE );
+
+  #
+  # In Makefiles we have to mask characters '\', '&', '*', '(', ')' inside
+  # the new value in the assignment operator with backslash. So, for axample,
+  # the value "name & \ * ( ) end" we have to assign as follow
+  #
+  # ..._SHORT_DESCRIPTION = name \& \\ \* \( \) end
+  #
+  # Here we have to remove backslashes and fill escaped symbols as is:
+  #
+  $description =~ s/\\(.?)/$1/g;
+
+  return $description;
+}
+
+sub get_treedirs
+{
+  my @list;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /^TREEDIRS(.+= +)(.+)/ )
+    {
+      @list = split( ' ', $2 );
+    }
+  }
+
+  return @list;
+}
+
+sub get_root
+{
+  my $root;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /^# ROOT(=)(.+)/ )
+    {
+      $root = $2;
+    }
+  }
+
+  return $root;
+}
+
+sub get_deps
+{
+  my %deps;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /(.+)(: +)(.+)/ )
+    {
+      $deps{$1} = $3;
+    }
+  }
+  return %deps;
+}
+
+
+#
+# PACKAGE HASH:
+# ============
+#
+#   name              => $(PKG_NAME)               from Makefile
+#   version           => $(PKG_VERSION)            from Makefile
+#   group             => $(PKG_GROUP)              from Makefile {app,base,dev,libs,net,...}
+#
+#   arch              => $toolchain                from comandline args
+#   hardware          => $hardware                 from comandline args
+#   tarball           => "$name-$version-$arch-$distro_name-$distro_version.$tarball_suffix"
+#
+#   description       => $(PKG_SHORT_DESCRIPTION)  from Makefile
+#
+sub fill_package_info
+{
+  my $makefile = shift;
+  my ( $product_path, $tarball_file );
+  my %pkg;
+
+  $pkg{'name'} = pkg_name( $makefile );
+  if( $pkg{'name'} eq "" )
+  {
+    # There is no package for this Makefile
+    return %pkg;
+  }
+
+  $pkg{'version'}        = pkg_version( $makefile );
+  $pkg{'group'}          = pkg_group( $makefile );
+  $pkg{'install'}        = pkg_rootfs_target( $makefile );
+  $pkg{'description'}    = pkg_short_description( $makefile );
+  $pkg{'arch'}           = $toolchain;
+  $pkg{'hardware'}       = $hardware;
+
+  $pkg{'tarball'} = $pkg{'name'}    . "-" . 
+                    $pkg{'version'} . "-" . 
+                    $pkg{'arch'}    . "-" . 
+                    $distro_name    . "-" . 
+                    $distro_version . "." . 
+                    $tarball_suffix;
+
+  return %pkg;
+}
+
+
+
+#
+# Parse the command line options
+#
+
+# Get the rest arguments of the command line
+$topdir    = shift;
+$toolchain = shift;
+$hardware  = shift;
+
+my $makefile = "Makefile";
+
+if( ! defined $topdir    or $topdir eq "" )    { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+
+_kxLab::error( "$0: $topdir is not a directory" ) if( ! -d $topdir );
+_kxLab::error( "$0: Makefile missing: $makefile" ) if ( ! -f $makefile );
+
+$build_system = $topdir . "/build-system";
+
+$distro_name    = distro_name( $build_system );
+$distro_version = distro_version( $build_system );
+$url            = bug_url( $build_system );
+
+$requires_file  = "." . $hardware . "_requires";
+$pkglist_file   = "." . $hardware . "_requires.pkglist";
+
+# open the intput file
+open(REQUIRES_FILE, "< $requires_file") or
+  _kxLab::error( "$0: Could not open $requires_file file: $!" );
+# open the output file
+open(PKGLIST_FILE, "> $pkglist_file") or
+  _kxLab::error( "$0: Could not open $pkglist_file file: $!" );
+
+#
+# This is the root package if exists (the last to be installed)
+#
+my %root_package = fill_package_info( $makefile );
+
+my $root     = get_root();
+my @treedirs = get_treedirs();
+my %deps     = get_deps();
+
+my %sequence;
+my $order = 0;
+
+#################################################################
+# if( there is any dependencies )
+#
+if( %deps )
+{
+  my @dep_keys = keys %deps;
+
+  foreach my $el ( @treedirs )
+  {
+    if( ! grep { $_ eq $el } @dep_keys )
+    {
+      my $key = $el;
+      $sequence{$key} = $order;
+      @treedirs = grep { $_ ne $key } @treedirs;
+    }
+  }
+
+  my $count = $#dep_keys;
+
+  for( my $i = 0; $i < $count; ++$i )
+  {
+    my @installed = keys %sequence;
+
+    foreach my $key (sort keys %deps)
+    {
+      my $ok = 1;
+      my @dirs = split( ' ', $deps{$key} );
+
+      foreach my $dir ( @dirs )
+      {
+        if( ! grep { $_ eq $dir } @installed )
+        {
+          $ok = 0;
+        }
+      }
+
+      if( $ok == 1 )
+      {
+        $sequence{$key} = ++$order;
+        delete $deps{$key};
+      }
+    }
+  }
+}
+#
+# End if( there is any dependencies )
+#################################################################
+
+#################################################################
+# Building Required Packages List:
+#
+sub compare_order
+{
+  $sequence{$a} <=> $sequence{$b};
+}
+
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# file format:\n";
+print PKGLIST_FILE "# ===========\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# Each line contains five fields separated by colon symbol ':' like following.\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# pkgname:version:description:tarball:priority\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# where:\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "#   pkgname     - should be the same as the value of pkgname  in the '.DESCRIPTION' file;\n";
+print PKGLIST_FILE "#   version     - package version for showing in check list  dialog box  if this file is\n";
+print PKGLIST_FILE "#                 used to complete common check dialog for installing group  of packages;\n";
+print PKGLIST_FILE "#   description - Short description for showing in check list dialog box if this file is\n";
+print PKGLIST_FILE "#                 used to complete common check dialog for installing  group of packages;\n";
+print PKGLIST_FILE "#   tarball     - should end in '." . $tarball_suffix . "';\n";
+print PKGLIST_FILE "#   priority    - { REQUIRED|RECOMMENDED|OPTIONAL|SKIP }\n";
+print PKGLIST_FILE "#                  synonims:\n";
+print PKGLIST_FILE "#                    { REQUIRED    | required    | REQ | req }\n";
+print PKGLIST_FILE "#                    { RECOMMENDED | recommended | REC | rec }\n";
+print PKGLIST_FILE "#                    { OPTIONAL    | optional    | OPT | opt }\n";
+print PKGLIST_FILE "#                    { SKIP        | skip        | SKP | skp }\n";
+print PKGLIST_FILE "#\n";
+
+
+my $packages_done = 0;
+
+sub print_result
+{
+  my $out_string = sprintf( "####### Required Packages Install List (done: %4d packages)\n", $packages_done );
+
+  print $out_string;
+}
+
+print "#######\n";
+
+foreach my $dir (sort compare_order( (keys %sequence) ))
+{
+  my %package;
+
+  if( $dir ne "all" )
+  {
+    %package = fill_package_info( $topdir . "/" . $dir . "/Makefile" );
+    #
+    # Currently gcc-runtime has not ROOTFS_TARGET and not all packages requires GCC.
+    # We will not add GCC in this procedure forcibly. But developers have to care about
+    # competing packages GCC and gcc-runtime.
+    #
+    if( $package{'name'} ne "" && $package{'install'} eq "yes" )
+    {
+      print PKGLIST_FILE $package{'name'}        . ":" .
+                         $package{'version'}     . ":" .
+                         $package{'description'} . ":" .
+                         $package{'group'}       . "/" .
+                         $package{'tarball'}     . ":REQUIRED\n";
+      ++$packages_done;
+    }
+  }
+}
+
+if( $root_package{'name'} ne "" && $root_package{'install'} eq "yes" )
+{
+  print PKGLIST_FILE $root_package{'name'}        . ":" .
+                     $root_package{'version'}     . ":" .
+                     $root_package{'description'} . ":" .
+                     $root_package{'group'}       . "/" .
+                     $root_package{'tarball'}     . ":REQUIRED\n";
+  ++$packages_done;
+}
+
+print_result();
+print "#######\n";
+#
+# End of Building Required Packages List.
+#################################################################
+
+
+# close input files
+close REQUIRES_FILE;
+# close output files
+close PKGLIST_FILE;

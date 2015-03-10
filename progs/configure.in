@@ -1,0 +1,92 @@
+
+dnl ============================================================
+dnl  Process this file with autoconf to produce
+dnl  a configure script.
+dnl ============================================================
+
+AC_PREREQ(2.58)dnl           dnl Minimum Autoconf version required.
+
+
+AC_INIT([build-system], [1.0.0])
+AC_CONFIG_SRCDIR(acsite.m4)
+
+
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl $$                                                        $$
+dnl $$ PART: Test for Auxiliary (my be version sensitive)     $$
+dnl $$       programs                                         $$
+dnl $$                                                        $$
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+AC_MSG_RESULT(=======)
+AC_MSG_RESULT(======= Test for aux programs:)
+AC_MSG_RESULT(=======)
+
+dnl ============================================================
+dnl  Locate tools( on build machine! ) .
+dnl                =================
+dnl ============================================================
+AC_PATH_PROG_LN_S
+AC_SUBST(LN)
+AC_SUBST(LN_S)
+
+dnl  Нам нужен исполняемый файл pwd. Встроенный "pwd -P" нас
+dnl  не устраивает( из соображений переносимости ) .
+AC_PATH_PROG(PWD_P, pwd, no)
+if test "$PWD_P" = no; then
+   AC_MSG_ERROR(********   A pwd binary could not be found.)
+fi
+
+AC_PATH_PROGS(SED, sed gsed, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROGS(TAR, tar gtar, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROG(BASH, bash, no)
+if test "$BASH" != no &&
+   $BASH -c 'test "$BASH_VERSINFO" \
+             && test "$BASH_VERSINFO" -ge 2 >&/dev/null'; then
+   parse_conf_cv_have_bash2=yes
+else
+   parse_conf_cv_have_bash2=no
+fi
+AC_SUBST(parse_conf_cv_have_bash2)
+
+
+AC_PATH_PROGS(AWK, gawk awk, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROG(BISON, bison, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+
+
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl $$                                                        $$
+dnl $$ PART: OUTPUT Substitution                              $$
+dnl $$                                                        $$
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+dnl ============================================================
+AC_MSG_RESULT(=======)
+AC_MSG_RESULT(======= OUTPUT:)
+AC_MSG_RESULT(=======)
+
+
+AC_OUTPUT([
+.config
+])
+
+AC_MSG_RESULT(=======)
+AC_MSG_RESULT(======= End of test for aux programs.)
+AC_MSG_RESULT(=======)

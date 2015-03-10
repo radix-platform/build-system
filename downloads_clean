@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Find;
+use _kxLab;
+
+
+# Global variables
+my $header_printed = 0;
+
+my $top_dir;
+my @targets;
+my $verbose = $ENV{VERBOSE};
+
+my %seen;
+my ( @dist_clean_dirs, @clean_dirs, @dist_clean_dirs_all, @clean_dirs_all );
+my ( $dist_clean_count, $clean_count );
+
+sub do_clean
+{
+  unlink "$top_dir/.makefile";
+
+  foreach my $d ( @clean_dirs )
+  {
+    my $printed_d;
+
+    $printed_d = $d;
+    $printed_d =~ s/^$top_dir\///;
+
+    print "\n=======\n" if ( $verbose );
+    print "======= Cleaning in $printed_d...\n" if ( $verbose );
+    print "=======\n" if ( $verbose );
+#    _kxLab::system( "make -C $d local_clean" );
+    _kxLab::system( "make -C $d download_clean" );
+    unlink "$d/.makefile";
+    unlink <$d/.*_requires*>;
+  }
+}
+
+sub do_clean_list
+{
+  my $dir = shift;
+  my $cwd = `pwd`;
+
+  chomp $cwd;
+
+  # skip not our directories where we create patches
+  return if( $cwd =~ m/.*create\-.*\-patch.*/ );
+
+  return if( ! -f "$cwd/Makefile" );
+
+  # needs clean:
+  push @clean_dirs_all, $cwd;
+}
+
+sub process_clean
+{
+  return if( ! $File::Find::dir =~ m/$top_dir\/sources/ );
+
+  # add directory which contains 'Makefile' too.
+  if( $_ eq "Makefile" ) { do_clean_list( $File::Find::dir ); }
+
+  return if( ! -d $_ );
+
+  foreach my $d ( @targets )
+  {
+    if( $d eq $_ ) { do_clean_list( $File::Find::dir ); }
+  }
+}
+
+
+foreach ( @ARGV )
+{
+  push @targets, $_;
+}
+$top_dir = pop @targets;
+
+if( ! -d $top_dir )
+{
+  die "\nTop: $top_dir: is not a directory\n\n";
+}
+if( ! $top_dir =~ m/^\// )
+{
+  die "\nTop: $top_dir: is not absolute path\n\n";
+}
+
+find( \&process_clean, "$top_dir" );
+
+# get unique names:
+%seen = ();
+@clean_dirs = grep { ! $seen{ $_ }++ } @clean_dirs_all;
+@clean_dirs = reverse( keys %seen );
+
+$clean_count = @clean_dirs;
+
+if( $clean_count != 0 )
+{
+  if( !$header_printed )
+  {
+    print "\n======= Cleaning downloads tree =======\n\n" if ( $verbose );
+    $header_printed = 1;
+  }
+
+  do_clean();
+
+  print "\n";
+}
+else
+{
+  print "\nCleaning...   (nothing to be done).\n\n";
+}
+

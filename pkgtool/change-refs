@@ -1,0 +1,223 @@
+#!/bin/sh
+
+program=`basename $0`
+
+# EXIT STATUS 92 = Cannot create '/tmp/...' directory
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" EXIT
+
+
+usage() {
+  echo ""
+  echo "Usage: cd /SETUP_DB_PATH/packages; $program operation pkglogfile"
+  echo ""
+  echo "Where the following operations are available:"
+  echo "  inc - increment reference counters in the required package logs"
+  echo "  dec - decrement reference counters in the required package logs"
+  echo ""
+}
+
+get_pkg_name_from_logfile() {
+  logfile=$1
+  if [ -f ./$logfile ]; then
+    pkginfo --dest $TMP pkginfo $logfile
+    if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+      rm -f $TMP/.PKGINFO
+    else
+      # store current values
+      cst01=pkgname
+      cst02=pkgver
+      cst03=arch
+      cst04=distroname
+      cst05=distrover
+      cst06=group
+      cst07=short_description
+      cst08=url
+      cst09=license
+      cst10=uncompressed_size
+      cst11=total_files
+
+      . $TMP/.PKGINFO
+      rm -f $TMP/.PKGINFO
+      if [ "$pkgname" = "" ]; then
+        echo ""
+      else
+        echo "$pkgname"
+      fi
+
+      # restore current values
+      pkgname=cst01
+      pkgver=cst02
+      arch=cst03
+      distroname=cst04
+      distrover=cst05
+      group=cst06
+      short_description=cst07
+      url=cst08
+      license=cst09
+      uncompressed_size=cst10
+      total_files=cst11
+    fi
+  else
+    echo ""
+  fi
+}
+
+refcounter=
+get_ref_counter() {
+  logfile=$1
+  LINENUM_REF="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_REF" = "" ]; then
+    refcounter=
+  fi
+  LINE="`sed -n "$LINENUM_REF p" $logfile`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+}
+
+set_ref_counter() {
+  logfile=$1
+  refs=$2
+  LINENUM_REF="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_REF" = "" ]; then
+#    echo "$program: WARNING: reference counter is not present in $logfile ."
+    return
+  fi
+  LINE="`sed -n "$LINENUM_REF p" $logfile`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  if [ ! "$oldrefs" = "" ]; then
+    sed -e "$LINENUM_REF s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile 
+  fi
+}
+
+inc_ref_counter() {
+  logfile=$1
+  pkgn=$2
+  pkgv=$3
+  LINENUM_RFS="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  LINENUM_RQS="`cat $logfile | grep -n -e "REQUIRES:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_RFS" = "" ]; then
+#    echo "$program: WARNING: reference counter is not present in $logfile ."
+    return
+  fi
+  LINE="`sed -n "$LINENUM_RFS p" $logfile`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  if [ ! "$oldrefs" = "" ]; then
+    refs=$oldrefs
+    LINENUM_FOUND=`cat $logfile | grep -n -e "^$pkgn=$pkgv" | cut -f 1 -d ':'`
+    for LINENUM_TODEL in $LINENUM_FOUND ; do
+      if [ $LINENUM_TODEL -gt $LINENUM_RFS -a $LINENUM_TODEL -lt $LINENUM_RQS ]; then
+#        echo "$program: WARNING: reference is already counted in $logfile ."
+        return
+      fi
+    done
+    let refs+=1
+    sed -e "$LINENUM_RFS s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile
+    # add line: NOTE: should be uniq
+    sed '/^REFERENCE COUNTER:/ a\
+@__package__@
+' $logfile > log$$ && mv log$$ $logfile
+    let LINENUM_RFS+=1
+    sed -e "$LINENUM_RFS s/@__package__@/$pkgn=$pkgv/" $logfile > log$$ && mv log$$ $logfile
+  fi
+}
+
+dec_ref_counter() {
+  logfile=$1
+  pkgn=$2
+  pkgv=$3
+  LINENUM_RFS="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  LINENUM_RQS="`cat $logfile | grep -n -e "REQUIRES:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_RFS" = "" ]; then
+#    echo "$program: WARNING: reference counter is not present in $logfile ."
+    return
+  fi
+  LINE="`sed -n "$LINENUM_RFS p" $logfile`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  if [ ! "$oldrefs" = "" ]; then
+    refs=$oldrefs
+    if [ ! "$refs" = "0" ]; then
+      # remove all of lines '$pkgn=$pkgv' between 'REFERENCE COUNTER:' and 'REQUIRES:' lines
+      LINENUM_FOUND=`cat $logfile | grep -n -e "^$pkgn=$pkgv" | cut -f 1 -d ':'`
+      DEL_LINES=
+      for LINENUM_TODEL in $LINENUM_FOUND ; do
+        if [ $LINENUM_TODEL -gt $LINENUM_RFS -a $LINENUM_TODEL -lt $LINENUM_RQS ]; then
+          let refs-=1
+          if [ "$DEL_LINES" = "" ]; then
+            DEL_LINES=$LINENUM_TODEL # first line to delete
+          fi
+        fi
+      done
+      if [ $refs -lt 0 ]; then
+        refs=0
+      fi
+      DEL_LINES=$DEL_LINES,$LINENUM_TODEL # add the last line to delete
+      sed "$DEL_LINES d" $logfile > log$$ && mv log$$ $logfile
+      sed -e "$LINENUM_RFS s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile
+    fi
+  fi
+}
+
+
+operation=$1
+shift
+if [ ! "$operation" = "inc" -a ! "$operation" = "dec" ]; then
+  usage
+  echo "$program: ERROR: invalid operation name."
+  echo
+  exit 1
+fi
+if [ "$operation" = "inc" ]; then
+  operation=inc_ref_counter
+elif [ "$operation" = "dec" ]; then
+  operation=dec_ref_counter
+fi
+
+if [ "$1" = "" ]; then
+  usage
+  echo "$program: ERROR: pkglogfile is not present in argument list."
+  echo
+  exit 1
+fi
+logfile=$1
+
+
+pkginfo --dest $TMP requires $logfile
+if [ ! -f $TMP/.REQUIRES -o ! -s $TMP/.REQUIRES ]; then
+  rm -f $TMP/.REQUIRES
+  exit 0
+fi
+
+pkginfo --dest $TMP pkginfo $logfile
+if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+  rm -f $TMP/.PKGINFO
+  exit 0
+else
+  . $TMP/.PKGINFO
+  rm -f $TMP/.PKGINFO
+  if [ "$pkgname" = "" -o "$pkgver" = "" ]; then
+    echo "$program: ERROR: pkglogfile doesn't contain necessary declarations."
+    exit 0
+  fi
+fi
+
+# read lines:
+LINENUMS=`sed -n "$=" $TMP/.REQUIRES | tr '\n' '\0'`
+LINENUM_REQ=1
+while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
+  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES | tr '\n' '\0'`"
+  let LINENUM_REQ+=1
+  pnam=`echo "$LINE" | cut -f 1 -d '='`
+  pver=`echo "$LINE" | cut -f 2 -d '='`
+  # NOTE: the version of found package is not checked.
+  for reqfile in `find * -type f -name "$pnam-*"` ; do
+    # cut off pkgver-arch-distroname-distroversion fields of founded file name:
+    pname_only=`get_pkg_name_from_logfile $reqfile`
+    if [ "$pname_only" = "$pnam" ]; then
+      $operation $reqfile $pkgname $pkgver
+    fi
+  done
+done
+rm -f $TMP/.REQUIRES
+
+exit 0

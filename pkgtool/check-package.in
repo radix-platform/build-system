@@ -1,0 +1,423 @@
+#!/bin/sh
+
+TAR=tar
+
+# program name:
+program=`basename $0`
+
+#  1 = tar returned error code
+#  2 = failed read package info
+#  4 = not a file
+# 11 = broken .PKGINFO
+# 12 = broken .DESCRIPTION
+# 13 = permission denied (should be root)
+# 14 = broken .pkglist or user pkglist
+# 15 = priority has not specified arter --priority option
+# 16 = root path has not specified arter --root option
+# 17 = exit if called with no arguments
+# 19 =  pre install script returns bad status
+# 20 = post install script returns bad status
+# 21 =  pre Remove script returns bad status
+# 22 = post Remove script returns bad status
+# 23 = package is not installed correctly
+# 24 = {Setup | Package} database directory doesn't exist.
+# 25 = {There are not resolved requires | Reference counter is not empty}
+# 26 = the 'pkglogfile' cannot be restored in the package data base
+# 92 = Cannot create '/tmp/...' directory
+######!# 99 = user abort from menu mode
+EXITSTATUS=0
+
+CWD=`pwd`
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" EXIT
+
+
+usage() {
+ cat << EOF
+
+Usage: $program [options] { package_tarball | pkglogfile }
+
+$program is used to determine how the package is installed:
+   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+
+returns:
+   30 - Package is installed correctly;
+   31 - Package is not installed;
+   32 - Package is installed but not correct.
+
+options:
+   --root /dest    - install someplace else, like /dest;
+   --dark          - do not output log messages into stdout.
+                     no afect if an error;
+   --print-list    - print the list of brocken links and
+                     files to stdout.
+                     no afect if '--dark' option is used;
+   --skip-requires - skip checking required packages.
+
+EOF
+}
+
+refcounter=
+get_ref_counter() {
+  logfile=$1
+  LINENUM_REF="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_REF" = "" ]; then
+    refcounter=
+  fi
+  LINE="`sed -n "$LINENUM_REF p" $logfile`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+}
+
+tarball_pkginfo() {
+  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: Cannot extract package info from $1"
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+}
+
+extract_links() {
+ sed -n 's,^( *cd \([^ ;][^ ;]*\) *; *rm -rf \([^ )][^ )]*\) *) *$,\1/\2,p'
+}
+
+strip_description() {
+  infile=$1
+  outfile=$2
+  echo " " > $outfile
+  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  if [ "$LINENUMS" = "" ]; then
+    echo "WARNING: Description is empty or corrupted."
+    return
+  fi
+  for LINENUM in $LINENUMS ; do
+    LINE="`sed -n "$LINENUM p" $infile | sed -e "s/^$pkgname://"`"
+    if [ "$LINE" = "" ]; then
+       LINE=" "
+    else
+       LINE="`echo "$LINE" | sed -e "s/ $//g"`"
+    fi
+    echo "$LINE" >> $outfile
+  done
+}
+
+
+#
+# Parse options:
+#
+while [ 0 ]; do
+  if [ "$1" = "-h" -o "$1" = "--help" ]; then
+    usage
+    exit 0
+  elif [ "$1" = "--dark" ]; then
+    DARK="yes"
+    shift 1
+  elif [ "$1" = "--print-list" ]; then
+    PRINTLIST="yes"
+    shift 1
+  elif [ "$1" = "--skip-requires" ]; then
+    SKIPREQUIRES="yes"
+    shift 1
+  elif [ "$1" = "--root" ]; then
+    if [ "$2" = "" ]; then
+      usage
+      echo "ERROR: Target root path has not specified. Check --root option."
+      EXITSTATUS=16
+      exit $EXITSTATUS
+    fi
+    TARGET_ROOT_PATH="$2"
+    shift 2
+  else
+    break
+  fi
+done
+
+#
+# usage(), exit if called with no arguments:
+#
+if [ $# = 0 ]; then
+  usage
+  echo "ERROR: arguments were not specified. Check options."
+  EXITSTATUS=17
+  exit $EXITSTATUS
+fi
+
+if [ "$TARGET_ROOT_PATH" = "" ]; then
+  TARGET_ROOT_PATH="/"
+else
+  TARGET_ROOT_PATH="`echo "$TARGET_ROOT_PATH" | sed -e "s/\/$//"`/"
+fi
+
+if [ "$TARGET_ROOT_PATH" = "/" ]; then
+  if [ ! $UID = "0" ]; then
+    echo "ERROR: Trying to install into root directory: permission denied"
+    EXITSTATUS=13
+    exit $EXITSTATUS
+  fi
+fi
+
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+if [ ! -d $SETUP_DB_PATH ]; then
+  echo "ERROR: Setup database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+PKG_DB_PATH=$SETUP_DB_PATH/packages
+if [ ! -d $PKG_DB_PATH ]; then
+  echo "ERROR: Packages database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+for PKG_DB_DIR in removed_packages setup ; do
+  if [ ! -d $SETUP_DB_PATH/$PKG_DB_DIR ]; then
+    rm -rf $SETUP_DB_PATH/$PKG_DB_DIR # make sure it's not a link
+    mkdir -p $SETUP_DB_PATH/$PKG_DB_DIR
+    chmod 755 $SETUP_DB_PATH/$PKG_DB_DIR
+  fi
+done
+
+REMOVED_PKG_DB_PATH=$SETUP_DB_PATH/removed_packages
+LOG_PATH=$SETUP_DB_PATH/setup
+LOG_FILE=$LOG_PATH/setup.log
+
+file_counter=0
+check_files() {
+  while read FILE ; do
+    if [ ! -d "${TARGET_ROOT_PATH}$FILE" ]; then
+      if [ ! -r "${TARGET_ROOT_PATH}$FILE" ]; then
+        let file_counter+=1
+        if [ ! "$DARK" = "yes" -a "$PRINTLIST" = "yes" ];then
+          echo " ===> ${TARGET_ROOT_PATH}$FILE no longer exists."
+        fi
+      fi
+    fi
+  done
+}
+
+link_counter=0
+check_links() {
+  while read LINK ; do
+    if [ ! -L "${TARGET_ROOT_PATH}$LINK" ]; then
+      let link_counter+=1
+      if [ ! "$DARK" = "yes" -a "$PRINTLIST" = "yes" ];then
+        echo " ===> ${TARGET_ROOT_PATH}$LINK (symlink) no longer exists."
+      fi
+    fi
+  done
+}
+
+
+################################################################
+# Main:
+#
+PKGFILE=$1
+
+log_is_restored=0
+
+# Simple package integrity check:
+if [ ! -f $PKGFILE ]; then
+  EXITSTATUS=4
+  echo "ERROR: $PKGFILE: is not a regular file"
+  exit $EXITSTATUS
+fi
+
+pkgfile_name="`basename $PKGFILE`"
+pkgfile_noext_name="`basename $PKGFILE .tgz`"
+pkgfile_src_dir="`dirname $PKGFILE`"
+
+if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then
+  logfile="$PKGFILE"
+  tarball=""
+else
+  logfile=""
+  tarball="$PKGFILE"
+fi
+
+# getting .PKGINFO file:
+if [ ! "$logfile" = "" ]; then
+  pkginfo --dest $TMP pkginfo $logfile
+  if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+    rm -f $TMP/.PKGINFO
+    echo "ERROR: There is no package info in $1"
+    EXITSTATUS=2
+    exit $EXITSTATUS
+  fi
+elif [ ! "$tarball" = "" ]; then
+  tarball_pkginfo $tarball
+  if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+    rm -f $TMP/.PKGINFO
+    echo "ERROR: There is no package info in $1"
+    EXITSTATUS=2
+    exit $EXITSTATUS
+  fi
+fi
+
+if [ -f $TMP/.PKGINFO ]; then
+  . $TMP/.PKGINFO
+  # check variables:
+  if [ "$pkgname" = "" -o "$pkgver" = "" -o "$arch" = "" -o "$distroname" = "" -o "$distrover" = "" ]; then
+    echo "ERROR: The file '.PKGINFO' doesn't contain necessary declarations."
+    EXITSTATUS=11
+    exit $EXITSTATUS 
+  fi
+fi
+rm -f $TMP/.PKGINFO
+
+# check installed pkglog file:
+if [ ! -f $PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
+  if [ ! "$tarball" = "" ]; then
+    # try to create new logfile from pkg tarball in the current directory.
+    zcat $tarball | $TAR -C $TMP -xf - .PKGINFO .INSTALL .FILELIST .REQUIRES .DESCRIPTION .RESTORELINKS  2> /dev/null
+    # do not check ret code because not all of .* files should be present in tarball
+    if [ -f "$TMP/.PKGINFO" ]; then
+      pkglog $TMP/.PKGINFO $TMP > /dev/null 2>&1
+    fi
+    rm -f $TMP/.PKGINFO $TMP/.INSTALL $TMP/.FILELIST $TMP/.REQUIRES $TMP/.DESCRIPTION $TMP/.RESTORELINKS
+    if [ -f $TMP/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
+      mv -f $TMP/$pkgname-$pkgver-$arch-$distroname-$distrover $PKG_DB_PATH
+      log_is_restored=1
+    else
+      echo "ERROR: The '$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover' file cannot be restored."
+      EXITSTATUS=26
+      exit $EXITSTATUS
+    fi
+  elif [ ! "$logfile" = "" ]; then
+    if [ ! "$logfile" = "$pkgname-$pkgver-$arch-$distroname-$distrover" ]; then
+      cp -f $logfile $PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover
+    else
+      cp -f $logfile $PKG_DB_PATH
+    fi
+    log_is_restored=1
+  else
+    echo "ERROR: The '$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover' file cannot be restored."
+    EXITSTATUS=26
+    exit $EXITSTATUS
+  fi
+fi
+# So continue with logfile
+logfile=$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover
+
+# Checking process:
+echo ""                                            >> $LOG_FILE
+echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
+echo -n "Checking: `basename $logfile`: "          >> $LOG_FILE
+
+# Getting saved links:
+pkginfo --dest $TMP restore_links $logfile
+if [ ! -f $TMP/.RESTORELINKS -o ! -s $TMP/.RESTORELINKS ]; then
+  rm -f $TMP/.RESTORELINKS
+else
+  cat $TMP/.RESTORELINKS | extract_links | sort -u > $TMP/links$$
+  rm -f $TMP/.RESTORELINKS
+fi
+# Getting files:
+pkginfo --dest $TMP filelist $logfile
+if [ ! -f $TMP/.FILELIST -o ! -s $TMP/.FILELIST ]; then
+  rm -f $TMP/.FILELIST
+else
+  cat $TMP/.FILELIST | sort -u > $TMP/files$$
+  rm -f $TMP/.FILELIST
+fi
+
+pkginfo --dest $TMP description $logfile
+strip_description "$TMP/.DESCRIPTION" "$TMP/msg$$"
+rm -f $TMP/.DESCRIPTION
+
+echo " Uncompressed Size: $uncompressed_size" >> $TMP/msg$$
+echo "       Total Files: $total_files"       >> $TMP/msg$$
+
+if [ ! "$DARK" = "yes" ];then
+  echo ""
+  echo "Checking package $pkgname... "
+  ####  |---handy-ruler--------------------------------------------------------|
+  echo "|======================================================================|"
+  echo "`cat $TMP/msg$$`"
+  echo "|======================================================================|"
+  echo ""
+fi
+rm -f $TMP/msg$$
+
+not_installed=0
+
+if [ -f $TMP/links$$ -a -s $TMP/links$$ ]; then
+  link_counter=0
+  line_counter=`sed -n "$=" $TMP/links$$ | tr '\n' '\0'`
+  check_links < $TMP/links$$
+  if [ ! "$link_counter" = "0" ]; then
+    if [ $link_counter -lt $line_counter ]; then
+      # not correct
+      if [ ! "$DARK" = "yes" ];then
+        echo " ERROR: There {is|are} $link_counter not resolved symbolic link[s]."
+        echo ""
+      fi
+      echo "ERROR: There are $link_counter not resolved symbolic links." >> $LOG_FILE
+      echo -n "Checking: `basename $logfile`: "                          >> $LOG_FILE
+    else
+      # not installed
+      let not_installed+=1
+    fi
+  fi
+fi
+rm -f $TMP/links$$
+
+if [ -f $TMP/files$$ -a -s $TMP/files$$ ]; then
+  file_counter=0
+  line_counter=`sed -n "$=" $TMP/files$$ | tr '\n' '\0'`
+  check_files < $TMP/files$$
+  if [ ! "$file_counter" = "0" ]; then
+    if [ $file_counter -lt $line_counter ]; then
+      # not correct
+      if [ ! "$DARK" = "yes" ];then
+        echo " ERROR: There {is|are} $file_counter not resolved file[s]."
+        echo ""
+      fi
+      echo "ERROR: There are $file_counter not resolved files." >> $LOG_FILE
+      echo -n "Checking: `basename $logfile`: "                 >> $LOG_FILE
+    else
+      # not installed
+      let not_installed+=1
+    fi
+  fi
+fi
+rm -f $TMP/files$$
+
+if [ ! "$link_counter" = "0" -o ! "$file_counter" = "0" ]; then
+  if [ $not_installed -lt 1 ]; then
+    # leave restored log if pakage installed not correctly
+    if [ ! "$DARK" = "yes" ];then
+      echo " ERROR: Package is istalled but not correct."
+      echo ""
+    fi
+    echo "ERROR: Package is istalled but not correct." >> $LOG_FILE
+    EXITSTATUS=32
+  else
+    # rmove restored log if package is not correct or not installed
+    if [ ! "$log_is_restored" = "0" ]; then
+      rm -f $logfile
+    fi
+    if [ ! "$DARK" = "yes" ];then
+      echo " SUCCESS: Package is not installed."
+      echo ""
+    fi
+    echo "SUCCESS: Package is not installed." >> $LOG_FILE
+    EXITSTATUS=31
+  fi
+else
+  # leave restored log if pakage installed correctly
+  if [ ! "$DARK" = "yes" ];then
+    echo " SUCCESS: Package is installed correctly."
+    echo ""
+  fi
+  echo "SUCCESS: Package is installed correctly." >> $LOG_FILE
+  EXITSTATUS=30
+fi
+#
+# End of Main loop.
+################################################################
+
+exit $EXITSTATUS
+

@@ -1,0 +1,283 @@
+#!/bin/sh
+
+TAR=tar
+
+# program name:
+program=`basename $0`
+
+#  1 = tar returned error code (or caannot get .REQUIRES file)
+#  2 = failed read package info
+#  4 = not a file
+# 16 = root path has not specified arter --root option
+# 17 = exit if called with no arguments
+# 24 = {Setup | Package} database directory doesn't exist.
+# 92 = Cannot create '/tmp/...' directory
+EXITSTATUS=0
+
+CWD=`pwd`
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" EXIT
+
+
+usage() {
+ cat << EOF
+
+Usage: $program [options] {package_tarball | instll_log_file}
+
+$program is used to determine which packages are required for this package:
+   $program /pkgsdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz  1>humanreadable 2>formatted
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+
+options:
+   --root /dest - root path to finding packaged database
+                  Note that 'path' should be absolute, like '/dest';
+
+stderr (format):
+   pkgname:reqver:ERRCODE
+where:
+   pkgname - required package name;
+   reqver  - required version;
+   ERRCODE - {OLD | NOTINSTALLED}
+                    ------------
+                    NOTINSTALLED - the required package is not installed,
+              ---
+              OLD                - the required package is installed but too old.
+
+stdout is human readable.
+
+EOF
+}
+
+
+tarball_requires() {
+  zcat $1 | $TAR -xvf - ".REQUIRES" -O  1> $TMP/.REQUIRES  2> /dev/null
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: Cannot extract package requires from $1"
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+}
+
+
+#
+# Compare two VERSION present in X.X.X.X format, where X - is a number
+# ====================================================================
+#
+# RETURNS: 0 if '='; 1 if '>'; 2 if '<';
+#
+# Trailing symbols are compared (lexicographically) if versions are equal.
+#
+vcmp() {
+  local v1=`echo $1 | sed 's/\([0-9.]*\)\([-a-zA-Z].*\)/\1/'`
+  local t1=`echo $1 | sed 's/\([0-9.]*\)\([-a-zA-Z].*\)/\2/'`
+  local v2=`echo $2 | sed 's/\([0-9.]*\)\([-a-zA-Z].*\)/\1/'`
+  local t2=`echo $2 | sed 's/\([0-9.]*\)\([-a-zA-Z].*\)/\2/'`
+  if [[ $v1 == $v2 ]] ; then
+    if [ "$t1" = "$t2" ] ; then
+      echo "="
+      return 0
+    fi
+    if [ "$t1" \< "$t2" ] ; then
+      echo "<"
+      return 2
+    fi
+    if [ "$t1" \> "$t2" ] ; then
+      echo ">"
+      return 1
+    fi
+  fi
+  local IFS=.
+  local i ver1=($v1) ver2=($v2)
+  # fill empty fields in ver1 with zeros
+  for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)) ; do
+    ver1[i]=0
+  done
+  for ((i=0; i<${#ver1[@]}; i++)) ; do
+    if [[ -z ${ver2[i]} ]]
+    then
+      # fill empty fields in ver2 with zeros
+      ver2[i]=0
+    fi
+    if ((10#${ver1[i]} > 10#${ver2[i]}))
+    then
+      echo ">"
+      return 1
+    fi
+    if ((10#${ver1[i]} < 10#${ver2[i]}))
+    then
+      echo "<"
+      return 2
+    fi
+  done
+  echo "="
+  return 0
+}
+
+
+print_candidates() {
+  local path=$1
+  local pkgname=$2
+
+  local maxver=0
+
+  local list=
+  local li=`find $path -type f -name "$pkgname-[0-9]*" | sed "s/$pkgname-\([0-9.]*\)[-a-zA-Z].*/\1/"`
+  for l in $li ; do
+    list="$list `basename $l`"
+  done
+  for ver in $list ; do
+    if [ "`vcmp $maxver $ver`" = "<" ] ; then
+      maxver=$ver
+    fi
+  done
+
+  local rlist=
+  for f in `find $path -type f -name "$pkgname-$maxver*" | sort -r` ; do
+    rlist="$rlist $f"
+  done
+
+  echo "$rlist"
+}
+
+
+#
+# Parse options:
+#
+while [ 0 ]; do
+  if [ "$1" = "-h" -o "$1" = "--help" ]; then
+    usage
+    exit 0
+  elif [ "$1" = "--root" ]; then
+    if [ "$2" = "" ]; then
+      usage
+      echo "ERROR: Target root path has not specified. Check --root option."
+      EXITSTATUS=16
+      exit $EXITSTATUS
+    fi
+    TARGET_ROOT_PATH="$2"
+    shift 2
+  else
+    break
+  fi
+done
+
+#
+# usage(), exit if called with no arguments:
+#
+if [ $# = 0 ]; then
+  usage
+  echo "ERROR: arguments were not specified. Check options."
+  EXITSTATUS=17
+  exit $EXITSTATUS
+fi
+
+if [ "$TARGET_ROOT_PATH" = "" ]; then
+  TARGET_ROOT_PATH="/"
+else
+  TARGET_ROOT_PATH="`echo "$TARGET_ROOT_PATH" | sed -e "s/\/$//"`/"
+fi
+
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+if [ ! -d $SETUP_DB_PATH ]; then
+  echo "ERROR: Setup database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+PKG_DB_PATH=$SETUP_DB_PATH/packages
+if [ ! -d $PKG_DB_PATH ]; then
+  echo "ERROR: Packages database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+
+################################################################
+# Main loop:
+#
+PKGFILE=$1
+
+# Simple package integrity check:
+if [ ! -f $PKGFILE ]; then
+  EXITSTATUS=4
+  echo "ERROR: $PKGFILE: is not a regular file"
+  exit $EXITSTATUS
+fi
+
+pkgfile_name="`basename $PKGFILE`"
+pkgfile_noext_name="`basename $PKGFILE .tgz`"
+pkgfile_src_dir="`dirname $PKGFILE`"
+
+if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then
+  logfile="$PKGFILE"
+  tarball=""
+else
+  logfile=""
+  tarball="$PKGFILE"
+fi
+
+# getting .REQUIRES file:
+if [ ! "$logfile" = "" ]; then
+  pkginfo --dest $TMP requires $logfile
+  if [ ! -f $TMP/.REQUIRES -o ! -s $TMP/.REQUIRES ]; then
+    rm -f $TMP/.REQUIRES
+    exit 1
+  fi
+elif [ ! "$tarball" = "" ]; then
+  tarball_requires $tarball
+  if [ ! -f $TMP/.REQUIRES -o ! -s $TMP/.REQUIRES ]; then
+    rm -f $TMP/.REQUIRES
+    exit 1
+  fi
+fi
+
+echo ""
+echo "Requires of `basename $PKGFILE`:"
+echo ""
+
+# read lines:
+LINENUMS=`sed -n "$=" $TMP/.REQUIRES | tr '\n' '\0'`
+LINENUM_REQ=1
+while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
+  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES | tr '\n' '\0'`"
+  let LINENUM_REQ+=1
+  reqname=`echo "$LINE" | cut -f 1 -d '='`
+  reqver=`echo "$LINE" | cut -f 2 -d '='`
+  if [ ! -z "$reqname" ]; then
+    if [ "`find $PKG_DB_PATH -type f -name "$reqname-[0-9.]*"`" = "" ]; then
+      echo "$reqname:$reqver:NOTINSTALLED" >&2
+      echo "Package '$reqname' version: $reqver: Is not installed."
+    fi
+    for reqfile in `print_candidates $PKG_DB_PATH $reqname` ; do
+      pkginfo --dest $TMP pkginfo $reqfile
+      if [ -f "$TMP/.PKGINFO" ]; then
+        unset pkgname
+        unset pkgver
+
+        . $TMP/.PKGINFO
+
+        if [ "`vcmp $pkgver $reqver`" = "=" -o "`vcmp $pkgver $reqver`" = ">" ]; then
+          rm -f $TMP/.PKGINFO
+          break
+        elif [ "`vcmp $pkgver $reqver`" = "<" ]; then
+          echo "$pkgname:$reqver:OLD" >&2
+          echo "Package '$pkgname' version: $reqver: Too old."
+        fi
+        rm -f $TMP/.PKGINFO
+      else
+        EXITSTATUS=2
+        echo "$pkgname:$reqver:NOTINSTALLED" >&2
+        echo "Package '$pkgname' version: $reqver: Is not installed."
+      fi
+    done
+  fi
+done
+rm -f $TMP/.REQUIRES
+#
+# End of Main loop.
+################################################################
+echo ""
+
+exit $EXITSTATUS
+

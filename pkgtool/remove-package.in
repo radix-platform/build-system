@@ -1,0 +1,422 @@
+#!/bin/sh
+
+TAR=tar
+
+# program name:
+program=`basename $0`
+
+#  1 = tar returned error code
+#  2 = failed read package info
+#  4 = not a file
+# 11 = broken .PKGINFO
+# 12 = broken .DESCRIPTION
+# 13 = permission denied (should be root)
+# 14 = broken .pkglist or user pkglist
+# 15 = priority has not specified arter --priority option
+# 16 = root path has not specified arter --root option
+# 17 = exit if called with no arguments
+# 19 =  pre install script returns bad status
+# 20 = post install script returns bad status
+# 21 =  pre Remove script returns bad status
+# 22 = post Remove script returns bad status
+# 23 = package is not installed correctly
+# 24 = {Setup | Package} database directory doesn't exist.
+# 25 = {There are not resolved requires | Reference counter is not empty}
+# 92 = Cannot create '/tmp/...' directory
+######!# 99 = user abort from menu mode
+EXITSTATUS=0
+
+CWD=`pwd`
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" EXIT
+
+
+usage() {
+ cat << EOF
+
+Usage: $program [options] { package_tarball[s] | pkglogfile[s] }
+
+$program is used to remove a *.tgz package like this:
+   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+
+options:
+   --root /dest - install someplace else, like /dest;
+   --skip-refs  - skip checking the reference counter;
+
+EOF
+}
+
+refcounter=
+get_ref_counter() {
+  logfile=$1
+  LINENUM_REF="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_REF" = "" ]; then
+    refcounter=
+  fi
+  LINE="`sed -n "$LINENUM_REF p" $logfile`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+}
+
+tarball_pkginfo() {
+  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: Cannot extract package pkginfo from $1"
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+}
+
+extract_links() {
+ sed -n 's,^( *cd \([^ ;][^ ;]*\) *; *rm -rf \([^ )][^ )]*\) *) *$,\1/\2,p'
+}
+
+strip_description() {
+  infile=$1
+  outfile=$2
+  echo " " > $outfile
+  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  if [ "$LINENUMS" = "" ]; then
+    if [ "$VERBOSE" == "yes" ] ; then
+      echo "WARNING: Description is empty or corrupted."
+    fi
+    return
+  fi
+  for LINENUM in $LINENUMS ; do
+    LINE="`sed -n "$LINENUM p" $infile | sed -e "s/^$pkgname://"`"
+    if [ "$LINE" = "" ]; then
+       LINE=" "
+    else
+       LINE="`echo "$LINE" | sed -e "s/ $//g"`"
+    fi
+    echo "$LINE" >> $outfile
+  done
+}
+
+
+#
+# Parse options:
+#
+while [ 0 ]; do
+  if [ "$1" = "-h" -o "$1" = "--help" ]; then
+    usage
+    exit 0
+  elif [ "$1" = "--verbose" ]; then
+    VERBOSE="yes"
+    shift 1
+  elif [ "$1" = "--dark" ]; then
+    DARKMODE="yes"
+    shift 1
+  elif [ "$1" = "--skip-refs" ]; then
+    SKIPREFERENCES="yes"
+    shift 1
+  elif [ "$1" = "--root" ]; then
+    if [ "$2" = "" ]; then
+      usage
+      echo "ERROR: Target root path has not specified. Check --root option."
+      EXITSTATUS=16
+      exit $EXITSTATUS
+    fi
+    TARGET_ROOT_PATH="$2"
+    shift 2
+  else
+    break
+  fi
+done
+
+#
+# usage(), exit if called with no arguments:
+#
+if [ $# = 0 ]; then
+  usage
+  echo "ERROR: arguments were not specified. Check options."
+  EXITSTATUS=17
+  exit $EXITSTATUS
+fi
+
+if [ "$TARGET_ROOT_PATH" = "" ]; then
+  TARGET_ROOT_PATH="/"
+else
+  TARGET_ROOT_PATH="`echo "$TARGET_ROOT_PATH" | sed -e "s/\/$//"`/"
+fi
+
+if [ "$TARGET_ROOT_PATH" = "/" ]; then
+  if [ ! $UID = "0" ]; then
+    echo "ERROR: Trying to install into root directory: permission denied"
+    EXITSTATUS=13
+    exit $EXITSTATUS
+  fi
+fi
+
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+if [ ! -d $SETUP_DB_PATH ]; then
+  echo "ERROR: Setup database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+PKG_DB_PATH=$SETUP_DB_PATH/packages
+if [ ! -d $PKG_DB_PATH ]; then
+  echo "ERROR: Packages database directory doesn't exist."
+  EXITSTATUS=24
+  exit $EXITSTATUS
+fi
+
+for PKG_DB_DIR in removed_packages setup ; do
+  if [ ! -d $SETUP_DB_PATH/$PKG_DB_DIR ]; then
+    rm -rf $SETUP_DB_PATH/$PKG_DB_DIR # make sure it's not a link
+    mkdir -p $SETUP_DB_PATH/$PKG_DB_DIR
+    chmod 755 $SETUP_DB_PATH/$PKG_DB_DIR
+  fi
+done
+
+REMOVED_PKG_DB_PATH=$SETUP_DB_PATH/removed_packages
+LOG_PATH=$SETUP_DB_PATH/setup
+LOG_FILE=$LOG_PATH/setup.log
+
+delete_files() {
+  while read FILE ; do
+    if [ ! -d "${TARGET_ROOT_PATH}$FILE" ]; then
+      if [ -r "${TARGET_ROOT_PATH}$FILE" ]; then
+        # "-nt" is "newer than"; "-ot" is "older than":
+        if [ "${TARGET_ROOT_PATH}$FILE" -nt "$logfile" ]; then
+          if [ "$VERBOSE" == "yes" ] ; then
+            echo "WARNING: ${TARGET_ROOT_PATH}$FILE changed after package installation."
+          fi
+        fi
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Deleting ${TARGET_ROOT_PATH}$FILE"
+        fi
+        rm -f "${TARGET_ROOT_PATH}$FILE"
+        echo "`dirname $FILE`" >> $TMP/not_sorted_dirs$$
+      else
+        echo " ===> ${TARGET_ROOT_PATH}$FILE no longer exists. Skipping."
+      fi
+    else
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> ${TARGET_ROOT_PATH}$FILE is a directory. Skipping."
+      fi
+      echo "$FILE" >> $TMP/not_sorted_dirs$$
+    fi
+  done
+}
+
+delete_links() {
+  while read LINK ; do
+    if [ -L "${TARGET_ROOT_PATH}$LINK" ]; then
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> Deleting symlink ${TARGET_ROOT_PATH}$LINK"
+      fi
+      rm -f ${TARGET_ROOT_PATH}$LINK
+      echo "`dirname $LINK`" >> $TMP/not_sorted_dirs$$
+    else
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> ${TARGET_ROOT_PATH}$LINK (symlink) no longer exists. Skipping."
+      fi
+    fi
+  done
+}
+
+delete_dirs() {
+  while read DIR ; do
+    if [ -d "${TARGET_ROOT_PATH}$DIR" ]; then
+      if [ `ls -a "${TARGET_ROOT_PATH}$DIR" | wc -l` -eq 2 ]; then
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Deleting empty directory ${TARGET_ROOT_PATH}$DIR"
+        fi
+        rmdir "${TARGET_ROOT_PATH}$DIR"
+      else
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Preserving non empty directory ${TARGET_ROOT_PATH}$DIR"
+        fi
+      fi
+    fi
+  done
+}
+
+################################################################
+# Main loop:
+#
+for PKGFILE in $* ; do
+  # Simple package integrity check:
+  if [ ! -f $PKGFILE ]; then
+    EXITSTATUS=4
+    echo "ERROR: $PKGFILE: is not a regular file"
+    exit $EXITSTATUS
+  fi
+
+  pkgfile_name="`basename $PKGFILE`"
+  pkgfile_noext_name="`basename $PKGFILE .tgz`"
+  pkgfile_src_dir="`dirname $PKGFILE`"
+
+  if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then
+    logfile="$PKGFILE"
+    tarball=""
+  else
+    logfile=""
+    tarball="$PKGFILE"
+  fi
+
+  # getting .PKGINFO file:
+  if [ ! "$logfile" = "" ]; then
+    pkginfo --dest $TMP pkginfo $logfile
+    if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+      rm -f $TMP/.PKGINFO
+      echo "ERROR: There is no package info in $1"
+      EXITSTATUS=2
+      exit $EXITSTATUS
+    fi
+  elif [ ! "$tarball" = "" ]; then
+    tarball_pkginfo $tarball
+    if [ ! -f $TMP/.PKGINFO -o ! -s $TMP/.PKGINFO ]; then
+      rm -f $TMP/.PKGINFO
+      echo "ERROR: There is no package info in $1"
+      EXITSTATUS=2
+      exit $EXITSTATUS
+    fi
+  fi
+
+  if [ -f $TMP/.PKGINFO ]; then
+    . $TMP/.PKGINFO
+    # check variables:
+    if [ "$pkgname" = "" -o "$pkgver" = "" -o "$arch" = "" -o "$distroname" = "" -o "$distrover" = "" ]; then
+      echo "ERROR: The file '.PKGINFO' doesn't contain necessary declarations."
+      EXITSTATUS=11
+      exit $EXITSTATUS 
+    fi
+  fi
+  rm -f $TMP/.PKGINFO
+
+  # check installed pkglog file:
+  if [ ! -f $PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
+    echo "ERROR: The package '$pkgname-$pkgver-$arch-$distroname-$distrover' is not installed correctly."
+    EXITSTATUS=23
+    exit $EXITSTATUS 
+  fi
+  # So continue with logfile
+  logfile=$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover
+
+  # Install process:
+  echo ""                                            >> $LOG_FILE
+  echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
+  echo -n "Removing: `basename $logfile`: "          >> $LOG_FILE
+
+  # check REFERENCE COUNTER: if non zero then exit.
+  if [ ! "$SKIPREFERENCES" = "yes" ]; then
+    get_ref_counter $logfile
+    if [ ! "$refcounter" = "0" ]; then
+      echo "ERROR: Reference counter is not empty."
+      echo "ERROR: Reference counter is not empty." >> $LOG_FILE
+      EXITSTATUS=25
+      exit $EXITSTATUS
+    fi
+  fi
+
+  # pre remove script:
+  pkginfo --dest $TMP install_script $logfile
+  if [ ! -x $TMP/.INSTALL -o ! -s $TMP/.INSTALL ]; then
+    rm -f $TMP/.INSTALL
+  else
+    ( cd $TARGET_ROOT_PATH
+      $TMP/.INSTALL pre_remove
+      if [ ! "$?" = "0" ]; then
+        echo "ERROR: Pre Remove script returns bad status."
+        echo "ERROR: Pre Remove script returns bad status." >> $LOG_FILE
+        cd $CWD
+        rm -f $TMP/.INSTALL
+        EXITSTATUS=21
+        exit $EXITSTATUS
+      fi
+      rm -f $TMP/.INSTALL
+    )
+    rm -f $TMP/.INSTALL
+  fi
+
+  # Getting saved links:
+  pkginfo --dest $TMP restore_links $logfile
+  if [ ! -f $TMP/.RESTORELINKS -o ! -s $TMP/.RESTORELINKS ]; then
+    rm -f $TMP/.RESTORELINKS
+  else
+    cat $TMP/.RESTORELINKS | extract_links | sort -u > $TMP/links$$
+    rm -f $TMP/.RESTORELINKS
+  fi
+  # Getting files:
+  pkginfo --dest $TMP filelist $logfile
+  if [ ! -f $TMP/.FILELIST -o ! -s $TMP/.FILELIST ]; then
+    rm -f $TMP/.FILELIST
+  else
+    cat $TMP/.FILELIST | sort -u > $TMP/files$$
+    rm -f $TMP/.FILELIST
+  fi
+
+  pkginfo --dest $TMP description $logfile
+  strip_description "$TMP/.DESCRIPTION" "$TMP/msg$$"
+  rm -f $TMP/.DESCRIPTION
+
+  echo " Uncompressed Size: $uncompressed_size" >> $TMP/msg$$
+  echo "       Total Files: $total_files"       >> $TMP/msg$$
+
+  if [ "$DARKMODE" != "yes" ] ; then
+    echo ""
+    echo "Removing package $pkgname... "
+    ####  |---handy-ruler--------------------------------------------------------|
+    echo "|======================================================================|"
+    echo "`cat $TMP/msg$$`"
+    echo "|======================================================================|"
+    echo ""
+  fi
+  rm -f $TMP/msg$$
+
+  rm -f $TMP/not_sorted_dirs$$
+  if [ -f $TMP/links$$ -a -s $TMP/links$$ ]; then
+    delete_links < $TMP/links$$
+  fi
+  rm -f $TMP/links$$
+
+  if [ -f $TMP/files$$ -a -s $TMP/files$$ ]; then
+    delete_files < $TMP/files$$
+  fi
+  rm -f $TMP/files$$
+
+  if [ -f $TMP/not_sorted_dirs$$ -a -s $TMP/not_sorted_dirs$$ ]; then
+    sort -u -r < $TMP/not_sorted_dirs$$ > $TMP/dirs$$
+    rm -f $TMP/not_sorted_dirs$$
+    delete_dirs < $TMP/dirs$$
+    rm -f $TMP/dirs$$
+  fi
+  rm -f $TMP/not_sorted_dirs$$
+
+  # Decrease REFERENCE COUNTER in the required packages:
+  ( cd $PKG_DB_PATH; change-refs dec "$pkgname-$pkgver-$arch-$distroname-$distrover" )
+
+  # post remove script:
+  pkginfo --dest $TMP install_script $logfile
+  if [ ! -x $TMP/.INSTALL -o ! -s $TMP/.INSTALL ]; then
+    rm -f $TMP/.INSTALL
+  else
+    ( cd $TARGET_ROOT_PATH
+      $TMP/.INSTALL post_remove
+      if [ ! "$?" = "0" ]; then
+        echo "ERROR: Post Remove script returns bad status."
+        echo "ERROR: Post Remove script returns bad status." >> $LOG_FILE
+        cd $CWD
+        rm -f $TMP/.INSTALL
+        EXITSTATUS=22
+        exit $EXITSTATUS
+      fi
+    )
+    rm -f $TMP/.INSTALL
+  fi
+
+  # mv logfile to removed_packages/ data base directory.
+  ( cd $PKG_DB_PATH; mv -f "$pkgname-$pkgver-$arch-$distroname-$distrover" $REMOVED_PKG_DB_PATH )
+
+  echo "SUCCESS: Package has been removed." >> $LOG_FILE
+
+done
+#
+# End of Main loop.
+################################################################
+
+exit $EXITSTATUS

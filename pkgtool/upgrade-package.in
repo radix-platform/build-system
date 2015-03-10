@@ -1,0 +1,555 @@
+#!/bin/sh
+: ${DIALOG=dialog}
+
+TAR=tar
+
+# program name:
+program=`basename $0`
+
+#  1 = tar returned error code
+#  2 = failed read package info
+#  3 = does not end in .tgz
+#  4 = not a file
+# 11 = broken .PKGINFO
+# 12 = broken .DESCRIPTION
+# 13 = permission denied (should be root)
+# 14 = broken .pkglist or user pkglist
+# 15 = priority has not specified arter --priority option
+# 16 = root path has not specified arter --root option
+# 17 = exit if called with no arguments
+# 19 =  pre install script returns bad status
+# 20 = post install script returns bad status
+# 21 =  pre Remove script returns bad status
+# 22 = post Remove script returns bad status
+# 23 = package is not installed correctly
+# 24 = {Setup | Package} database directory doesn't exist.
+# 25 = There are not resolved requires
+# 92 = Cannot create '/tmp/...' directory
+# 99 = user abort from menu mode
+EXITSTATUS=0
+
+CWD=`pwd`
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" EXIT
+
+
+usage() {
+ cat << EOF
+
+Usage: $program [options] package_tarball[s]
+
+$program is used to upgrade a *.tgz package like this:
+   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
+
+options:
+   --root /dest    - install someplace else, like /dest;
+   --skip-requires - skip checking required packages;
+   --infodialog    - use dialog to draw an info box;
+   --menudialog    - confirm package installation with a menu, unless
+                     the priority is [required];
+   --always-ask    - used with menudialog mode: always ask if a package should be
+                     installed regardless of what the package's priority is;
+   --priority {required|recommended|optional|skip} -
+                     provide a priority for the entire package list
+                     to use instead of the priority in the .pkglist file;
+   --pkglist /path/file -
+                     specify a different file to use for package priorities.
+                     The default is ".pkglist" in the package's directory.
+
+EOF
+}
+
+package_info() {
+  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/pkginfo$$  2> /dev/null
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: Cannot extract package info from $1"
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+  if [ -f "$TMP/pkginfo$$" ]; then
+    . $TMP/pkginfo$$
+    # check variables:
+    if [ "$pkgname" = "" -o "$pkgver" = "" -o "$arch" = "" -o "$distroname" = "" -o "$distrover" = "" ]; then
+      echo "ERROR: The file '.PKGINFO' doesn't contain necessary declarations."
+      EXITSTATUS=11
+      exit $EXITSTATUS
+    fi
+  else
+    echo "ERROR: There is no package info in $1"
+    EXITSTATUS=2
+    exit $EXITSTATUS
+  fi
+  rm -f $TMP/pkginfo$$
+  compressed_size=$(du -s -h "$1" | sed 's/[:\t:].*$//' | tr '\n' '\0')
+}
+
+package_description() {
+  # do not forget to remove $TMP/description$$ after using.
+  zcat $1 | $TAR -xvf - ".DESCRIPTION" -O  1> $TMP/description$$  2> /dev/null
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: Cannot extract package description from $1"
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+  if [ -f "$TMP/description$$" ]; then
+    if [ ! -s "$TMP/description$$" ]; then
+      echo "ERROR: The file '.DESCRIPTION' doesn't contain necessary information."
+      EXITSTATUS=11
+      exit $EXITSTATUS 
+    fi
+  else
+    echo "ERROR: There is no package description in $1"
+    EXITSTATUS=2
+    exit $EXITSTATUS
+  fi
+}
+
+strip_description() {
+  infile=$1
+  outfile=$2
+  echo " " > $outfile
+  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  if [ "$LINENUMS" = "" ]; then
+    echo "WARNING: Description is empty or corrupted."
+    return
+  fi
+  for LINENUM in $LINENUMS ; do
+    LINE="`sed -n "$LINENUM p" $infile | sed -e "s/^$pkgname://"`"
+    if [ "$LINE" = "" ]; then
+       LINE=" "
+    else
+       LINE="`echo "$LINE" | sed -e "s/ $//g"`"
+    fi
+    echo "$LINE" >> $outfile
+  done
+}
+
+
+pkglist_get_priority() {
+  listfile=$1
+  LINENUM="`cat $listfile | grep -n -e "^$pkgname:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM" = "" ]; then
+    ret=""
+    return 1
+  fi
+  LINE="`sed -n "$LINENUM p" $listfile`"
+  ret="`echo "$LINE" | cut -f 5 -d ':' | tr '\n' '\0'`"
+  if   [ "$ret" = "required"    -o "$ret" = "req" -o "$ret" = "REQUIRED"    -o "$ret" = "REQ" ]; then
+    ret="REQUIRED"
+  elif [ "$ret" = "recommended" -o "$ret" = "rec" -o "$ret" = "RECOMMENDED" -o "$ret" = "REC" ]; then
+    ret="RECOMMENDED"
+  elif [ "$ret" = "optional"    -o "$ret" = "opt" -o "$ret" = "OPTIONAL"    -o "$ret" = "OPT" ]; then
+    ret="OPTIONAL"
+  elif [ "$ret" = "skip"        -o "$ret" = "skp" -o "$ret" = "SKIP"        -o "$ret" = "SKP" ]; then
+    ret="SKIP"
+  fi
+  if [ ! "$ret" = "REQUIRED" -a ! "$ret" = "RECOMMENDED" -a ! "$ret" = "OPTIONAL" -a ! "$ret" = "SKIP" ]; then
+    ret=""
+    return 1
+  fi
+  return 0
+}
+
+
+set_references() {
+  logfile=$1
+  references=$2
+
+  cat $references | sed '/^\s*$/d' > $TMP/refsfile$$
+
+  refs="`cat $TMP/refsfile$$ | wc -l`"
+  LINENUM_REF="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
+  if [ "$LINENUM_REF" = "" ]; then
+    echo "$program: WARNING: reference counter is not present in $logfile ."
+    return
+  fi
+  LINE="`sed -n "$LINENUM_REF p" $logfile`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  if [ ! "$oldrefs" = "" ]; then
+    sed -e "$LINENUM_REF s/$oldrefs/$refs/" $logfile > $TMP/log$$ && mv $TMP/log$$ $logfile
+  fi
+
+  sed -i "/^REFERENCE COUNTER:/r $TMP/refsfile$$" $logfile
+}
+
+
+#
+# Parse options:
+#
+MODE=console # standard text-mode
+while [ 0 ]; do
+  if [ "$1" = "-h" -o "$1" = "--help" ]; then
+    usage
+    exit 0
+  elif [ "$1" = "--skip-requires" ]; then
+    SKIPREQUIRES="yes"
+    shift 1
+  elif [ "$1" = "--infodialog" ]; then
+    MODE=infodialog
+    shift 1
+  elif [ "$1" = "--menudialog" ]; then
+    MODE=menudialog
+    shift 1
+  elif [ "$1" = "--always-ask" ]; then
+    ALWAYSASK="yes"
+    shift 1
+  elif [ "$1" = "--pkglist" ]; then
+    if [ -r "$2" ]; then
+      USERPKGLIST="$2"
+    elif [ -r "$CWD/$2" ]; then
+      USERPKGLIST="$CWD/$2"
+    else
+      usage
+      echo "ERROR: Wrong pkglist file. Check --pkglist option."
+      EXITSTATUS=14
+      exit $EXITSTATUS
+    fi
+    shift 2
+  elif [ "$1" = "--priority" ]; then
+    if [ "$2" = "" ]; then
+      usage
+      echo "ERROR: Priority has not specified. Check --priority option."
+      EXITSTATUS=15
+      exit $EXITSTATUS
+    fi
+    USERPRIORITY="$2"
+    if   [ "$USERPRIORITY" = "required"    -o "$USERPRIORITY" = "req" -o "$USERPRIORITY" = "REQUIRED"    -o "$USERPRIORITY" = "REQ" ]; then
+      USERPRIORITY="REQUIRED"
+    elif [ "$USERPRIORITY" = "recommended" -o "$USERPRIORITY" = "rec" -o "$USERPRIORITY" = "RECOMMENDED" -o "$USERPRIORITY" = "REC" ]; then
+      USERPRIORITY="RECOMMENDED"
+    elif [ "$USERPRIORITY" = "optional"    -o "$USERPRIORITY" = "opt" -o "$USERPRIORITY" = "OPTIONAL"    -o "$USERPRIORITY" = "OPT" ]; then
+      USERPRIORITY="OPTIONAL"
+    elif [ "$USERPRIORITY" = "skip"        -o "$USERPRIORITY" = "skp" -o "$USERPRIORITY" = "SKIP"        -o "$USERPRIORITY" = "SKP" ]; then
+      USERPRIORITY="SKIP"
+    fi
+    if [ ! "$USERPRIORITY" = "REQUIRED" -a ! "$USERPRIORITY" = "RECOMMENDED" -a ! "$USERPRIORITY" = "OPTIONAL" -a ! "$USERPRIORITY" = "SKIP" ]; then
+      usage
+      echo "ERROR: Invalid priority. Check --priority option."
+      EXITSTATUS=15
+      exit $EXITSTATUS
+    fi
+    shift 2
+  elif [ "$1" = "--root" ]; then
+    if [ "$2" = "" ]; then
+      usage
+      echo "ERROR: Target root path has not specified. Check --root option."
+      EXITSTATUS=16
+      exit $EXITSTATUS
+    fi
+    TARGET_ROOT_PATH="$2"
+    shift 2
+  else
+    break
+  fi
+done
+
+#
+# usage(), exit if called with no arguments:
+#
+if [ $# = 0 ]; then
+  usage
+  echo "ERROR: arguments were not specified. Check options."
+  EXITSTATUS=17
+  exit $EXITSTATUS
+fi
+
+if [ "$TARGET_ROOT_PATH" = "" ]; then
+  TARGET_ROOT_PATH="/"
+else
+  TARGET_ROOT_PATH="`echo "$TARGET_ROOT_PATH" | sed -e "s/\/$//"`/"
+fi
+
+if [ "$TARGET_ROOT_PATH" = "/" ]; then
+  if [ ! $UID = "0" ]; then
+    echo "ERROR: Trying to install into root directory: permission denied"
+    EXITSTATUS=13
+    exit $EXITSTATUS
+  fi
+fi
+
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+if [ ! -d $SETUP_DB_PATH ]; then
+  rm -rf $SETUP_DB_PATH # make sure it's not a link
+  mkdir -p $SETUP_DB_PATH
+  chmod 755 $SETUP_DB_PATH
+fi
+
+for PKG_DB_DIR in packages removed_packages setup ; do
+  if [ ! -d $SETUP_DB_PATH/$PKG_DB_DIR ]; then
+    rm -rf $SETUP_DB_PATH/$PKG_DB_DIR # make sure it's not a link
+    mkdir -p $SETUP_DB_PATH/$PKG_DB_DIR
+    chmod 755 $SETUP_DB_PATH/$PKG_DB_DIR
+  fi
+done
+
+LOG_PATH=$SETUP_DB_PATH/setup
+LOG_FILE=$LOG_PATH/setup.log
+
+################################################################
+# Main loop:
+#
+for pkgtarball in $* ; do
+  # If someone left off the '.tgz', try to figure that out:
+  if [ ! -r "$pkgtarball" -a -r "$pkgtarball.tgz" ]; then
+    pkgtarball=$pkgtarball.tgz
+  fi
+
+  tarball_noext_name="`basename $pkgtarball .tgz`"
+  tarball_src_dir="`dirname $pkgtarball`"
+
+  # Reject package if it does not end in '.tgz':
+  if [ ! -r "$tarball_src_dir/$tarball_noext_name.tgz" ]; then
+    EXITSTATUS=3
+    if [ "$MODE" = "console" ]; then
+      echo "ERROR: Cannot install $pkgtarball: tarball does not end in .tgz"
+    fi
+    continue;
+  fi
+
+  # Simple package integrity check:
+  if [ ! -f $pkgtarball ]; then
+    EXITSTATUS=4
+    if [ "$MODE" = "console" ]; then
+      echo "ERROR: Cannot install $pkgtarball: tarball is not a regular file"
+    fi
+    continue;
+  fi
+
+  # getting pkgname, etc... variables from tarball:
+  package_info $pkgtarball
+
+  # Determine package's priority:
+  unset PRIORITY
+  if [ "$USERPKGLIST" = "" ]; then
+    PKGLIST="$tarball_src_dir/.pkglist"
+  else
+    PKGLIST="$USERPKGLIST"
+  fi
+  if [ ! -r "$PKGLIST" ]; then
+    PKGLIST=/dev/null
+  fi
+
+  pkglist_get_priority "$PKGLIST"
+  PRIORITY=$ret
+
+  if   [ "$PRIORITY" = "REQUIRED" ]; then
+    PMSG="[required]"
+  elif [ "$PRIORITY" = "RECOMMENDED" ]; then
+    PMSG="[recommended]"
+  elif [ "$PRIORITY" = "OPTIONAL" ]; then
+    PMSG="[optional]"
+  elif [ "$PRIORITY" = "SKIP" ]; then
+    PMSG="[skip]"
+  else
+    PMSG=""
+  fi
+
+  package_description $pkgtarball
+  strip_description "$TMP/description$$" "$TMP/msg$$"
+  rm -f $TMP/description$$
+
+  echo " Uncompressed Size: $uncompressed_size" >> $TMP/msg$$
+  echo "   Compressed Sise: $compressed_size"   >> $TMP/msg$$
+
+  # Emit information to the console:
+  if [ "$MODE" = "console" ]; then
+    echo ""
+    if [ "$PMSG" = "" ]; then
+      echo " Upgrade package $pkgname... "
+    else
+      echo " Upgrade package $pkgname $PMSG... "
+    fi
+    ####  |---handy-ruler--------------------------------------------------------|
+    echo "|======================================================================|"
+    echo "`cat $TMP/msg$$`"
+    echo "|======================================================================|"
+    echo ""
+  elif [ "$MODE" = "infodialog" -a ! "$PRIORITY" = "SKIP" ]; then
+    # install non-SKIP package:
+    $DIALOG --colors \
+            --backtitle "\Z6_kxLab, Inc.\Zn" \
+            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "`cat $TMP/msg$$`" 16 70
+  elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "REQUIRED" -a ! "$ALWAYSASK" = "yes" ]; then
+    # REQUIRED overrides menu mode unless -ask was used
+    $DIALOG --colors \
+            --backtitle "\Z6_kxLab, Inc.\Zn" \
+            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "`cat $TMP/msg$$`" 16 70
+  elif [ "$MODE" = "menudialog" -a "$USERPRIORITY" = "REQUIRED" ]; then
+    # install no matter what $PRIORITY
+    $DIALOG --colors \
+            --backtitle "\Z6_kxLab, Inc.\Zn" \
+            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "`cat $TMP/msg$$`" 16 70
+  elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "SKIP" -a ! "$ALWAYSASK" = "yes" ]; then
+    # SKIP overrides menu mode unless -ask used
+    rm -f $TMP/msg$$
+    continue # next package
+  elif [ "$MODE" = "infodialog" -a "$PRIORITY" = "SKIP" -a ! "$ALWAYSASK" = "yes" ]; then
+    # SKIP overrides infobox mode, too
+    rm -f $TMP/msg$$
+    continue
+  else # we must need a full menu:
+    $DIALOG --colors \
+            --backtitle "\Z6_kxLab, Inc.\Zn" \
+            --title " \Z4Package Name: ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --menu "`cat $TMP/msg$$`" 0 0 3 \
+    "Yes" "Upgrade package $pkg_name" \
+    "No" "Do not upgrade package $pkg_name" \
+    "Quit" "Abort software installation completely" 2> $TMP/reply$$
+    if [ ! $? = 0 ]; then
+      echo "No" > $TMP/reply$$
+    fi
+    REPLY="`cat $TMP/reply$$`"
+    rm -f $TMP/reply$$ $TMP/msg$$
+    if [ "$REPLY" = "Quit" ]; then
+      rm -f $TMP/msg$$
+      exit 99 # ABORT!
+    elif [ "$REPLY" = "No" ]; then
+      rm -f $TMP/msg$$
+      continue # skip the package
+    fi
+    # Waiting info dialog
+    $DIALOG --sleep 1 --colors \
+            --backtitle "\Z6_kxLab, Inc.\Zn" \
+            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "\nPlease wait till package is installed.\n" 5 70
+  fi
+  rm -f $TMP/msg$$
+
+  # Check how the package is installed:
+  # ==================================
+  check-package --dark --root $TARGET_ROOT_PATH $pkgtarball
+  ret=$?
+  if [ $ret -eq 30 ]; then
+    # package is installed correctly
+    # check installed pkglog file:
+    if [ -f $SETUP_DB_PATH/packages/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
+      logfile=$SETUP_DB_PATH/packages/$pkgname-$pkgver-$arch-$distroname-$distrover
+      pkginfo --dest $TMP references $logfile
+    fi
+    remove-package --dark --skip-refs --root $TARGET_ROOT_PATH $logfile
+  elif [ $ret -eq 32 ]; then
+    # package is installed but not correct
+    # check installed pkglog file:
+    if [ -f $SETUP_DB_PATH/packages/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
+      logfile=$SETUP_DB_PATH/packages/$pkgname-$pkgver-$arch-$distroname-$distrover
+      pkginfo --dest $TMP references $logfile
+    fi
+    remove-package --dark --skip-refs --root $TARGET_ROOT_PATH $logfile
+  fi
+
+  # Install process:
+  echo ""                                            >> $LOG_FILE
+  echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
+  echo -n "Installing: `basename $pkgtarball`: "     >> $LOG_FILE
+
+  DEST=$TARGET_ROOT_PATH
+
+  # Check requires:
+  # ==============
+  if [ ! "$SKIPREQUIRES" = "yes" ]; then
+    check-requires --root $DEST $pkgtarball 2> $TMP/freqs$$ 1> $TMP/hreqs$$
+    if [ -s $TMP/freqs$$ ]; then
+      echo "ERROR: There are not resolved requires." >> $LOG_FILE
+      if [ "$MODE" = "console" ]; then
+        echo "ERROR: There are not resolved requires."
+        cat $TMP/hreqs$$
+      else
+        cat > $TMP/not_resolved_reqs$$ << EOF
+
+\Z1ERROR:\Zn \Z4There are not resolved requires.\Zn
+
+Check the missing packages using the 'check-requires' utility and,
+if necessary, install them.
+
+EOF
+        $DIALOG --sleep 3 --colors \
+                --backtitle "\Z1_kxLab, Inc.\Zn" \
+                --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+                --infobox "`cat $TMP/not_resolved_reqs$$`" 8 70
+        rm -f $TMP/not_resolved_reqs$$
+      fi
+      rm -f $TMP/freqs$$ $TMP/hreqs$$
+      EXITSTATUS=22
+      exit $EXITSTATUS
+    fi
+    rm -f $TMP/freqs$$ $TMP/hreqs$$
+  fi
+
+  # unpack package service files:
+  cat << EOF > $TMP/pkg.service.files$$
+.DESCRIPTION
+.FILELIST
+.INSTALL
+.PKGINFO
+.REQUIRES
+.RESTORELINKS
+EOF
+  zcat $pkgtarball | $TAR -C $TMP --files-from=$TMP/pkg.service.files$$ -xf - > /dev/null 2>&1
+  ( cd $DEST
+    if [ -x $TMP/.INSTALL ]; then
+      $TMP/.INSTALL pre_install
+      if [ ! "$?" = "0" ]; then
+        echo "ERROR: Pre Install script returns bad status."
+        echo "ERROR: Pre Install script returns bad status." >> $LOG_FILE
+        cd $CWD
+        EXITSTATUS=19
+        exit $EXITSTATUS
+      fi
+    fi
+  )
+  # unpack archive excluding service files:
+  zcat $pkgtarball | $TAR -C $DEST --exclude-from=$TMP/pkg.service.files$$ -xpf -  > /dev/null 2>&1
+  if [ ! "$?" = "0" ]; then
+    echo "ERROR: $TAR has returned error code."
+    echo "ERROR: $TAR has returned error code." >> $LOG_FILE
+    EXITSTATUS=1
+    exit $EXITSTATUS
+  fi
+  ( cd $DEST
+    if [ -f $TMP/.RESTORELINKS ]; then
+      sh $TMP/.RESTORELINKS
+    fi
+    if [ -x $TMP/.INSTALL ]; then
+      $TMP/.INSTALL post_install
+      if [ ! "$?" = "0" ]; then
+        echo "ERROR: Post Install script returns bad status."
+        echo "ERROR: Post Install script returns bad status." >> $LOG_FILE
+        cd $CWD
+        EXITSTATUS=20
+        exit $EXITSTATUS
+      fi
+    fi
+    pkglog $TMP/.PKGINFO $SETUP_DB_PATH/packages  > /dev/null 2>&1
+    if [ ! "$?" = "0" ]; then
+      echo "WARNING: Log file has not been created."
+      echo "WARNING: Log file has not been created." >> $LOG_FILE
+    fi
+    # Increase REFERENCE COUNTER in the required packages:
+    ( . $TMP/.PKGINFO
+      cd $SETUP_DB_PATH/packages; change-refs inc "$pkgname-$pkgver-$arch-$distroname-$distrover"
+    )
+    # check deprecated log file:
+    ( . $TMP/.PKGINFO
+      cd $SETUP_DB_PATH/removed_packages; rm -f "$pkgname-$pkgver-$arch-$distroname-$distrover"
+    )
+    # restore references:
+    if [ -f $TMP/.REFERENCES -a -s $TMP/.REFERENCES ]; then
+      cat $TMP/.REFERENCES | sort -u > $TMP/references$$
+      ( cd $SETUP_DB_PATH/packages
+        set_references "$pkgname-$pkgver-$arch-$distroname-$distrover" $TMP/references$$
+      )
+    fi
+  )
+  echo "SUCCESS: Package has been upgraded." >> $LOG_FILE
+done
+#
+# End of Main loop.
+################################################################
+
+sleep 1
+
+exit $EXITSTATUS

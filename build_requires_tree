@@ -1,0 +1,842 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use IO::Handle;
+use File::Basename;
+use File::Temp;
+
+use _kxLab;
+
+#
+# Generate .$(HARDWARE)_requires.{json,html,pkglist} file for current directory
+#
+# usage:
+#   $0 topdir toolchain hardware
+#
+# where:
+#      'topdir' - is a absolute path to the top directory of checked out branch
+#   'toolchain' - is a TOOLCHAIN name
+#    'hardware' - is a HARDWARE variant
+#
+
+# global variables
+my ($topdir, $toolchain, $hardware, $build_system, $requires_file, $js_tree_file, $pkglist_file);
+my ($distro_name, $distro_version, $url);
+my $tarball_suffix = "tgz";
+
+my %sub_trees;
+my %tree;
+
+
+sub usage
+{
+  print <<EOF;
+
+Usage: $0 topdir toolchain hardware
+Where:
+          topdir - is a absolute path to the top of checked out branch;
+       toolchain - is a TOOLCHAIN name;
+        hardware - is a HARDWARE variant.
+
+EOF
+  exit;
+}
+
+#
+# Getting information from build-system/constants.mk
+#
+sub distro_name
+{
+  my $build_system = shift;
+  my $name;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^DISTRO_NAME(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub distro_version
+{
+  my $build_system = shift;
+  my $name;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^DISTRO_VERSION(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub bug_url
+{
+  my $build_system = shift;
+  my $url;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^BUG_URL(.+= +)(.+)/ )
+    {
+      $url = $2;
+    }
+  }
+  close( FILE );
+
+  return $url;
+}
+
+#
+# Getting information from Makefile
+#
+sub pkg_rootfs_target
+{
+  my $makefile = shift;
+  my $install = "";
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^ROOTFS_TARGETS(.+= +)(.+)/ )
+    {
+      $install = $2;
+    }
+  }
+  close( FILE );
+
+  if( $install eq "" ) { $install = "no";  }
+  else                 { $install = "yes"; }
+
+  return $install;
+}
+
+sub pkg_group
+{
+  my $makefile = shift;
+  my $group;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^PKG_GROUP(.+= +)(.+)/ )
+    {
+      $group = $2;
+    }
+  }
+  close( FILE );
+
+  return $group;
+}
+
+sub pkg_name
+{
+  my $makefile = shift;
+  my $name = "";
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_NAME(.+= +)(.+)/ )
+    {
+      $name = $2;
+    }
+  }
+  close( FILE );
+
+  return $name;
+}
+
+sub pkg_version
+{
+  my $makefile = shift;
+  my $version;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_VERSION(.+= +)(.+)/ )
+    {
+      $version = $2;
+    }
+  }
+  close( FILE );
+
+  return $version;
+}
+
+sub pkg_license
+{
+  my $makefile = shift;
+  my $license;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_LICENSE(.+= +)(.+)/ )
+    {
+      $license = $2;
+    }
+  }
+  close( FILE );
+
+  return $license;
+}
+
+sub pkg_short_description
+{
+  my $makefile = shift;
+  my $description;
+
+  open( FILE, "< $makefile" );
+
+  while( <FILE> )
+  {
+    if( /^[A-Z_0-9]*_PKG_SHORT_DESCRIPTION(.+= +)(.+)/ )
+    {
+      $description = $2;
+    }
+  }
+  close( FILE );
+
+  #
+  # In Makefiles we have to mask characters '\', '&', '*', '(', ')' inside
+  # the new value in the assignment operator with backslash. So, for axample,
+  # the value "name & \ * ( ) end" we have to assign as follow
+  #
+  # ..._SHORT_DESCRIPTION = name \& \\ \* \( \) end
+  #
+  # Here we have to remove backslashes and fill escaped symbols as is:
+  #
+  $description =~ s/\\(.?)/$1/g;
+
+  return $description;
+}
+
+#
+# Getting information from tarball/{.PKGINFI | .DESCRIPTION}
+#
+sub get_pkg_info
+{
+  my $infofile   = shift;
+  my $data_field = shift;
+  my $data       = "";
+
+  open( FILE, "< $infofile" );
+
+  while( <FILE> )
+  {
+    if( /^$data_field=(.+)/ )
+    {
+      $data = $1;
+    }
+  }
+  close( FILE );
+
+  return $data;
+}
+
+sub get_pkg_description
+{
+  my $descfile   = shift;
+  my $data       = "";
+  my @fields;
+
+  open( FILE, "< $descfile" );
+
+  # Read the first line only
+  @fields = split( ':', <FILE> );
+  $data = $fields[1];
+  $data =~ s/^\s+|\s+$//;
+  $data =~ s/\"/\'/g;
+  chomp $data;
+
+  close( FILE );
+
+  return $data;
+}
+
+
+sub get_treedirs
+{
+  my @list;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /^TREEDIRS(.+= +)(.+)/ )
+    {
+      @list = split( ' ', $2 );
+    }
+  }
+
+  return @list;
+}
+
+sub get_ntreedirs
+{
+  my @list;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /^TREEDIRS(.+= +)(.+)/ )
+    {
+      @list = split( ' ', $2 );
+    }
+  }
+
+  return $#list;
+}
+
+sub get_root
+{
+  my $root;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /^# ROOT(=)(.+)/ )
+    {
+      $root = $2;
+    }
+  }
+
+  return $root;
+}
+
+sub get_deps
+{
+  my %deps;
+
+  seek( REQUIRES_FILE, 0, SEEK_SET );
+
+  while( <REQUIRES_FILE> )
+  {
+    if( /(.+)(: +)(.+)/ )
+    {
+      $deps{$1} = $3;
+    }
+  }
+  return %deps;
+}
+
+my $root_node = 1;
+
+#
+# PACKAGE HASH:
+# ============
+#
+#   name              => $(PKG_NAME)       from Makefile
+#   version           => $(PKG_VERSION)    from Makefile
+#   group             => $(PKG_GROUP)      from Makefile {app,base,dev,libs,net,...}
+#
+#   arch              => $toolchain        from comandline args
+#   hardware          => $hardware         from comandline args
+#   tarball           => "$name-$version-$arch-$distro_name-$distro_version.$tarball_suffix"
+#
+#   distro_name       => $(DISTRO_NAME)    from build-system/constants.mk
+#   distro_version    => $(DISTRO_VERSION) from build-system/constants.mk
+#   url               => $(BUG_URL)        from build-system/constants.mk
+#   license           =>                   from Makefile
+#   short_description =>                   from Makefile
+#   description       =>    first line     from .DESCRIPTION
+#   uncompressed_size =>                   from .PKGINFO
+#   total_files       =>                   from .PKGINFO
+#
+#   dir               => path to Makefile  from .$(HW)_requires
+#   children          =>
+#
+sub fill_package_info
+{
+  my $base_dir = shift;
+  my $makefile = shift;
+  my ( $product_path, $tarball_file );
+  my %pkg;
+
+  $pkg{'dir'}     = $base_dir;
+  $pkg{'install'} = pkg_rootfs_target( $makefile );
+
+  $pkg{'name'} = pkg_name( $makefile );
+  if( $pkg{'name'} eq "" )
+  {
+    # There is no package for this Makefile
+    $pkg{'name'} = $pkg{'dir'};
+    return %pkg;
+  }
+
+  $pkg{'version'}           = pkg_version( $makefile );
+  $pkg{'arch'}              = $toolchain;
+  $pkg{'hardware'}          = $hardware;
+  $pkg{'group'}             = pkg_group( $makefile );
+  $pkg{'distro_name'}       = $distro_name;
+  $pkg{'distro_version'}    = $distro_version;
+  $pkg{'url'}               = $url;
+  $pkg{'license'}           = pkg_license( $makefile );
+  $pkg{'short_description'} = pkg_short_description( $makefile );
+
+  $pkg{'tarball'} = $pkg{'name'}    . "-" . 
+                    $pkg{'version'} . "-" . 
+                    $pkg{'arch'}    . "-" . 
+                    $distro_name    . "-" . 
+                    $distro_version . "." . 
+                    $tarball_suffix;
+
+  $pkg{'description'}       = '';
+  $pkg{'uncompressed_size'} = '';
+  $pkg{'total_files'}       = '';
+
+  $product_path = $topdir . "/dist/products/" . $toolchain . "/" . $hardware;
+  $tarball_file = $product_path . "/" . $pkg{'group'} . "/" . $pkg{'tarball'};
+
+  if( -e $tarball_file )
+  {
+    my $cleanup = 1;
+    my $fname   = ".$hardware.pkginfo.XXXXXXXX";
+    my $tempname;
+
+    (undef, $tempname) = File::Temp::tempfile( $fname, OPEN => 0, UNLINK => $cleanup );
+
+    _kxLab::system( "zcat $tarball_file | tar -xvf - \".PKGINFO\" -O  1> $tempname  2> /dev/null" );
+
+    $pkg{'uncompressed_size'} = get_pkg_info( $tempname, "uncompressed_size" );
+    $pkg{'total_files'}       = get_pkg_info( $tempname, "total_files" );
+
+    unlink $tempname;
+
+    (undef, $tempname) = File::Temp::tempfile( $fname, OPEN => 0, UNLINK => $cleanup );
+
+    _kxLab::system( "zcat $tarball_file | tar -xvf - \".DESCRIPTION\" -O  1> $tempname  2> /dev/null" );
+    $pkg{ 'description' } = get_pkg_description( $tempname );
+
+    unlink $tempname;
+  }
+
+  return %pkg;
+}
+
+
+sub print_package_head
+{
+  my ( $level, $pkg )  = @_;
+  my $indent = "";
+
+  $level *= 2;
+  while( $level )
+  {
+    $indent .= " ";
+    $level--;
+  }
+  print JS_TREE_FILE $indent . "{\n";
+
+  if( $pkg->{'name'} eq $pkg->{'dir'} )
+  {
+    if( $root_node == 1 )
+    {
+      print JS_TREE_FILE $indent . " \"distro\": [\n";
+      print JS_TREE_FILE $indent . "  \"" . $distro_name . "\",\n";
+      print JS_TREE_FILE $indent . "  \"" . $distro_version . "\",\n";
+      print JS_TREE_FILE $indent . "  \"" . $url . "\"\n";
+      print JS_TREE_FILE $indent . " ],\n";
+    }
+    print JS_TREE_FILE $indent . " \"name\":     \"" . $pkg->{'name'} . "\"";
+  }
+  else
+  {
+    if( $root_node == 1 )
+    {
+      print JS_TREE_FILE $indent . " \"distro\": [\n";
+      print JS_TREE_FILE $indent . "  \"" . $distro_name . "\",\n";
+      print JS_TREE_FILE $indent . "  \"" . $distro_version . "\",\n";
+      print JS_TREE_FILE $indent . "  \"" . $url . "\"\n";
+      print JS_TREE_FILE $indent . " ],\n";
+    }
+    print JS_TREE_FILE $indent . " \"name\":              \"" . $pkg->{'name'}              . "\",\n";
+    print JS_TREE_FILE $indent . " \"version\":           \"" . $pkg->{'version'}           . "\",\n";
+    print JS_TREE_FILE $indent . " \"group\":             \"" . $pkg->{'group'}             . "\",\n";
+    print JS_TREE_FILE $indent . " \"arch\":              \"" . $pkg->{'arch'}              . "\",\n";
+    print JS_TREE_FILE $indent . " \"hardware\":          \"" . $pkg->{'hardware'}          . "\",\n";
+    print JS_TREE_FILE $indent . " \"license\":           \"" . $pkg->{'license'}           . "\",\n";
+    print JS_TREE_FILE $indent . " \"description\":       \"" . $pkg->{'description'}       . "\",\n";
+    print JS_TREE_FILE $indent . " \"uncompressed_size\": \"" . $pkg->{'uncompressed_size'} . "\",\n";
+    print JS_TREE_FILE $indent . " \"total_files\":       \"" . $pkg->{'total_files'}       . "\"";
+  }
+}
+
+sub print_package_start_children
+{
+  my $level = shift;
+  my $indent = "";
+
+  $level *= 2;
+  while( $level )
+  {
+    $indent .= " ";
+    $level--;
+  }
+  print JS_TREE_FILE $indent . " \"children\": [\n";
+}
+
+sub print_package_finish_children
+{
+  my $level  = shift;
+  my $indent = "";
+
+  $level *= 2;
+  while( $level ) { $indent .= " "; $level--; }
+  print JS_TREE_FILE $indent . " ]\n";
+}
+
+sub print_package_tail
+{
+  my $level  = shift;
+  my $indent = "";
+
+  $level *= 2;
+  while( $level ) { $indent .= " "; $level--; }
+  print JS_TREE_FILE $indent . "}";
+}
+
+sub print_comma
+{
+  my $comma = shift;
+
+  if( $comma > 0 ) { print JS_TREE_FILE ",\n"; }
+  else             { print JS_TREE_FILE  "\n"; }
+}
+
+
+#
+# Parse the command line options
+#
+
+# Get the rest arguments of the command line
+$topdir    = shift;
+$toolchain = shift;
+$hardware  = shift;
+
+my $makefile = "Makefile";
+
+if( ! defined $topdir    or $topdir eq "" )    { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+
+_kxLab::error( "$0: $topdir is not a directory" ) if( ! -d $topdir );
+_kxLab::error( "$0: Makefile missing: $makefile" ) if ( ! -f $makefile );
+
+$build_system = $topdir . "/build-system";
+
+$distro_name    = distro_name( $build_system );
+$distro_version = distro_version( $build_system );
+$url            = bug_url( $build_system );
+
+$requires_file  = "." . $hardware . "_requires";
+$js_tree_file   = "." . $hardware . "_requires.json";
+$pkglist_file   = "." . $hardware . "_requires.pkglist";
+
+# open the intput file
+open(REQUIRES_FILE, "< $requires_file") or
+  _kxLab::error( "$0: Could not open $requires_file file: $!" );
+# open the output files
+open(JS_TREE_FILE, "> $js_tree_file") or
+  _kxLab::error( "$0: Could not open $js_tree_file file: $!" );
+open(PKGLIST_FILE, "> $pkglist_file") or
+  _kxLab::error( "$0: Could not open $pkglist_file file: $!" );
+
+
+my $depth    = 2;
+my $level    = 0;
+my $root     = get_root();
+my @treedirs = get_treedirs();
+my %deps     = get_deps();
+
+sub print_tree
+{
+  my ($level, $last, $pkg) = @_;
+
+  if( $depth < $level ) { $depth = $level; }
+
+  print_package_head( $level, \%{$pkg} );
+  $root_node = 0;
+
+  if( $pkg->{'children'} )
+  {
+    print_comma( 1 );
+    print_package_start_children( $level );
+
+    my @a = @{$pkg->{'children'}};
+    my $n = $#a;
+
+    foreach my $p ( @{$pkg->{'children'}} )
+    {
+      print_tree( $level + 1, $n--, \%{$p} );
+    }
+
+    print_package_finish_children( $level );
+  }
+  else
+  {
+    print_comma( 0 );
+  }
+  print_package_tail( $level );
+  print_comma( $last );
+}
+
+
+#
+# This is the root package
+#
+%tree = fill_package_info( $root, $makefile );
+
+
+my %sequence;
+my $order = 0;
+
+#################################################################
+# if( there is any dependencies )
+#
+if( %deps )
+{
+  my @dep_keys = keys %deps;
+
+  foreach my $dir ( @treedirs )
+  {
+    if( ! grep { $_ eq $dir } @dep_keys )
+    {
+      my $key = $dir;
+      $sequence{$key} = $order;
+      @treedirs = grep { $_ ne $key } @treedirs;
+      # Insert into sub_trees:
+      my %pkg = fill_package_info( $dir, $topdir . "/" . $dir . "/Makefile" );
+      $sub_trees{$dir} = \%pkg;
+    }
+  }
+
+
+  my $count = $#dep_keys;
+
+  for( my $i = 0; $i < $count; ++$i )
+  {
+    my @installed = keys %sequence;
+
+    foreach my $key (sort keys %deps)
+    {
+      my $ok = 1;
+      my @dirs = split( ' ', $deps{$key} );
+
+      if( $key ne "all" )
+      {
+        foreach my $dir ( @dirs )
+        {
+          if( ! grep { $_ eq $dir } @installed )
+          {
+            $ok = 0;
+          }
+        }
+
+        if( $ok == 1 )
+        {
+          $sequence{$key} = ++$order;
+
+          # create package node:
+          my %pkg = fill_package_info( $key, $topdir . "/" . $key . "/Makefile" );
+          # add children:
+          foreach my $dir ( @dirs )
+          {
+            my $child = $sub_trees{$dir};
+            push( @{$pkg{'children'}}, $child );
+          }
+
+          # insert new sub tree into $sub_tree:
+          $sub_trees{$key} = \%pkg;
+
+          delete $deps{$key};
+        }
+      }
+    }
+  }
+
+  #
+  # The root node children
+  #
+  my @dirs = split( ' ', $deps{'all'} );
+  foreach my $dir ( @dirs )
+  {
+    my $child = $sub_trees{$dir};
+    push( @{$tree{'children'}}, $child );
+  }
+
+}
+else
+{
+  my %pkg;
+
+  $pkg{'dir'}  = "void";
+  $pkg{'name'} = "void";
+
+  push( @{$tree{'children'}}, \%pkg );
+}
+#
+# End if( there is any dependencies )
+#################################################################
+
+
+
+print_tree( $level, 0, \%tree );
+
+
+
+#################################################################
+# Calculate SVG size and make HTML from template:
+#
+my $copyright_url = $url;
+my $html_template = $build_system . "/html/requires_tree_html.template";
+my $w = $depth;
+my $h = get_ntreedirs();
+my ($width, $height);
+
+$width  = ($w + 4) * 160;
+$height = ($h + 4) * 24;
+
+$root =~ s/\//\\\//g;
+$root =~ s/\-/\\\-/g;
+$root =~ s/\+/\\\+/g;
+$root =~ s/\./\\\./g;
+
+$copyright_url =~ s/\//\\\//g;
+$copyright_url =~ s/\-/\\\-/g;
+$copyright_url =~ s/\+/\\\+/g;
+$copyright_url =~ s/\./\\\./g;
+
+my $call_string = sprintf( "cat %s | "                          .
+                           "sed 's/\@ROOT\@/%s/g' | "           .
+                           "sed 's/\@TARBALL_SUFFIX\@/%s/g' | " .
+                           "sed 's/\@BUG_URL\@/%s/g' | "        .
+                           "sed 's/\@SVG_WIDTH\@/%d/g' | "      .
+                           "sed 's/\@SVG_HEIGHT\@/%d/g' | "     .
+                           "sed 's/\@JSON_DATA_FILE\@/%s/g' > " .
+                           ".%s_requires.html", $html_template, $root, $tarball_suffix, $copyright_url, $width, $height, $js_tree_file, $hardware );
+_kxLab::system( $call_string );
+
+#
+# End of creating HTML file
+#################################################################
+
+
+#################################################################
+# Building Required Packages List:
+#
+sub compare_order
+{
+  $sequence{$a} <=> $sequence{$b};
+}
+
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# file format:\n";
+print PKGLIST_FILE "# ===========\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# Each line contains five fields separated by colon symbol ':' like following.\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# pkgname:version:description:tarball:priority\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "# where:\n";
+print PKGLIST_FILE "#\n";
+print PKGLIST_FILE "#   pkgname     - should be the same as the value of pkgname  in the '.DESCRIPTION' file;\n";
+print PKGLIST_FILE "#   version     - package version for showing in check list  dialog box  if this file is\n";
+print PKGLIST_FILE "#                 used to complete common check dialog for installing group  of packages;\n";
+print PKGLIST_FILE "#   description - Short description for showing in check list dialog box if this file is\n";
+print PKGLIST_FILE "#                 used to complete common check dialog for installing  group of packages;\n";
+print PKGLIST_FILE "#   tarball     - should end in '." . $tarball_suffix . "';\n";
+print PKGLIST_FILE "#   priority    - { REQUIRED|RECOMMENDED|OPTIONAL|SKIP }\n";
+print PKGLIST_FILE "#                  synonims:\n";
+print PKGLIST_FILE "#                    { REQUIRED    | required    | REQ | req }\n";
+print PKGLIST_FILE "#                    { RECOMMENDED | recommended | REC | rec }\n";
+print PKGLIST_FILE "#                    { OPTIONAL    | optional    | OPT | opt }\n";
+print PKGLIST_FILE "#                    { SKIP        | skip        | SKP | skp }\n";
+print PKGLIST_FILE "#\n";
+
+
+my $packages_done = 0;
+
+sub print_result
+{
+  my $out_string = sprintf( "####### Required Packages Tree and Install List (done: %4d packages)\n", $packages_done );
+
+  print $out_string;
+}
+
+print "#######\n";
+
+foreach my $dir (sort compare_order( (keys %sequence) ))
+{
+  my $package;
+
+  if( $dir ne "all" )
+  {
+    $package = $sub_trees{$dir};
+    #
+    # Currently gcc-runtime has not ROOTFS_TARGET and not all packages requires GCC.
+    # We will not add GCC in this procedure forcibly. But developers have to care about
+    # competing packages GCC and gcc-runtime.
+    #
+    if( $package->{'install'} eq "yes" )
+    {
+      print PKGLIST_FILE $package->{'name'}              . ":" .
+                         $package->{'version'}           . ":" .
+                         $package->{'short_description'} . ":" .
+                         $package->{'group'}             . "/" .
+                         $package->{'tarball'}           . ":REQUIRED\n";
+      ++$packages_done;
+    }
+  }
+}
+
+if( $tree{'install'} eq "yes" )
+{
+  print PKGLIST_FILE $tree{'name'}              . ":" .
+                     $tree{'version'}           . ":" .
+                     $tree{'short_description'} . ":" .
+                     $tree{'group'}             . "/" .
+                     $tree{'tarball'}           . ":REQUIRED\n";
+  ++$packages_done;
+}
+
+print_result();
+print "#######\n";
+#
+# End of Building Required Packages List.
+#################################################################
+
+# close input files
+close REQUIRES_FILE;
+# close output files
+close JS_TREE_FILE;
+close PKGLIST_FILE;

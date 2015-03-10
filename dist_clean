@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use File::Basename;
+
+$base = $ARGV[0];
+$hardware = $ARGV[1];
+
+open( F, '<', ".$hardware.dist" ) or die "Could not open .$hardware.dist";
+
+while( <F> )
+{
+  chomp;
+  $f = "$base/$_";
+  unlink $f;
+  $dirs{dirname($f)}++;
+}
+
+foreach ( sort { length($b) <=> length($a) } keys %dirs )
+{
+  while( rmdir )
+  {
+    $_ = dirname( $_ );
+  }
+}

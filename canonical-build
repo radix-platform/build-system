@@ -1,0 +1,55 @@
+#!/bin/sh
+
+UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
+UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+
+case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
+  i*:CYGWIN*:*)
+    echo ${UNAME_MACHINE}-pc-cygwin
+    exit ;;
+  *:MINGW*:*)
+    echo ${UNAME_MACHINE}-pc-mingw32
+    exit ;;
+  amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+    echo x86_64-unknown-cygwin
+    exit ;;
+  i*86:Linux:*:*)
+    if [ -f /etc/slackware-version ]; then
+      system=`cat /etc/slackware-version | cut -f 1 -d ' ' | tr 'S' 's'`
+      echo ${UNAME_MACHINE}-${system}-linux
+    else
+      echo ${UNAME_MACHINE}-unknown-linux-gnu
+    fi
+    exit ;;
+  x86_64:Linux:*:*)
+    if [ -f /etc/slamd64-version ]; then
+      system=`cat /etc/slamd64-version | cut -f 1 -d ' ' | tr 'S' 's'`
+      echo x86_64-${system}-linux
+    elif [ -f /etc/slackware-version ]; then
+      system=`cat /etc/slackware-version | cut -f 1 -d ' ' | tr 'S' 's'`
+      echo x86_64-${system}-linux
+    elif [ -f /etc/os-release ]; then
+      system=`cat /etc/os-release | grep -e '^ID=' | cut -f 2 -d '='`
+      echo x86_64-linux-gnu
+    else
+      echo x86_64-unknown-linux-gnu
+    fi
+    exit ;;
+esac
+
+####### echo "unknown-unknown-unknown-unknown"
+
+cat >&2 <<EOF
+
+`basename $0`: unable to reciognize build system type
+
+   MACHINE = '${UNAME_MACHINE}'
+   SYSTEM  = '${UNAME_SYSTEM}'
+   RELEASE = '${UNAME_RELEASE}'
+   VERSION = '${UNAME_VERSION}'
+
+EOF
+
+exit 1

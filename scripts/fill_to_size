@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+(@ARGV < 2) && die <<EOF;
+
+Usage: fill [file] [length] <value>
+
+       Appends 0x00 or <value> (must be decimal) to the end of [file]
+       so the total length will be [length] bytes.
+
+EOF
+
+$size = (stat($ARGV[0]))[7] || 0; 
+$fill = $ARGV[1] - $size;
+$fill = ($fill < 0) ? 0 : $fill;
+print "Size of $ARGV[0]: $size bytes. Appending $fill bytes.\n";
+
+open (F, ">>", $ARGV[0]) || die "Can't open $ARGV[0] for writing";
+print F (chr($ARGV[2]) || 0) x $fill;
+close F;

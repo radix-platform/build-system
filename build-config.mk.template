@@ -1,0 +1,39 @@
+#
+# ENABLE NOARCH, and HOST: {x86_64|i686}-pc-linux-gnu: is always true.
+#
+
+# TARGET: i486-radix-linux-gnu:
+ENABLE_PC32       = true
+
+# TARGET: x86_64-radix-linux-gnu:
+ENABLE_PC64       = true
+
+# TARGET: arm-a1x-eabi:
+ENABLE_CB1N       = true
+# TARGET: arm-a1x-linux-gnueabihf:
+ENABLE_CB1X       = true
+
+# TARGET: arm-a2x-eabi:
+ENABLE_CB2N       = true
+# TARGET: arm-a2x-linux-gnueabihf:
+ENABLE_CB2X       = true
+
+# TARGET: arm-at91sam7s-elf-newlib:
+ENABLE_AT91S      = true
+
+# TARGET: arm-dm644x-elf-newlib:
+ENABLE_VIP1830N   = true
+
+# TARGET: arm-dm644x-linux-gnueabi:
+ENABLE_VIP1830    = true
+
+ENABLE_L17UC      = true
+
+# TARGET: arm-omap35x-linux-gnueabihf:
+ENABLE_BEAGLE     = true
+
+# TARGETS: arm-omap543x-linux-gnueabihf:
+ENABLE_OMAP5UEVM  = true
+ENABLE_DRA7XXEVM  = true
+
+ENABLE_B74        = true

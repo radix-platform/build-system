@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+
+#
+# Generate .REQUIRES file for package.
+#
+# usage:
+#   $0 [options] dir dir outfile
+#
+# where: 'dir'     - is directory where made required package
+#        'outfile' - output file with following format:
+#
+# _kxLibc=1.0.7
+# pkgtool=0.0.1
+#
+# empty version is allowed:
+#
+# pkg=
+#
+
+
+sub read_requires
+{
+  my %requires;
+  my ( $name, $version );
+
+  my $ptype = shift;
+
+  if( $ptype eq "bin" )
+  {
+    $name    = "BIN_PKG_NAME";
+    $version = "BIN_PKG_VERSION";
+  }
+  elsif( $ptype eq "dev" )
+  {
+    $name    = "DEV_PKG_NAME";
+    $version = "DEV_PKG_VERSION";
+  }
+  else
+  {
+    $name    = "PKG_NAME";
+    $version = "PKG_VERSION";
+  }
+
+  foreach my $d ( @_ )
+  {
+    $file_name = "${top_build_dir}/$d/Makefile";
+    $makefile = `cat $file_name`;
+# start tabs are not allowed (only spaces) because we are parsing Makefile!
+    while( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$name(.+= +)(.+)/gm )
+    {
+      my @p;
+
+      $requires{"$d"} = \@p;
+
+      @n = split / +/, $3;
+      push( @{ $requires{"$d"} }, @n );
+    }
+    $makefile = `cat $file_name`;
+    while( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$version(.+= +)(.+)/gm )
+    {
+      @v = split / +/, $3;
+      if( $requires{"$d"} )
+      {
+         push( @{ $requires{"$d"} }, @v );
+      }
+    }
+  }
+
+  return %requires;
+}
+
+sub usage
+{
+  print <<EOF;
+
+Usage: build_pkg_requires [options] dir ... dir output_file_name
+Options:
+   --pkg-type={all|bin|dev} - find required packages of defined type only;
+   --all                    - find required packages of all types;
+   --bin                    - find binary packages only;
+   --dev                    - find development packages only.
+
+EOF
+  exit;
+}
+
+
+my $pkg_type;
+
+my @dirs;
+
+foreach ( @ARGV )
+{
+  if( /--pkg-type=(\S*)/ )
+  {
+    $pkg_type = $1;
+  }
+  elsif( /--all/ )
+  {
+    $pkg_type = "all";
+  }
+  elsif( /--bin/ )
+  {
+    $pkg_type = "bin";
+  }
+  elsif( /--dev/ )
+  {
+    $pkg_type = "dev";
+  }
+  elsif( /--help/ )
+  {
+    usage;
+  }
+  else
+  {
+    push @dirs, $_;
+  }
+}
+
+$reqfile = pop @dirs;
+
+if( $pkg_type eq "" ) { $pkg_type = "all"; }
+
+# Set up $top_build_dir
+$pwd = `pwd`;
+chomp $pwd;
+
+if( $ENV{TOP_BUILD_DIR_ABS} eq "" )
+{
+  $p = $pwd;
+  while( ! -f "$p/build-system/core.mk" )
+  {
+    $p =~ m!(.*)/(.*)!;
+    $p = $1;
+  }
+  $top_build_dir = $p;
+}
+else
+{
+  $top_build_dir = $ENV{TOP_BUILD_DIR_ABS};
+}
+
+
+# Open the output file
+open( REQUIRES_FILE, "> $reqfile" );
+
+
+# Read package names and versions from required Makefiles
+%requires = read_requires( $pkg_type, @dirs );
+
+while( ($pkg, $nv) = each %requires )
+{
+   print REQUIRES_FILE "${$nv}[0]=${$nv}[1]\n"
+}
+
+
+# Close output file
+close REQUIRES_FILE;

@@ -1,0 +1,173 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Basename;
+use File::Temp;
+use _kxLab;
+
+
+#
+# Install file(s)
+#
+# usage:
+#   $0 [options] source[ source] destination hardware
+#
+# where:
+#        'source' - the list of source files to be installed into dest directory
+#   'destination' - is a destination directory for installation all source files
+#      'hardware' - is a HARDWARE variant
+#
+# options:
+#   --preserve-source-dir=true  - preserve source directory tree in the dest dir,
+#                                 for example, if source is foo/bar/file then we
+#                                 will have destination such as  dest/foo/bar/file.
+#
+#   --preserve-source-dir=one   - preserve source directory depth is only 1. Its
+#                                 mean that if we have source like foo/bar/file,
+#                                 then destination will be dest/bar/file.
+#
+
+# Global variables
+my $header_printed = 0;
+
+my $cleanup = $ENV{DO_CREATE_DIST_FILES} ? 0 : 1;
+my ($tempfd, $tempname);
+
+# cleanpath( path )
+sub cleanpath
+{
+  my $path = shift;
+  $path =~ s!/{2,}!/!g;
+  return $path;
+}
+
+# dist( file )
+sub dist
+{
+  my $file = cleanpath(shift);
+  $file =~ s!^.*dist/!!;
+  print $tempfd "$file\n";
+}
+
+# newer_than( file1, file2 )
+sub newer_than
+{
+  my $file1 = shift;
+  my $file2 = shift;
+  _kxLab::error( "install_targets: Source file missing: $file1" ) if ( ! -f $file1 );
+  return( ! -f $file2 or -M $file1 < -M $file2 );
+}
+
+# install_tree( install_dir, file, target, verbose )
+sub install_tree
+{
+  my $install_dir = cleanpath(shift);
+  my $file = shift;
+  my $target = shift;
+  my $verbose = shift;
+
+  opendir(DIR, "$target");
+  my @files = readdir(DIR);
+  closedir DIR;
+  foreach my $f ( @files )
+  {
+    next if ($f eq "." or $f eq "..");
+    if( -d "$target/$f" )
+    {
+      install_tree( "$install_dir/$f", "$file/$f", "$target/$f", $verbose );
+    }
+    elsif( newer_than( "$target/$f", "$install_dir/$f" ) )
+    {
+      if( !$header_printed )
+      {
+        print "\n======= Installing files =======\n";
+        $header_printed = 1;
+      }
+      print "Installing $f in $install_dir\n" if ( $verbose );
+      _kxLab::system( "mkdir -p $install_dir" );
+      _kxLab::system( "cp -fa $target/$f $install_dir" );
+      dist( "$install_dir/$f" );
+    }
+  }
+}
+
+# install( install_dir, preserve_source_dir, verbose, targets )
+sub install
+{
+  my $install_dir = cleanpath(shift);
+  my $preserve_source_dir = shift;
+  my $verbose = shift;
+  my $targets = shift;
+
+  foreach my $target ( @{$targets} )
+  {
+    my $file = basename($target);
+    my $path = "";
+    if( $preserve_source_dir eq "true" )
+    {
+      $path = dirname( $target );
+    }
+    elsif( $preserve_source_dir eq "one" )
+    {
+      $path = dirname( $target );
+      $path = basename( $path );
+    }
+
+    if( -d $target )
+    {
+      install_tree( "$install_dir/$path/$file", "$file", "$target", $verbose );
+    }
+    elsif( newer_than( $target, "$install_dir/$path/$file" ) )
+    {
+      if( !$header_printed )
+      {
+        print "\n======= Installing files =======\n";
+        $header_printed = 1;
+      }
+      print "Installing $file in $install_dir/$path\n" if ( $verbose );
+      _kxLab::system( "mkdir -p $install_dir/$path" );
+      _kxLab::system( "cp -fa $target $install_dir/$path" );
+      dist( "$install_dir/$path/$file" );
+    }
+  }
+}
+
+my $preserve_source_dir = "";
+my $hardware;
+my $dest_dir;
+my @targets;
+my $verbose = $ENV{VERBOSE};
+my $curdir  = $ENV{CWD};
+my $fname = "";
+
+foreach ( @ARGV )
+{
+  if( /--preserve-source-dir=(\S*)/ )
+  {
+    $preserve_source_dir = $1;
+  }
+  else
+  {
+    push @targets, $_;
+  }
+}
+$hardware = pop @targets;
+$dest_dir = pop @targets;
+
+if ( $curdir )
+{
+  $fname = "$curdir/.$hardware.dist.XXXXXX";
+}
+else
+{
+  $fname = ".$hardware.dist.XXXXXX";
+}
+
+($tempfd, $tempname) = File::Temp::tempfile( $fname, UNLINK => $cleanup );
+
+install( $dest_dir, $preserve_source_dir, $verbose, \@targets );
