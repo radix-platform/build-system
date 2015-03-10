@@ -366,7 +366,7 @@ __quick_targets := help ccache_stats local_clean global_clean downloads_clean bu
 #######
 
 ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
-__setup_targets = .src_requires .build_system $(SETUP_TARGETS)
+__setup_targets = .sources .build_system $(SETUP_TARGETS)
 endif
 
 
@@ -376,26 +376,6 @@ ifeq ($(__final__),)
 else
 .setup: .makefile
 endif
-
-
-
-.build_system: .src_requires
-ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
-ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-ifeq ($(shell pwd | grep $(BUILDSYSTEM)),)
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart to Check the BUILDSYSTEM is ready:%b"
-	@shtool echo -e "%B#######%b"
-	@( cd $(BUILDSYSTEM) ; FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) all )
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of checking the BUILDSYSTEM.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
-endif
-endif
-endif
-
 
 
 #######
@@ -420,6 +400,79 @@ ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | g
 	@if $(MAKE) local_clean; then true; else rm -f $@; fi
 else
 	@if $(MAKE) download_clean; then true; else rm -f $@; fi
+endif
+endif
+endif
+
+
+
+#######
+####### Build directory dependencies into .src_requires  which
+####### is used as a Makefile for srource tarballs downloading
+#######
+
+#######
+####### NOTE:
+####### ====
+#######  Source tarballs are downloaded once for whole dependencies tree
+#######  of the current directory where we make the build using command
+#######  such as 'make' or 'make local_all'.
+#######  Target local_all is not affects the downloading sources for the
+#######  whole dependencies tree (target local_all affects the building
+#######  of packages only).
+#######  In this case the $(__final__) variable is not defined.
+#######  On the contrary when the BUILDSYSTEM builds each packages of
+#######  dependencies tree the $(__final__) variable is defined and
+#######  we don't try to download sources because they already downloaded.
+#######  More over we don't need to have the '.src_requires' and
+#######  '.src_requires_depend' files.
+#######
+#######  Such behavior is invented aspecialy to avoid competition in case
+#######  when during parallel build different processes can run the same
+#######  Makefile and all of them can start the sources preparation.
+#######
+
+.sources: .src_requires
+
+.src_requires_depend: .src_requires ;
+
+.src_requires: .makefile
+ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
+ifeq ($(__final__),)
+	@echo ""
+	@shtool echo -e "%B################################################################%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BStart of building source requires for%b `pwd`%B:%b"
+	@shtool echo -e "%B#######%b"
+	@$(BUILDSYSTEM)/build_src_requires $(TOP_BUILD_DIR_ABS)
+	@__final__= TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_NOARCH) HARDWARE=$(HARDWARE_NOARCH) -f .src_requires
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BEnd of building source requires for%b `pwd`%B.%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B################################################################%b"
+	@echo ""
+	@touch $@
+	@touch .src_requires_depend
+endif
+endif
+endif
+
+
+
+.build_system: .src_requires
+ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+ifeq ($(shell pwd | grep $(BUILDSYSTEM)),)
+	@shtool echo -e "%B################################################################%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BStart to Check the BUILDSYSTEM is ready:%b"
+	@shtool echo -e "%B#######%b"
+	@( cd $(BUILDSYSTEM) ; FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) all )
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BEnd of checking the BUILDSYSTEM.%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B################################################################%b"
 endif
 endif
 endif
@@ -455,39 +508,6 @@ downloads_clean: .downloads_clean
 ifneq ($(wildcard $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR)),)
 	@$(BUILDSYSTEM)/downloads_clean $(addprefix ., $(TOOLCHAIN_NOARCH)) $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR)
 endif
-
-
-#######
-####### Build directory dependencies into .src_requires  which
-####### is used as a Makefile for srource tarballs downloading
-#######
-.src_requires_depend: .src_requires ;
-
-.src_requires: .makefile
-ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
-ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
-	@echo ""
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of building source requires for%b `pwd`%B:%b"
-	@shtool echo -e "%B#######%b"
-	@$(BUILDSYSTEM)/build_src_requires $(TOP_BUILD_DIR_ABS)
-	@__final__=true TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_NOARCH) HARDWARE=$(HARDWARE_NOARCH) -f .src_requires
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building source requires for%b `pwd`%B.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
-	@echo ""
-	@touch $@
-endif
-endif
-
-#######
-####### Include sources dependency if they exist
-#######
-
--include .src_requires_depend
-
 
 
 help:
@@ -811,7 +831,16 @@ ifeq ($(BUILD_TREE),true)
 _tree := .tree_all
 endif
 
-local_all: $(_tree) _install
+ifneq ($(BUILD_TREE),true)
+_requires := .requires
+endif
+
+#
+# We always build 'requires' (for both local and tree build processes).
+# This is needed to cover all tree. In other words we want to have '.$(HARDWARE)_requires'
+# file in the each directory to be able run 'make requires_tree' command.
+#
+local_all: $(_tree) $(_requires) _install
 
 
 ifeq ($(CLEAN_TREE),true)
@@ -860,6 +889,21 @@ ifndef FLAVOUR
 #   current directory.
 #
 
+.requires: FLAVOUR :=
+.requires: __final__ := true
+.requires: BUILD_TREE := false
+
+.requires: .$(HARDWARE)_requires
+ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BEnd of building requires for%b `pwd`%B.%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B################################################################%b"
+endif
+endif
+
+
 .tree_all: FLAVOUR :=
 .tree_all: __final__ := true
 .tree_all: BUILD_TREE := false
@@ -879,15 +923,17 @@ endif
 endif
 endif
 
-# Build directory dependencies into .$(HARDWARE)$(if $(FLAVOUR),_$(FLAVOUR))requires file
-# which is used as a Makefile for tree builds
+
+#######
+####### Build directory dependencies into .$(HARDWARE)_requires
+####### file which is used as a Makefile for tree builds.
+#######
 
 .$(HARDWARE)_requires_depend: .$(HARDWARE)_requires ;
 
 # .$(HARDWARE)_requires depends on Makefile because .makefile can
-# depend on .src_requires but we can be independed from sources.
+#  depend on  .src_requires but we can be independed from sources.
 .$(HARDWARE)_requires: Makefile
-ifeq ($(BUILD_TREE),true)
 ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
@@ -899,7 +945,6 @@ ifeq ($(shell pwd),$(BUILDSYSTEM))
 	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN_BUILD_MACHINE) $(HARDWARE_BUILD)
 else
 	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE)
-endif
 endif
 endif
 endif
@@ -1393,6 +1438,11 @@ $(TARGET_BUILD_DIR)/%.o: %.c
 
 
 #######
+####### NOTE: Include dependencies should be in section where
+####### the symbol __final__ is defined: ifneq ($(__final__),)
+#######
+
+#######
 ####### Include dependencies if they exist
 #######
 
@@ -1400,6 +1450,13 @@ $(TARGET_BUILD_DIR)/%.o: %.c
 
 # Include HW dependencies
 -include .$(HARDWARE)_requires_depend
+
+#######
+####### Include sources dependency if they exist
+#######
+
+-include .src_requires_depend
+
 
 
 ################################################################
@@ -1427,6 +1484,8 @@ endif
 
 # HW depended targets:
 .PHONY: .target*
+.PHONY: $(_requires)
+.PHONY:   .requires
 .PHONY: $(_tree)
 .PHONY:    .tree_all  .tree_clean  .tree_dist_clean  .tree_rootfs_clean
 .PHONY: all _install        clean        dist_clean        rootfs_clean
@@ -1437,7 +1496,8 @@ endif
 
 # HW independed targets:
 .PHONY: help
-.PHONY: .setup .build_system
+.PHONY: .setup
+.PHONY: .sources      .build_system
 .PHONY:  global_clean  downloads_clean
 .PHONY: .global_clean .downloads_clean
 

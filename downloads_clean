@@ -35,7 +35,6 @@ sub do_clean
     print "\n=======\n" if ( $verbose );
     print "======= Cleaning in $printed_d...\n" if ( $verbose );
     print "=======\n" if ( $verbose );
-#    _kxLab::system( "make -C $d local_clean" );
     _kxLab::system( "make -C $d download_clean" );
     unlink "$d/.makefile";
     unlink <$d/.*_requires*>;

@@ -71,9 +71,14 @@ sub read_requires
 
   my %requires;
 
+  #
+  # We read the head of Makefile until '__END_OF_REQUIRES__' keyword.
+  # The 'build-system/constants.mk' should be included before requires.
+  #
   my $shell_output = <<`SHELL`;
 cd $cdir
-make TOOLCHAIN=$toolchain HARDWARE=$hardware -pn __build_requires__ 2>/dev/null | grep "REQUIRES"
+head -n `cat Makefile | grep -n "__END_OF_REQUIRES__" | cut -f 1 -d ':'` Makefile | \
+  make TOOLCHAIN=$toolchain HARDWARE=$hardware -f - -p __build_requires__ 2>/dev/null | grep "REQUIRES"
 exit 0
 SHELL
 

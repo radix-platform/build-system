@@ -3,6 +3,8 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 
 include ../../build-system/constants.mk
 
+# ======= __END_OF_REQUIRES__ =======
+
 config_target = .config
 
 BUILD_TARGETS = $(config_target)

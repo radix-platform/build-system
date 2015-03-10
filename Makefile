@@ -7,6 +7,9 @@ REQUIRES  = build-system/3pp/fakeroot/0.18
 REQUIRES += build-system/progs
 
 
+# ======= __END_OF_REQUIRES__ =======
+
+
 config_makefile = build-config.mk
 
 BUILD_TARGETS = $(config_makefile)

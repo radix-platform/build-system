@@ -35,7 +35,9 @@ sub do_clean
     print "\n=======\n" if ( $verbose );
     print "======= Cleaning in $printed_d...\n" if ( $verbose );
     print "=======\n" if ( $verbose );
+
     _kxLab::system( "make -C $d local_clean" );
+
     # remove requires and .makefile:
     unlink "$d/.makefile";
     unlink <$d/.*_requires*>;
@@ -45,38 +47,27 @@ sub do_clean
   }
 }
 
-sub do_clean_list
+
+sub find_directories
 {
-  my $dir = shift;
-  my $cwd = `pwd`;
+  # find all directories which has Makefile and hiden build results
+  my $shell_output = <<`SHELL`;
+  dirs=`find $top_dir -name ".[a-zA-Z0-9_-+.]*"       \\
+	! -path "$top_dir/doc/*"                      \\
+	! -path "$top_dir/dist/*"                     \\
+	! -path "$top_dir/sources/*"                  \\
+	! -path "$top_dir/build-system/3pp/sources/*" \\
+	-prune -exec dirname {} \\; | sort -u`
 
-  chomp $cwd;
+  for dir in \$dirs ; do
+    if [ -f "\$dir/Makefile" ] ; then
+      echo "\$dir"
+    fi
+  done
+SHELL
 
-  # skip directories which doesn't contain 'Makefile':
-  return if( ! -f "$cwd/Makefile" );
-
-  # needs clean:
-  push @clean_dirs_all, $cwd;
-}
-
-sub process_clean
-{
-  # skip doc, dist, sources directories:
-  return if( $File::Find::dir =~ m/$top_dir\/doc/ );
-  return if( $File::Find::dir =~ m/$top_dir\/dist/ );
-  return if( $File::Find::dir =~ m/$top_dir\/sources/ );
-  return if( $File::Find::dir =~ m/$top_dir\/build\-system\/3pp\/sources/ );
-
-  # add directories which contains '.makefile' too.
-  if( $_ eq ".makefile" ) { do_clean_list( $File::Find::dir ); }
-
-  return if( ! -d $_ );
-
-  # select directories such as .$(TOOLCHAIN_NAMES):
-  foreach my $d ( @targets )
-  {
-    if( $d eq $_ ) { do_clean_list( $File::Find::dir ); }
-  }
+  @clean_dirs = split /\n/, $shell_output;
+  @clean_dirs = grep { $_ ne $top_dir } @clean_dirs;
 }
 
 
@@ -95,14 +86,11 @@ if( ! $top_dir =~ m/^\// )
   die "\nTop: $top_dir: is not absolute path\n\n";
 }
 
-find( \&process_clean, "$top_dir" );
 
-# get unique names:
-%seen = ();
-@clean_dirs = grep { ! $seen{ $_ }++ } @clean_dirs_all;
-@clean_dirs = reverse( keys %seen );
+find_directories();
 
-$clean_count = @clean_dirs;
+
+$clean_count = $#clean_dirs;
 
 if( $clean_count != 0 )
 {

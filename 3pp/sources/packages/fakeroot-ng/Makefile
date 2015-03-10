@@ -7,6 +7,7 @@ include ../../../../../build-system/constants.mk
 
 url         = $(DOWNLOAD_SERVER)/sources/packages/a/fakeroot-ng
 
+
 versions    = 0.17 0.18
 pkgname     = fakeroot-ng
 suffix      = tar.bz2

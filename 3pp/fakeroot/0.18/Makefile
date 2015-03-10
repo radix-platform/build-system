@@ -5,6 +5,10 @@ include ../../../constants.mk
 
 SOURCE_REQUIRES = build-system/3pp/sources/packages/fakeroot-ng
 
+
+# ======= __END_OF_REQUIRES__ =======
+
+
 tar_bz2_archive = $(BUILDSYSTEM)/3pp/sources/packages/fakeroot-ng/fakeroot-ng-0.18.tar.bz2
 src_dir         = fakeroot-ng-0.18
 build_dir       = $(TARGET_BUILD_DIR)/built
