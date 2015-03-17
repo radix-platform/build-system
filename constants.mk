@@ -103,10 +103,14 @@ HARDWARE_PC64       = pc64
 HARDWARE_CB1N       = cb1n
 # A1X devices (cubieboard 1 eglibc):
 HARDWARE_CB1X       = cb1x
-# A2N newlib devices (cubieboard 2,3):
+# A2N newlib devices (cubieboard 2):
 HARDWARE_CB2N       = cb2n
-# A2X devices (cubieboard 2,3 eglibc):
+# A2X devices (cubieboard 2 eglibc):
 HARDWARE_CB2X       = cb2x
+# A3N newlib devices (cubieboard 3):
+HARDWARE_CB3N       = cb3n
+# A3X devices (cubieboard 3 eglibc):
+HARDWARE_CB3X       = cb3x
 
 # AT91SAM7S devices:
 HARDWARE_AT91S      = at91s
@@ -128,20 +132,22 @@ HARDWARE_B74        = b74
 #######
 ####### Hardware IDs:
 #######
-        PC32_ID_STD = 04
-        PC64_ID_STD = 10
-        CB1N_ID_STD = 20
-        CB1X_ID_STD = 21
-        CB2N_ID_STD = 22
-        CB2X_ID_STD = 23
-       AT91S_ID_STD = 30
-    VIP1830N_ID_STD = 40
-     VIP1830_ID_STD = 41
-       L17UC_ID_STD = 50
-      BEAGLE_ID_STD = 60
-   OMAP5UEVM_ID_STD = 70
-   DRA7XXEVM_ID_STD = 71
-         B74_ID_STD = 80
+        PC32_ID_STD = 01
+        PC64_ID_STD = 02
+        CB1N_ID_STD = 10
+        CB1X_ID_STD = 11
+        CB2N_ID_STD = 12
+        CB2X_ID_STD = 13
+        CB3N_ID_STD = 14
+        CB3X_ID_STD = 15
+       AT91S_ID_STD = 20
+    VIP1830N_ID_STD = 30
+     VIP1830_ID_STD = 31
+       L17UC_ID_STD = 40
+      BEAGLE_ID_STD = 50
+   OMAP5UEVM_ID_STD = 60
+   DRA7XXEVM_ID_STD = 61
+         B74_ID_STD = 70
 
 
 
@@ -271,7 +277,7 @@ A2X_NEWLIB_PATH              = $(TOOLCHAINS_BASE_PATH)/$(A2X_NEWLIB_DIR)
 
 A2X_NEWLIB_ARCH_DEFS         = -D__ALLWINNER_2N__=1
 
-A2X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB2N)
+A2X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB2N) $(HARDWARE_CB3N)
 
 
 
@@ -291,7 +297,7 @@ A2X_EGLIBC_DEST_SYSROOT      = yes
 
 A2X_EGLIBC_HAS_CHRPATH       = yes
 
-A2X_EGLIBC_HARDWARE_VARIANTS := $(HARDWARE_CB2X)
+A2X_EGLIBC_HARDWARE_VARIANTS := $(HARDWARE_CB2X) $(HARDWARE_CB3X)
 
 
 
