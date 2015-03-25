@@ -213,7 +213,7 @@ if( $target_root_path ne "/" ) # add last / if not exist:
 {
   if( ! ($target_root_path =~ m/\/$/ ) ) { $target_root_path .= "/"; }
 }
-$setup_db_path = "$target_root_path" . "var/log/_@DISTRO@/packages";
+$setup_db_path = "$target_root_path" . "var/log/@DISTRO@/packages";
 
 
 ################################################################

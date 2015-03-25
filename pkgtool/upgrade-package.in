@@ -268,7 +268,7 @@ if [ "$TARGET_ROOT_PATH" = "/" ]; then
   fi
 fi
 
-SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/@DISTRO@
 if [ ! -d $SETUP_DB_PATH ]; then
   rm -rf $SETUP_DB_PATH # make sure it's not a link
   mkdir -p $SETUP_DB_PATH

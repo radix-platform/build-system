@@ -296,11 +296,11 @@ sub fill_package_info
   $pkg{'arch'}           = $toolchain;
   $pkg{'hardware'}       = $hardware;
 
-  $pkg{'tarball'} = $pkg{'name'}    . "-" . 
-                    $pkg{'version'} . "-" . 
-                    $pkg{'arch'}    . "-" . 
-                    $distro_name    . "-" . 
-                    $distro_version . "." . 
+  $pkg{'tarball'} = $pkg{'name'}    . "-" .
+                    $pkg{'version'} . "-" .
+                    $pkg{'arch'}    . "-" .
+                    $distro_name    . "-" .
+                    $distro_version . "." .
                     $tarball_suffix;
 
   return %pkg;

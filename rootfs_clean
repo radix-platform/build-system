@@ -53,7 +53,7 @@ while( <F> )
   $pkg_name   = basename( $pkg );
   $pkg_dir    = dirname( $pkg );
   $rootfs_dir = $pkg_dir;
-  $rootfs_dir =~ s!/var/log/_$distro/packages$!!;
+  $rootfs_dir =~ s!/var/log/$distro/packages$!!;
 
   _kxLab::system( "cd $pkg_dir && $removepkg --skip-refs --root $rootfs_dir $pkg_name" );
 }

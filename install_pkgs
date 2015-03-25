@@ -32,7 +32,7 @@ sub rootfs
 {
   my $dest_dir = cleanpath( shift );
   my $file = basename( shift, ".tgz" );
-  print $tempfd "$dest_dir/var/log/_$distro/packages/$file\n";
+  print $tempfd "$dest_dir/var/log/$distro/packages/$file\n";
 }
 
 # install( installpkg, rootfs_dest_dir, verbose, targets )

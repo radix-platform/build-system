@@ -178,7 +178,7 @@ else
   TARGET_ROOT_PATH="`echo "$TARGET_ROOT_PATH" | sed -e "s/\/$//"`/"
 fi
 
-SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/_@DISTRO@
+SETUP_DB_PATH=${TARGET_ROOT_PATH}var/log/@DISTRO@
 if [ ! -d $SETUP_DB_PATH ]; then
   echo "ERROR: Setup database directory doesn't exist."
   EXITSTATUS=24
