@@ -1,6 +1,6 @@
 #
 # ENABLE NOARCH, and HOST: {x86_64|i686}-pc-linux-gnu: is always true.
-# 
+#
 
 # TARGET: i486-radix-linux-gnu:
 ENABLE_PC32       = true
