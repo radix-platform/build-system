@@ -281,7 +281,7 @@ endif
 #
 # NOTE: LIBSUFFIX=64 is valid for Slackware64 distro where native libraries are placed in /usr/lib64 directory
 #       for example ubuntu has /usr/lib for x86_64 libraries and /usr/lib32 for x86_32 libraries as well as
-#       our X86_64-eglibc toolchain.
+#       our X86_64-glibc toolchain.
 # TODO: Create the canonical-distro script such as $(BULDSYSTEM)/canonical-build we have.
 #
 ifeq ($(TOOLCHAIN),$(TOOLCHAIN_BUILD_MACHINE))
@@ -401,7 +401,7 @@ BUILD_ENVIRONMENT += PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"
 
 ####### Multilib directory suffixes for TARGETs:
 
-ifeq ($(TOOLCHAIN),$(TOOLCHAIN_X86_64_EGLIBC))
+ifeq ($(TOOLCHAIN),$(TOOLCHAIN_X86_64_GLIBC))
 MULTILIB_X86_32_SUFFIX ?= 32
 endif
 
