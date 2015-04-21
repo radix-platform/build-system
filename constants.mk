@@ -128,6 +128,16 @@ HARDWARE_DRA7XXEVM  = dra7xxevm
 # BCM74X devices:
 HARDWARE_B74        = b74
 
+# JZ47XX devices:
+# --------------
+# MIPS Creator CI20 [http://www.elinux.org/MIPS_Creator_CI20]:
+HARDWARE_CI20       = ci20
+
+# RK328X devices:
+# --------------
+# Firefly-RK3288 [http://en.t-firefly.com/en/firenow/firefly_rk3288]:
+HARDWARE_FFRK3288   = ffrk3288
+
 
 #######
 ####### Hardware IDs:
@@ -136,18 +146,20 @@ HARDWARE_B74        = b74
         PC64_ID_STD = 02
         CB1N_ID_STD = 10
         CB1X_ID_STD = 11
-        CB2N_ID_STD = 12
-        CB2X_ID_STD = 13
-        CB3N_ID_STD = 14
-        CB3X_ID_STD = 15
-       AT91S_ID_STD = 20
-    VIP1830N_ID_STD = 30
-     VIP1830_ID_STD = 31
-       L17UC_ID_STD = 40
-      BEAGLE_ID_STD = 50
-   OMAP5UEVM_ID_STD = 60
-   DRA7XXEVM_ID_STD = 61
-         B74_ID_STD = 70
+        CB2N_ID_STD = 20
+        CB2X_ID_STD = 21
+        CB3N_ID_STD = 30
+        CB3X_ID_STD = 31
+       AT91S_ID_STD = 40
+    VIP1830N_ID_STD = 50
+     VIP1830_ID_STD = 51
+       L17UC_ID_STD = 60
+      BEAGLE_ID_STD = 71
+   OMAP5UEVM_ID_STD = 81
+   DRA7XXEVM_ID_STD = 82
+         B74_ID_STD = 91
+        CI20_ID_STD = A1
+    FFRK3288_ID_STD = B1
 
 
 
@@ -307,6 +319,27 @@ A2X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_CB2X) $(HARDWARE_CB3X)
 
 
 
+# ======= RK328X-GLIBC ======================================================
+
+TOOLCHAIN_RK328X_GLIBC       = rk328x-glibc
+
+RK328X_GLIBC_ARCH            = arm-rk328x-linux-gnueabihf
+RK328X_GLIBC_VERSION         = 1.0.9
+RK328X_GLIBC_DIR             = arm-RK328X-linux-glibc
+RK328X_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(RK328X_GLIBC_DIR)
+
+RK328X_GLIBC_ARCH_DEFS       = -D__RK328X_GLIBC__=1
+RK328X_GLIBC_ARCH_FLAGS      = -march=armv7ve -mtune=cortex-a12 -mfloat-abi=hard -mfpu=neon-vfpv4 -mabi=aapcs-linux -fomit-frame-pointer
+
+RK328X_GLIBC_SYSROOT         = sys-root
+RK328X_GLIBC_DEST_SYSROOT    = yes
+
+RK328X_GLIBC_HAS_CHRPATH     = yes
+
+RK328X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_FFRK3288)
+
+
+
 # ======= AT91SAM7S-NEWLIB ===================================================
 
 TOOLCHAIN_AT91SAM7S_NEWLIB   = at91sam7s-newlib
@@ -434,6 +467,27 @@ BCM74X_GLIBC_DEST_SYSROOT    = yes
 BCM74X_GLIBC_HAS_CHRPATH     = yes
 
 BCM74X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_B74)
+
+
+
+# ======= JZ47XX-GLIBC =======================================================
+
+TOOLCHAIN_JZ47XX_GLIBC       = jz47xx-glibc
+
+JZ47XX_GLIBC_ARCH            = mipsel-jz47xx-linux-gnu
+JZ47XX_GLIBC_VERSION         = 1.0.9
+JZ47XX_GLIBC_DIR             = mipsel-JZ47XX-linux-glibc
+JZ47XX_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(JZ47XX_GLIBC_DIR)
+
+JZ47XX_GLIBC_ARCH_DEFS       = -D__JZ47XX_GLIBC__=1
+JZ47XX_GLIBC_ARCH_FLAGS      = -march=mips32r2 -mel -mhard-float -fomit-frame-pointer
+
+JZ47XX_GLIBC_SYSROOT         = sys-root
+JZ47XX_GLIBC_DEST_SYSROOT    = yes
+
+JZ47XX_GLIBC_HAS_CHRPATH     = yes
+
+JZ47XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_CI20)
 
 
 
