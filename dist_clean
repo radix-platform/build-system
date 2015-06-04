@@ -2,10 +2,67 @@
 
 use File::Basename;
 
-$base = $ARGV[0];
-$hardware = $ARGV[1];
+my $base;
+my ($toolchain, $hardware, $flavour);
+my $target_build_dir;
+my $fname = "";
 
-open( F, '<', ".$hardware.dist" ) or die "Could not open .$hardware.dist";
+sub usage
+{
+  print <<EOF;
+
+Usage: dist_clean [options]
+Options:
+   --destination=DEST    - where DEST is a destination directory.
+   --toolchain=TOOLCHAIN - where TOOLCHAIN ia a toolchain name;
+   --hardware=HARDWARE   - where HARDWARE ia a HARDWARE name;
+   --flavour=FLAVOUR     - where FLAVOUR ia a FLAVOUR name.
+
+EOF
+  exit;
+}
+
+
+foreach ( @ARGV )
+{
+  if( /--destination=(\S*)/ )
+  {
+    $base = $1;
+  }
+  elsif( /--toolchain=(\S*)/ )
+  {
+    $toolchain = $1;
+  }
+  elsif( /--hardware=(\S*)/ )
+  {
+    $hardware = $1;
+  }
+  elsif( /--flavour=(\S*)/ )
+  {
+    $flavour = $1;
+  }
+  elsif( /--help/ )
+  {
+    usage;
+  }
+}
+
+if( ! defined $base      or $base eq "" )      { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+if( ! defined $flavour   or $flavour eq "" )
+{
+  $flavour = "";
+  $target_build_dir = "." . $toolchain . "/" . $hardware;
+}
+else
+{
+  $target_build_dir = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+}
+
+$fname = $target_build_dir . "/.dist";
+
+open( F, '<', $fname ) or die "Could not open $fname";
 
 while( <F> )
 {

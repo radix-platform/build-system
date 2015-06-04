@@ -315,8 +315,8 @@ MAKEFLAGS += --output-sync=target
 CLEANUP_FILES +=  $(addprefix ., $(TOOLCHAIN))
 
 # temporaty collections:
-CLEANUP_FILES +=  .*.dist.*
-CLEANUP_FILES +=  .*.rootfs.*
+#CLEANUP_FILES +=  .*.dist.*
+#CLEANUP_FILES +=  .*.rootfs.*
 
 #
 # do not clean .*_requires* files to save time when Makefile has not been changed.
@@ -365,8 +365,22 @@ __quick_targets := help ccache_stats local_clean global_clean downloads_clean bu
 ####### Build preparations & HW Independed GOALs Section:
 #######
 
+#
+# GLOBAL setup targets:
+# ====================
+#   These targets are built before all targets. For example, source tarballs
+#   have to be downloaded before starting the build.
+#
+#   NOTE:
+#     BUILDSYSTEM is a setup target for other directories and the BUILDSYSTEM
+#     requires only '.sources' target as a setup target.
+#
 ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
-__setup_targets = .sources .build_system $(SETUP_TARGETS)
+ifeq ($(shell pwd),$(BUILDSYSTEM))
+__setup_targets = .sources
+else
+__setup_targets = .sources .build_system
+endif
 endif
 
 
@@ -443,12 +457,12 @@ ifeq ($(__final__),)
 	@echo ""
 	@shtool echo -e "%B################################################################%b"
 	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of building source requires for%b `pwd`%B:%b"
+	@shtool echo -e "%B#######%b %BStart of building source requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
 	@shtool echo -e "%B#######%b"
 	@$(BUILDSYSTEM)/build_src_requires $(TOP_BUILD_DIR_ABS)
-	@__final__= TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_NOARCH) HARDWARE=$(HARDWARE_NOARCH) -f .src_requires
+	@__final__= TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_NOARCH) HARDWARE=$(HARDWARE_NOARCH) FLAVOUR= -f .src_requires
 	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building source requires for%b `pwd`%B.%b"
+	@shtool echo -e "%B#######%b %BEnd of building source requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B'.%b"
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B################################################################%b"
 	@echo ""
@@ -468,7 +482,7 @@ ifeq ($(shell pwd | grep $(BUILDSYSTEM)),)
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B#######%b %BStart to Check the BUILDSYSTEM is ready:%b"
 	@shtool echo -e "%B#######%b"
-	@( cd $(BUILDSYSTEM) ; FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) all )
+	@( cd $(BUILDSYSTEM) ; __final__= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) FLAVOUR= all )
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B#######%b %BEnd of checking the BUILDSYSTEM.%b"
 	@shtool echo -e "%B#######%b"
@@ -614,6 +628,10 @@ UNPACK_SRC_ARCHIVE = \
 APPLY_PATCHES = $(quiet)$(foreach patch,$(PATCHES),\
 	$(BUILDSYSTEM)/apply_patches $(patch) $(SRC_DIR_BASE) &&) true
 
+# Apply patches in PATCHES on SRC_DIR_BASE:
+APPLY_OPT_PATCHES = $(quiet)$(foreach patch,$(OPT_PATCHES),\
+	$(BUILDSYSTEM)/apply_patches $(patch) $(SRC_DIR_BASE) &&) true
+
 ################################################################
 #
 # Example rule:
@@ -662,31 +680,58 @@ APPLY_PATCHES = $(quiet)$(foreach patch,$(PATCHES),\
 #
 ifeq ($(__final__),)
 
+#
+# The FLAVOUR can be defined in command line.
+# If command line defines empty flavour FLAVOUR= then
+# we define that variable is set but has no values.
+#
+__cmdline_flavour_defined = $(if $(filter FLAVOUR,$(.VARIABLES)),true,false)
+ifeq ($(__cmdline_flavour_defined),true)
+__cmdline_flavour_value = $(FLAVOUR)
+else
+__cmdline_flavour_value =
+endif
 
-#########################################
-# -----------+----------+---------+-----
-#  TOOLCHAIN | HARDWARE | FLAVOUR | REF
-# -----------+----------+---------+-----
-#    defined |  defined | defined | (1)
-#    defined |  defined |    ~    | (2)
-#    defined |     ~    | defined | (3)
-#    defined |     ~    |    ~    | (4)
-#       ~    |  defined | defined | (5)
-#       ~    |  defined |    ~    | (6)
-#       ~    |     ~    | defined | (7)
-#       ~    |     ~    |    ~    | (8)
-# -----------+----------+---------+-----
-#########################################
+##############################################################
+# -----------+----------+---------+-------------------+-----
+#  TOOLCHAIN | HARDWARE | FLAVOUR | FLAVOUR has VALUE | REF
+# -----------+----------+---------+-------------------+-----
+#    defined |  defined | defined |         yes       | (0)
+#    defined |  defined | defined |         no        | (1)
+#    defined |  defined |    ~    |         ~         | (2)
+# -----------+----------+---------+-------------------+-----
+#    defined |     ~    | defined |         yes       | (3)
+#    defined |     ~    | defined |         no        | (4)
+#    defined |     ~    |    ~    |         ~         | (5)
+# -----------+----------+---------+-------------------+-----
+#       ~    |  defined | defined |         yes       | (6)
+#       ~    |  defined | defined |         no        | (7)
+#       ~    |  defined |    ~    |         ~         | (8)
+# -----------+----------+---------+-------------------+-----
+#       ~    |     ~    | defined |         yes       | (9)
+#       ~    |     ~    | defined |         no        | (A)
+#       ~    |     ~    |    ~    |         ~         | (B)
+# -----------+----------+---------+-------------------+-----
+##############################################################
 
 # we allow available combinations, for example, if HW specified then we allow only HW specific flavours
 
 ifeq ($(TOOLCHAIN),)
 ifeq ($(HARDWARE),)
 ifeq ($(FLAVOUR),)
-# (8)
+ifeq ($(__cmdline_flavour_defined),false)
+# (B) ======= loop: T, H, F;                           =======
 __target_args = $(__available_targets)
 else
-# (7)
+# (A) ======= loop: T, H   ; where          F=0        =======
+__target_args = $(foreach arch, $(shell echo $(COMPONENT_TOOLCHAINS) | sed -e 's/x86_64/x86-64/g'),        \
+                  $(foreach hardware, $($(shell echo ${arch} | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS),   \
+                    .target_$(arch)_$(hardware)                                                            \
+                   )                                                                                       \
+                 )
+endif
+else
+# (9) ======= loop: T, H   ; where          F=const    =======
 __target_args = $(foreach arch, $(shell echo $(COMPONENT_TOOLCHAINS) | sed -e 's/x86_64/x86-64/g'),        \
                   $(foreach hardware, $($(shell echo ${arch} | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS),   \
                     $(if $(filter $(FLAVOUR), $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS)), \
@@ -700,7 +745,8 @@ __target_args = $(foreach arch, $(shell echo $(COMPONENT_TOOLCHAINS) | sed -e 's
 endif
 else
 ifeq ($(FLAVOUR),)
-# (6)
+ifeq ($(__cmdline_flavour_defined),false)
+# (8) ======= loop: T,  , F; where H=const             =======
 __target_args = $(foreach arch, $(shell echo $(call toolchain,$(HARDWARE)) | sed -e 's/x86_64/x86-64/g'), \
                   $(if $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),                        \
                     $(foreach flavour, $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),        \
@@ -710,7 +756,13 @@ __target_args = $(foreach arch, $(shell echo $(call toolchain,$(HARDWARE)) | sed
                    )                                                                                      \
                  )
 else
-# (5)
+# (7) ======= loop: T,  ,  ; where H=const, F=0        =======
+__target_args = $(foreach arch, $(shell echo $(call toolchain,$(HARDWARE)) | sed -e 's/x86_64/x86-64/g'), \
+                    .target_$(arch)_$(HARDWARE)                                                           \
+                 )
+endif
+else
+# (6) ======= loop: T,  ,  ; where H=const, F=const    =======
 __target_args = $(foreach arch, $(shell echo $(call toolchain,$(HARDWARE)) | sed -e 's/x86_64/x86-64/g'), \
                     .target_$(arch)_$(HARDWARE)_$(FLAVOUR)                                                \
                  )
@@ -719,7 +771,8 @@ endif
 else
 ifeq ($(HARDWARE),)
 ifeq ($(FLAVOUR),)
-# (4)
+ifeq ($(__cmdline_flavour_defined),false)
+# (5) ======= loop:  , H, F; where T=const             =======
 __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS),    \
                   $(if $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),                             \
                     $(foreach flavour, $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),             \
@@ -734,19 +787,30 @@ __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[
                    )                                                                                           \
                  )
 else
-# (3)
+# (4) ======= loop:  , H,  ; where T=const, F=0        =======
+__target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS), \
+                    .target_$(TOOLCHAIN)_$(hardware)                                                        \
+                 )
+endif
+else
+# (3) ======= loop:  , H,  ; where T=const, F=const    =======
 __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS), \
                     .target_$(TOOLCHAIN)_$(hardware)_$(FLAVOUR)                                             \
                  )
 endif
 else
 ifeq ($(FLAVOUR),)
-# (2)
+ifeq ($(__cmdline_flavour_defined),false)
+# (2) ======= loop:  ,  , F; where T=const, H=const    =======
 __target_args = $(foreach flavour, $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),           \
                   .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)_$(flavour) \
                  ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)
 else
-# (1):
+# (1) ======= loop:  ,  ,  ; T=const, H=const, F=0     =======
+__target_args = .target_$(TOOLCHAIN)_$(HARDWARE)
+endif
+else
+# (0) ======= loop:  ,  ,  ; T=const, H=const, F=const =======
 __target_args = .target_$(TOOLCHAIN)_$(HARDWARE)_$(FLAVOUR)
 endif
 endif
@@ -766,6 +830,22 @@ $(error Error: Selected combination [TOOLCHAIN=$(TOOLCHAIN), HARDWARE=$(HARDWARE
 endif
 
 $(__targets): .setup
+
+
+#
+# NOTE:
+# ====
+#     Several FLAVOURS can require the same package, for example, base/pkgtool.
+#     To avoid concurrency problems we have to diable parallel building for Makefiles
+#     where there are FLAVOURS.
+#
+#     We have to check both HW specific and general FLAVOURS.
+#
+all-flavour-values = $(strip $(foreach flname, $(filter FLAVOURS %_FLAVOURS, $(.VARIABLES)), $($(flname))))
+
+ifneq ($(all-flavour-values),)
+.NOTPARALLEL: $(__targets)
+endif
 
 
 local_all: GOAL = local_all
@@ -790,17 +870,13 @@ requires_tree: $(__targets)
 .target_%: TOOLCHAIN = $(shell echo $(word 2, $(subst _, , $@)) | sed -e 's/x86-64/x86_64/g')
 .target_%: HARDWARE = $(if $(filter $(shell echo $(word 3, $(subst _, , $@))),$(HARDWARE_ALL)),$(word 3, $(subst _, , $@)))
 .target_%: FLAVOUR = $(if $(word 4, $(subst _, , $@)),$(word 4, $(subst _, , $@)),$(if $(filter $(shell echo $(word 3, $(subst _, , $@))),$(HARDWARE_ALL)),,$(word 3, $(subst _, , $@))))
-ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
-.target_%: .makefile
-else
 .target_%:
-endif
 	@echo ""
 	@shtool echo -e "%B################################################################%b"
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B#######%b TOOLCHAIN=%B$(TOOLCHAIN)%b ; HARDWARE=%B$(HARDWARE)%b ; FLAVOUR=%B$(if $(FLAVOUR),$(FLAVOUR))%b ;"
 	@shtool echo -e "%B#######%b"
-	@__final__=true TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR=$(FLAVOUR) $(MAKE) $(GOAL)
+	@__final__=true $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR=$(FLAVOUR) $(GOAL)
 
 
 else
@@ -829,18 +905,12 @@ endif
 
 ifeq ($(BUILD_TREE),true)
 _tree := .tree_all
-endif
-
-ifneq ($(BUILD_TREE),true)
-_requires := .requires
+else
+_tree := .requires_makefile
 endif
 
 #
-# We always build 'requires' (for both local and tree build processes).
-# This is needed to cover all tree. In other words we want to have '.$(HARDWARE)_requires'
-# file in the each directory to be able run 'make requires_tree' command.
-#
-local_all: $(_tree) $(_requires) _install
+local_all: $(_tree) _install
 
 
 ifeq ($(CLEAN_TREE),true)
@@ -862,99 +932,61 @@ local_rootfs_clean:
 endif
 
 
-
-#
-# The FLAVOUR is a local intention related to some code
-# modifications, such as support for little HW changes in product
-# line. Our concept is that the FLAVOUR:
-#
-# 1. Is not mandatory product modification with a short lifetime.
-# 2. Not has special requirements for other packages or sources.
-# 3. Not affects other sources in mainline.
-#
-# Accordingly, we do not generate a dependency tree for flavor
-# and believe that the dependency tree for the main product
-# instance is enough for flavor.
-#
-################################################################
-# Skip building requires for flavours:
-#
-ifndef FLAVOUR
-
-#
-# NOTE:
-#   We have to undefine FLAVOUR and __final__ for build required directories
-#   in clean environment. Only in this case the required directory will be
-#   able to build its own FLAVOURs instead of FLAVOUR which defined in the
-#   current directory.
-#
-
-.requires: FLAVOUR :=
-.requires: __final__ := true
-.requires: BUILD_TREE := false
-
-.requires: .$(HARDWARE)_requires
-ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
-ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building requires for%b `pwd`%B.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
-endif
-endif
-
-
-.tree_all: FLAVOUR :=
-.tree_all: __final__ := true
 .tree_all: BUILD_TREE := false
 
-.tree_all: .$(HARDWARE)_requires
+.tree_all: $(TARGET_BUILD_DIR)/.requires
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+	@shtool echo -e "%B################################################################%b"
+	@shtool echo -e "%B#######%b"
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@TREE_RULE=local_all FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) -f .$(HARDWARE_BUILD)_requires
+	@shtool echo -e "%B#######%b %BStart of building requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
 else
-	@TREE_RULE=local_all FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) -f .$(HARDWARE)_requires
+	@shtool echo -e "%B#######%b %BStart of building requires for %bTOOLCHAIN=%B$(TOOLCHAIN) %bHARDWARE=%B$(HARDWARE) %bFLAVOUR=%B$(FLAVOUR) in '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
 endif
 	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building requires for%b `pwd`%B.%b"
+ifeq ($(shell pwd),$(BUILDSYSTEM))
+	@__final__=true TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
+else
+	@__final__=true TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
+endif
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BEnd of building requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B'.%b"
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B################################################################%b"
 endif
 endif
+
+
+# We always build requires Makeile '.requires_makefile' (for both local and tree build processes).
+# This is needed to cover all tree. In other words we want to have '$(TARGET_BUILD_DIR)/.requires'
+# file in the each directory to be able run 'make requires_tree' command.
+#
+
+.requires_makefile: $(TARGET_BUILD_DIR)/.requires
 
 
 #######
-####### Build directory dependencies into .$(HARDWARE)_requires
+####### Build directory dependencies into $(TARGET_BUILD_DIR)/.requires
 ####### file which is used as a Makefile for tree builds.
 #######
 
-.$(HARDWARE)_requires_depend: .$(HARDWARE)_requires ;
+$(TARGET_BUILD_DIR)/.requires_depend: $(TARGET_BUILD_DIR)/.requires ;
 
-# .$(HARDWARE)_requires depends on Makefile because .makefile can
-#  depend on  .src_requires but we can be independed from sources.
-.$(HARDWARE)_requires: Makefile
+$(TARGET_BUILD_DIR)/.requires: .makefile
 ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of building requires for%b `pwd`%B:%b"
-	@shtool echo -e "%B#######%b"
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN_BUILD_MACHINE) $(HARDWARE_BUILD)
+	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN_BUILD_MACHINE) $(HARDWARE_BUILD) ; wait
 else
-	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE)
+	@$(BUILDSYSTEM)/build_requires $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR) ; wait
 endif
 endif
 endif
 endif
 
 
-endif
-#
-# End of building requires for main package without flavours.
-################################################################
 
 
 ################################################################
@@ -962,65 +994,45 @@ endif
 ####### Tree Clean up rules:
 #######
 
-#
-# make clean если есть FLAVOUR сначала щчищает текущий, затем идет по дереву без FLAVOUR,
-#            а затем возвращается в текущий и пытается добить FLAVOUR, но его уже нет.
-#            решить задачу отмены прохода по FLAVOUR-ам во время очистки мне не удалось,
-#            но, я думаю, ничего страшного в этом нет.
-#
-
-ifndef FLAVOUR
-
-.tree_clean: FLAVOUR :=
-.tree_clean: __final__ := true
 .tree_clean: CLEAN_TREE := false
 
-.tree_clean: .$(HARDWARE)_requires
+.tree_clean: $(TARGET_BUILD_DIR)/.requires
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-ifneq ($(wildcard .$(HARDWARE)_requires),)
-	@TREE_RULE=local_clean FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) -f .$(HARDWARE)_requires
+ifneq ($(wildcard $(TARGET_BUILD_DIR)/.requires),)
+ifeq ($(shell pwd),$(BUILDSYSTEM))
+	@__final__=true TREE_RULE=local_clean $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
+else
+	@__final__=true TREE_RULE=local_clean $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
+endif
 endif
 endif
 endif
 
-endif
 
-
-ifndef FLAVOUR
-
-.tree_dist_clean: FLAVOUR :=
-.tree_dist_clean: __final__ := true
 .tree_dist_clean: DIST_CLEAN_TREE := false
 
-.tree_dist_clean: .$(HARDWARE)_requires
+.tree_dist_clean: $(TARGET_BUILD_DIR)/.requires
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifneq ($(shell pwd),$(BUILDSYSTEM))
-	@TREE_RULE=local_dist_clean FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) -f .$(HARDWARE)_requires
+	@__final__=true TREE_RULE=local_dist_clean $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
 endif
 endif
 endif
 
-endif
 
-
-ifndef FLAVOUR
-
-.tree_rootfs_clean: FLAVOUR :=
-.tree_rootfs_clean: __final__ := true
 .tree_rootfs_clean: ROOTFS_CLEAN_TREE := false
 
-.tree_rootfs_clean: .$(HARDWARE)_requires
+.tree_rootfs_clean: $(TARGET_BUILD_DIR)/.requires
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifneq ($(shell pwd),$(BUILDSYSTEM))
-	@TREE_RULE=local_rootfs_clean FLAVOUR= $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) -f .$(HARDWARE)_requires
+	@__final__=true TREE_RULE=local_rootfs_clean $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
 endif
 endif
 endif
 
-endif
 
 #######
 ####### End of Tree Clean up rules.
@@ -1070,25 +1082,19 @@ endif
 #
 #   .$(HARDWARE).rootfs
 #
-# NOTE:
-#   The copying objects and headers produced for some FLAVOUR during
-#   package creation into TARGET_DEST_DIR is a "mauvais ton" because
-#   FLAVOUR is a modification of original HARDWARE and we need to
-#   have main-line package in TARGET_DEST_DIR for following cross
-#   compilation process of the all source tree (other packages).
-#
 
 local_dist_clean: .local_dist_clean
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-ifeq ($(wildcard .$(HARDWARE).dist),)
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.dist),)
 	@shtool echo -e "   %B(nothing to be done).%b"
 else
-	@if [ -f .$(HARDWARE).dist ] ; then \
-	  $(BUILDSYSTEM)/dist_clean $(DEST_DIR) $(HARDWARE); \
-	  rm .$(HARDWARE).dist; \
+	@if [ -f $(TARGET_BUILD_DIR)/.dist ] ; then \
+	  $(BUILDSYSTEM)/dist_clean --destination=$(DEST_DIR) \
+	                            --toolchain=$(TOOLCHAIN) --hardware=$(HARDWARE) --flavour=$(FLAVOUR)  ; \
+	  rm -f $(TARGET_BUILD_DIR)/.dist ; \
 	fi
-	@rm -rf .$(HARDWARE)_dist*
+	@rm -rf $(TARGET_BUILD_DIR)/.dist*
 	@shtool echo -e "   %B(done).%b"
 endif
 endif
@@ -1113,15 +1119,19 @@ endif
 local_rootfs_clean: .local_rootfs_clean
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-ifeq ($(wildcard .$(HARDWARE).rootfs),)
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
 	@shtool echo -e "%B#######%b %BRoot File System cleaning...   (nothing to be done).%b"
 else
-	@if [ -f .$(HARDWARE).rootfs ]; then \
-	  REMOVE_PACKAGE="$(REMOVE_PACKAGE)" $(BUILDSYSTEM)/rootfs_clean $(DEST_DIR) $(HARDWARE) ; \
+	@if [ -f $(TARGET_BUILD_DIR)/.rootfs ]; then \
+	  REMOVE_PACKAGE="$(REMOVE_PACKAGE)" $(BUILDSYSTEM)/rootfs_clean \
+	                                                    --destination=$(DEST_DIR) \
+	                                                    --toolchain=$(TOOLCHAIN)  \
+	                                                    --hardware=$(HARDWARE)    \
+	                                                    --flavour=$(FLAVOUR)    ; \
 	else \
 	  shtool echo -e "B#######%b %B... Nothing to be done (there are no installed packages).%b" ; \
 	fi
-	@rm -rf .$(HARDWARE).rootfs
+	@rm -rf $(TARGET_BUILD_DIR)/.rootfs
 endif
 endif
 endif
@@ -1161,7 +1171,7 @@ endif
 requires_tree: .requires_tree
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-ifeq ($(wildcard .$(HARDWARE)_requires),)
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.requires),)
 	@shtool echo -e "   %B(nothing to be done).%b"
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 	@shtool echo -e "%B#######%b"
@@ -1173,7 +1183,7 @@ else
 	@shtool echo -e "%B#######%b"
 endif
 else
-	@$(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE)
+	@$(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B#######%b %BEnd of building Requires Tree in '%b`basename $(CURDIR)`%B' directory.%b"
 	@shtool echo -e "%B#######%b"
@@ -1226,8 +1236,8 @@ ifdef ROOTFS_TARGETS
 _install_pkgs := .install_pkgs
 endif
 
-ifdef ROOTFS_UPGRADE_TARGETS
-_upgrade_pkgs := .upgrade_pkgs
+ifdef ROOTFS_UPDATE_TARGETS
+_update_pkgs := .update_pkgs
 endif
 
 
@@ -1236,7 +1246,7 @@ endif
 ####### Waiting for build whole required tree:
 #######
 
-$(BUILD_TARGETS): | $(_tree)
+$(BUILD_TARGETS)          : | $(_tree)
 
 #######
 ####### End of waiting for build whole required tree.
@@ -1246,17 +1256,17 @@ $(BUILD_TARGETS): | $(_tree)
 
 $(PRODUCT_TARGETS)        : | $(BUILD_TARGETS)
 $(ROOTFS_TARGETS)         : | $(BUILD_TARGETS)
-$(ROOTFS_UPGRADE_TARGETS) : | $(BUILD_TARGETS)
+$(ROOTFS_UPDATE_TARGETS)  : | $(BUILD_TARGETS)
 
 
 
 _install: .install
-	@for hw in $(HARDWARE) ; do \
-	   if [ "$$(echo .$$hw.dist*)" != ".$$hw.dist*" ]; then \
-	     sort -o .$$hw.dist.tmp -u .$$hw.dist* && mv .$$hw.dist.tmp .$$hw.dist; \
-	   fi ; \
-	   rm -f .$$hw.dist.* ; \
-	 done
+	@if [ "$$(echo $(TARGET_BUILD_DIR)/.dist*)" != "$(TARGET_BUILD_DIR)/.dist*" ]; then \
+	     sort -o $(TARGET_BUILD_DIR)/.dist.tmp -u $(TARGET_BUILD_DIR)/.dist* ; \
+	     mv $(TARGET_BUILD_DIR)/.dist.tmp $(TARGET_BUILD_DIR)/.dist ; \
+	 fi
+	@rm -f $(TARGET_BUILD_DIR)/.dist.*
+
 
 
 .install: $(_install_scripts)
@@ -1264,7 +1274,7 @@ _install: .install
 .install: $(_install_builds)
 .install: $(_install_products)
 .install: $(_install_pkgs)
-.install: $(_upgrade_pkgs)
+.install: $(_update_pkgs)
 
 
 # create files which contains the list of installed files
@@ -1288,12 +1298,22 @@ export DO_CREATE_DIST_FILES
 #
 $(_install_scripts): $(SCRIPT_TARGETS)
 ifdef SCRIPT_TARGETS
-	@$(BUILDSYSTEM)/install_targets $^ $(TARGET_DEST_DIR)/bin $(HARDWARE)
+	@$(BUILDSYSTEM)/install_targets         \
+	   --destination=$(TARGET_DEST_DIR)/bin \
+	   --toolchain=$(TOOLCHAIN)             \
+	   --hardware=$(HARDWARE)               \
+	   --flavour=$(FLAVOUR)                 \
+	   $^
 endif
 
 $(_install_bins): $(BIN_TARGETS)
 ifdef BIN_TARGETS
-	@$(BUILDSYSTEM)/install_targets $^ $(TARGET_DEST_DIR)/bin $(HARDWARE)
+	@$(BUILDSYSTEM)/install_targets         \
+	   --destination=$(TARGET_DEST_DIR)/bin \
+	   --toolchain=$(TOOLCHAIN)             \
+	   --hardware=$(HARDWARE)               \
+	   --flavour=$(FLAVOUR)                 \
+	   $^
 endif
 
 $(_install_builds): $(BUILD_TARGETS)
@@ -1304,7 +1324,13 @@ endif
 # preserve source dir with depth=1 ; then collect installed products in the .$(HARDWARE).products file
 $(_install_products): $(PRODUCT_TARGETS)
 ifdef PRODUCT_TARGETS
-	@$(BUILDSYSTEM)/install_targets --preserve-source-dir=one $^ $(PRODUCTS_DEST_DIR) $(HARDWARE)
+	@$(BUILDSYSTEM)/install_targets         \
+	   --preserve-source-dir=$(if $(FLAVOUR),two,one) \
+	   --destination=$(PRODUCTS_DEST_DIR)   \
+	   --toolchain=$(TOOLCHAIN)             \
+	   --hardware=$(HARDWARE)               \
+	   --flavour=$(FLAVOUR)                 \
+	   $^
 endif
 
 #
@@ -1328,8 +1354,13 @@ ifdef ROOTFS_TARGETS
 	@shtool echo -e "%B#######%b"
 	@shtool echo -e "%B#######%b %BInstall packages into%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
 	@shtool echo -e "%B#######%b"
-ifeq ($(wildcard .$(HARDWARE).rootfs),)
-	@CWD=$(CURDIR) INSTALL_PACKAGE="$(INSTALL_PACKAGE)" $(BUILDSYSTEM)/install_pkgs $^ $(ROOTFS_DEST_DIR) $(HARDWARE)
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
+	@CWD=$(CURDIR) INSTALL_PACKAGE="$(INSTALL_PACKAGE)" \
+	   $(BUILDSYSTEM)/install_pkgs --destination=$(ROOTFS_DEST_DIR) \
+	                               --toolchain=$(TOOLCHAIN)         \
+	                               --hardware=$(HARDWARE)           \
+	                               --flavour=$(FLAVOUR)             \
+	                               $^
 else
 	@echo ""
 	@for pkg in $(ROOTFS_TARGETS) ; do \
@@ -1340,16 +1371,21 @@ endif
 endif
 
 
-$(_upgrade_pkgs): $(ROOTFS_UPGRADE_TARGETS)
-ifdef ROOTFS_UPGRADE_TARGETS
+$(_update_pkgs): $(ROOTFS_UPDATE_TARGETS)
+ifdef ROOTFS_UPDATE_TARGETS
 	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BUpgrade packages into%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
+	@shtool echo -e "%B#######%b %BUpdate packages into%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
 	@shtool echo -e "%B#######%b"
-ifeq ($(wildcard .$(HARDWARE).rootfs),)
-	@CWD=$(CURDIR) UPGRADE_PACKAGE="$(UPGRADE_PACKAGE)" $(BUILDSYSTEM)/upgrade_pkgs $^ $(ROOTFS_DEST_DIR) $(HARDWARE)
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
+	@CWD=$(CURDIR) UPDATE_PACKAGE="$(UPDATE_PACKAGE)" \
+	   $(BUILDSYSTEM)/update_pkgs --destination=$(ROOTFS_DEST_DIR) \
+	                              --toolchain=$(TOOLCHAIN)         \
+	                              --hardware=$(HARDWARE)           \
+	                              --flavour=$(FLAVOUR)             \
+	                              $^
 else
 	@echo ""
-	@for pkg in $(ROOTFS_UPGRADE_TARGETS) ; do \
+	@for pkg in $(ROOTFS_UPDATE_TARGETS) ; do \
 	   shtool echo -e "%B#######%b %B ... package `basename $$pkg` is already installed.%b" ; \
 	 done
 	@echo ""
@@ -1449,7 +1485,7 @@ $(TARGET_BUILD_DIR)/%.o: %.c
 -include $(targetflavour)/*.d
 
 # Include HW dependencies
--include .$(HARDWARE)_requires_depend
+-include $(TARGET_BUILD_DIR)/.requires_depend
 
 #######
 ####### Include sources dependency if they exist
@@ -1484,15 +1520,19 @@ endif
 
 # HW depended targets:
 .PHONY: .target*
-.PHONY: $(_requires)
-.PHONY:   .requires
+
 .PHONY: $(_tree)
+.PHONY: .requires_makefile
+
 .PHONY:    .tree_all  .tree_clean  .tree_dist_clean  .tree_rootfs_clean
 .PHONY: all _install        clean        dist_clean        rootfs_clean
 .PHONY:    local_all  local_clean  local_dist_clean  local_rootfs_clean
 .PHONY:              .local_clean .local_dist_clean .local_rootfs_clean
+
 .PHONY: .install $(_install_scripts) $(_install_builds) $(_install_bins) $(_install_products)
-.PHONY:          $(_install_pkgs) $(_upgrade_pkgs)
+.PHONY:          $(_install_pkgs) $(_update_pkgs)
+
+.PHONY: .requires_tree
 
 # HW independed targets:
 .PHONY: help

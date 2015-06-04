@@ -34,7 +34,7 @@ sub usage
 {
   print <<EOF;
 
-Usage: build_requires [options] topdir toolchain hardware flavour
+Usage: build_requires [options] topdir
 Options:
    --max-depth=i - where 'i' is a maximal directory depth for finding requires;
       --skip-dir - directory to be skipped (such as dist or TARGET_BUILD_DIR);
@@ -78,7 +78,7 @@ sub read_src_requires
         my $dirname = dirname($makefile);
 
         opendir( DIR, "$dirname" ) or
-          _kxLab::error( "build_requires: Could not open directory: $dirname: $!" );
+          _kxLab::error( "build_src_requires: Could not open directory: $dirname: $!" );
         my @dirs = grep { ! /^\./ && -d "$_" && -f "$_/Makefile" } readdir( DIR );
         closedir DIR;
 
@@ -91,8 +91,8 @@ sub read_src_requires
       }
       else
       {
-        # Print a nice error message if the REQUIRES statement points to a missing directory
-        _kxLab::error( "build_requires: REQUIRES '$d' in $makefile not found. Exit" ) if( ! -d "$top_dir/$d" );
+        # Print a nice error message if the SOURCE_REQUIRES statement points to a missing directory
+        _kxLab::error( "build_src_requires: SOURCE_REQUIRES '$d' in $makefile not found. Exit" ) if( ! -d "$top_dir/$d" );
 
         if( -f "$top_dir/$d/Makefile" )
         {
@@ -119,14 +119,17 @@ sub read_requires
   while( $shell_output =~ m/^REQUIRES(.+= +)(.+)/gm )
   {
     my @n = split( " ", $2 );
-    foreach my $d ( @n )
+    foreach my $req ( @n )
     {
+      my $d = `echo $req | cut -f 1 -d '^'`;
+      $d =~ s/^\s+|\s+$//;
+
       if( $d eq "ALL_DIRS" )
       {
         my $dirname = dirname($makefile);
 
         opendir( DIR, "$dirname" ) or
-          _kxLab::error( "build_requires: Could not open directory: $dirname: $!" );
+          _kxLab::error( "build_src_requires: Could not open directory: $dirname: $!" );
         my @dirs = grep { ! /^\./ && -d "$_" && -f "$_/Makefile" } readdir( DIR );
         closedir DIR;
 
@@ -147,7 +150,7 @@ sub read_requires
       else
       {
         # Print a nice error message if the REQUIRES statement points to a missing directory
-        _kxLab::error( "build_requires: REQUIRES '$d' in $makefile not found. Exit" ) if( ! -d "$top_dir/$d" );
+        _kxLab::error( "build_src_requires: REQUIRES '$d' in $makefile not found. Exit" ) if( ! -d "$top_dir/$d" );
 
         if( -f "$top_dir/$d/Makefile" )
         {
@@ -193,8 +196,11 @@ sub make_sub_requires
   {
     $all_requires{$req} = "";
 
+    my $d = `echo $req | cut -f 1 -d '^'`;
+    $d =~ s/^\s+|\s+$//;
+
     # Read sub requires
-    my $makefile = "$top_dir/$req/Makefile";
+    my $makefile = "$top_dir/$d/Makefile";
     my %sub_requires = read_requires( $makefile );
     if( scalar(%sub_requires) )
     {
@@ -207,7 +213,6 @@ sub make_sub_requires
     }
   }
 }
-
 
 
 #

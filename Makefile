@@ -22,7 +22,7 @@ CLEANUP_FILES += $(CURDIR)/pkgtool/check-package
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-requires
 CLEANUP_FILES += $(CURDIR)/pkgtool/install-package
 CLEANUP_FILES += $(CURDIR)/pkgtool/remove-package
-CLEANUP_FILES += $(CURDIR)/pkgtool/upgrade-package
+CLEANUP_FILES += $(CURDIR)/pkgtool/update-package
 
 
 # CORE Makefile:
@@ -37,13 +37,13 @@ $(config_makefile): $(config_makefile).template
 	   cat check-requires.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > check-requires     ; \
 	   cat install-package.in    | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > install-package    ; \
 	   cat remove-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > remove-package     ; \
-	   cat upgrade-package.in    | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > upgrade-package    ; \
+	   cat update-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > update-package     ; \
 	   chmod 0755 check-db-integrity ; \
 	   chmod 0755 check-package      ; \
 	   chmod 0755 check-requires     ; \
 	   chmod 0755 install-package    ; \
 	   chmod 0755 remove-package     ; \
-	   chmod 0755 upgrade-package    ; \
+	   chmod 0755 update-package     ; \
 	 )
 	@echo "Creating $(config_makefile) ..."
 	@cp $(config_makefile).template $@

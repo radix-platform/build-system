@@ -39,7 +39,7 @@ usage() {
 
 Usage: $program [options] package_tarball[s]
 
-$program is used to upgrade a *.tgz package like this:
+$program is used to update a *.tgz package like this:
    $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
 
 options:
@@ -356,9 +356,9 @@ for pkgtarball in $* ; do
   if [ "$MODE" = "console" ]; then
     echo ""
     if [ "$PMSG" = "" ]; then
-      echo " Upgrade package $pkgname... "
+      echo " Update package $pkgname... "
     else
-      echo " Upgrade package $pkgname $PMSG... "
+      echo " Update package $pkgname $PMSG... "
     fi
     ####  |---handy-ruler--------------------------------------------------------|
     echo "|======================================================================|"
@@ -369,19 +369,19 @@ for pkgtarball in $* ; do
     # install non-SKIP package:
     $DIALOG --colors \
             --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --title " \Z4Update package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
             --infobox "`cat $TMP/msg$$`" 16 70
   elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "REQUIRED" -a ! "$ALWAYSASK" = "yes" ]; then
     # REQUIRED overrides menu mode unless -ask was used
     $DIALOG --colors \
             --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --title " \Z4Update package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
             --infobox "`cat $TMP/msg$$`" 16 70
   elif [ "$MODE" = "menudialog" -a "$USERPRIORITY" = "REQUIRED" ]; then
     # install no matter what $PRIORITY
     $DIALOG --colors \
             --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --title " \Z4Update package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
             --infobox "`cat $TMP/msg$$`" 16 70
   elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "SKIP" -a ! "$ALWAYSASK" = "yes" ]; then
     # SKIP overrides menu mode unless -ask used
@@ -396,8 +396,8 @@ for pkgtarball in $* ; do
             --backtitle "\Z6_kxLab, Inc.\Zn" \
             --title " \Z4Package Name: ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
             --menu "`cat $TMP/msg$$`" 0 0 3 \
-    "Yes" "Upgrade package $pkg_name" \
-    "No" "Do not upgrade package $pkg_name" \
+    "Yes" "Update package $pkg_name" \
+    "No" "Do not update package $pkg_name" \
     "Quit" "Abort software installation completely" 2> $TMP/reply$$
     if [ ! $? = 0 ]; then
       echo "No" > $TMP/reply$$
@@ -414,7 +414,7 @@ for pkgtarball in $* ; do
     # Waiting info dialog
     $DIALOG --sleep 1 --colors \
             --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --title " \Z4Update package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
             --infobox "\nPlease wait till package is installed.\n" 5 70
   fi
   rm -f $TMP/msg$$
@@ -468,7 +468,7 @@ if necessary, install them.
 EOF
         $DIALOG --sleep 3 --colors \
                 --backtitle "\Z1_kxLab, Inc.\Zn" \
-                --title " \Z4Upgrade package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+                --title " \Z4Update package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
                 --infobox "`cat $TMP/not_resolved_reqs$$`" 8 70
         rm -f $TMP/not_resolved_reqs$$
       fi
@@ -544,7 +544,7 @@ EOF
       )
     fi
   )
-  echo "SUCCESS: Package has been upgraded." >> $LOG_FILE
+  echo "SUCCESS: Package has been updated." >> $LOG_FILE
 done
 #
 # End of Main loop.

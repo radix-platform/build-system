@@ -137,8 +137,10 @@ Optionally current directory may contants '.DESCRIPTION' and
 'total_files' variables (calculated at runtime) into .PKGINFO file.
 Available options:
 
-  -l, --linkadd {y|n}  - moves symlinks into .RESTORELINKS scrypt
-                         ( recommended ).
+   -l, --linkadd {y|n}   - moves symlinks into .RESTORELINKS scrypt
+                           ( recommended );
+  -fl, --flavour FLAVOUR - name of additional subdirectory in GROUP
+                           directory for created package.
 
 EOF
 }
@@ -158,23 +160,70 @@ remove_backslash_info() {
 
 
 # Parse options
-while [ 0 ]; do
-  if [ "$1" = "--linkadd" -o "$1" = "-l" ]; then
-    if [ "$2" = "yes" -o "$2" = "y" ]; then
-      LINKADD=y
-    elif [ "$2" = "no" -o "$2" = "n" ]; then
-      LINKADD=n
-    else
+#while [ 0 ]; do
+#  if [ "$1" = "--linkadd" -o "$1" = "-l" ]; then
+#    if [ "$2" = "yes" -o "$2" = "y" ]; then
+#      LINKADD=y
+#    elif [ "$2" = "no" -o "$2" = "n" ]; then
+#      LINKADD=n
+#    else
+#      usage
+#      exit 2
+#    fi
+#    shift 2
+#  elif [ "$1" = "-h" -o "$1" = "--help" -o $# = 0 ]; then
+#    usage
+#    exit 0
+#  else
+#    break
+#  fi
+#done
+
+while [[ $# > 0 ]] ; do
+  arg=$1
+  case $arg in
+    -l|--linkadd)
+      if [ "$2" = "yes" -o "$2" = "y" ]; then
+        LINKADD=y
+        shift
+      elif [ "$2" = "no" -o "$2" = "n" ]; then
+        LINKADD=n
+        shift
+      else
+        usage
+        exit 2
+      fi
+      ;;
+
+    --linkadd=*)
+      if [ "${arg#*=}" = "yes" -o "${arg#*=}" = "y" ]; then
+        LINKADD=y
+      elif [ "${arg#*=}" = "no" -o "${arg#*=}" = "n" ]; then
+        LINKADD=n
+      else
+        usage
+        exit 2
+      fi
+      ;;
+
+    -fl|--flavour)
+      FLAVOUR="$2"
+      shift
+      ;;
+
+    --flavour=*)
+      FLAVOUR="${arg#*=}"
+      ;;
+
+    -h|--help)
       usage
-      exit 2
-    fi
-    shift 2
-  elif [ "$1" = "-h" -o "$1" = "--help" -o $# = 0 ]; then
-    usage
-    exit 0
-  else
-    break
-  fi
+      exit 0
+      ;;
+    *)
+      TARGET_DIR_NAME=$arg
+      ;;
+  esac
+  shift
 done
 
 
@@ -223,15 +272,20 @@ echo "Package maker, version 0.0.1."
 PACKAGE_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.tgz"
 PACKAGE_TEXT="$pkgname-$pkgver-$arch-$distroname-$distrover.txt"
 SHA_SUM_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.sha256"
-TARGET_DIR_NAME=$1
 if [ "$TARGET_DIR_NAME" = "" ]; then
   TARGET_DIR_NAME="."
   echo "WARNING: DESTDIR is not defined. Use current directory."
 fi
 # add group directory to target dir:
-if [ ! "$TARGET_DIR_NAME" = "" ]; then
+if [ ! "$TARGET_DIR_NAME" = "." ]; then
   if [ ! "$group" = "" ]; then
     TARGET_DIR_NAME="$TARGET_DIR_NAME/$group"
+  fi
+fi
+# add FLAVOUR subdirectory to group directory in the target dir:
+if [ ! "$TARGET_DIR_NAME" = "." ]; then
+  if [ ! "$FLAVOUR" = "" ]; then
+    TARGET_DIR_NAME="$TARGET_DIR_NAME/$FLAVOUR"
   fi
 fi
 PACKAGE_NAME="`basename $PACKAGE_NAME`"

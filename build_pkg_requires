@@ -41,8 +41,11 @@ sub read_requires
     $version = "PKG_VERSION";
   }
 
-  foreach my $d ( @_ )
+  foreach my $req ( @_ )
   {
+    my $d = `echo $req | cut -f 1 -d '^'`;
+    $d =~ s/^\s+|\s+$//;
+
     $file_name = "${top_build_dir}/$d/Makefile";
     $makefile = `cat $file_name`;
 # start tabs are not allowed (only spaces) because we are parsing Makefile!
@@ -150,7 +153,7 @@ open( REQUIRES_FILE, "> $reqfile" );
 
 while( ($pkg, $nv) = each %requires )
 {
-   print REQUIRES_FILE "${$nv}[0]=${$nv}[1]\n"
+   print REQUIRES_FILE "${$nv}[0]=${$nv}[1]\n";
 }
 
 

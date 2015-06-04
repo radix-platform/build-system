@@ -28,7 +28,16 @@ body, html {
   background-color: #ececec;
 }
 
-#header_wrapper {
+#tree_view {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  margin: 0 auto;
+  min-height: 256px;
+  width: 2720px;
+  border: 0px solid #e7e7e7;
+}
+
+.header-wrapper {
   height: 160px;
   width: 100%;
   margin: 0 auto;
@@ -36,18 +45,18 @@ body, html {
   background: transparent;
 }
 
-#content_wrapper {
+.content-wrapper {
   background-color: #ffffff;
 }
 
-#footer_wrapper {
+.footer-wrapper {
   background: #ececec;
 }
 
-#content {
+.content {
   width: 1018px;
   min-height: 256px;
-  padding: 18px 2px 12px 2px; /* top, right, bottom, left */
+  padding: 18px 3px 12px 3px; /* top, right, bottom, left */
   margin: 0 auto;
   background-color: #fdfdfd;
   position: relative;
@@ -56,7 +65,7 @@ body, html {
   border: 1px solid #e7e7e7;
 }
 
-#footer {
+.footer {
   width: 1022px;
   height: 48px;
   margin: 0 auto;
@@ -76,30 +85,39 @@ body, html {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 
-  border: 1px solid #f7f7f7;
-  background: #979797;
+  border: 1px solid #000000;
+  background-color: #212121;
+
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#212121), to(#000000));
+  background-image: -webkit-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:    -moz-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:      -o-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:         linear-gradient(to bottom, #212121 0%, #000000 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#212121', endColorstr='#000000', GradientType=0);
+  background-repeat: repeat-x;
 }
 
-div#footer_top {
+.footer-top {
   margin: 2px auto 1px auto;
   color: #ffffff;
   text-align: center;
 }
 
-div#footer_bottom {
+.footer-bottom {
   margin: 0 8px 0 8px;
   min-height: 20px;
   color: #ffffff;
   font-size: 10px;
 }
 
-#logo {
+.logo {
   height: 80px;
   width: 1024px;
   margin: 0 auto;
   background-color: transparent;
 }
-#navigator {
+
+.navigator {
   height: 79px;
   width: 1024px;
   margin: 0 auto;
@@ -120,26 +138,25 @@ div#footer_bottom {
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
 
-  border: 1px solid #f7f7f7;
-  background: #979797;
+  border: 1px solid #000000;
+  background-color: #212121;
+
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#212121), to(#000000));
+  background-image: -webkit-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:    -moz-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:      -o-linear-gradient(top, #212121 0%, #000000 100%);
+  background-image:         linear-gradient(to bottom, #212121 0%, #000000 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#212121', endColorstr='#000000', GradientType=0);
+  background-repeat: repeat-x;
 }
 
-#copyright {
+.copyright {
   color: #ffffff;
   text-decoration: none;
   font-family: 'Roboto', helvetica, arial, sans-serif;
   font-weight: normal;
   font-style: normal;
   font-size: 11px;
-}
-
-#tree_view {
-  overflow-y: hidden;
-  overflow-x: hidden;
-  margin: 0 auto;
-  min-height: 256px;
-  width: @SVG_WIDTH@px;
-  border: 0px solid #e7e7e7;
 }
 </style>
 
@@ -172,15 +189,19 @@ div#footer_bottom {
 }
  **********************************/
 
-div.tooltip {
+.tree-tooltip {
   position: absolute;
   text-align: left;
-  padding: 10px;
+  padding: 15px;
   font: 11px Cousine,monospace;
-  background: lightsteelblue;
-  border: 1px solid #0000e7;
+  font-weight: bold;
+  background-color: #fafafa;
+  border: 1px solid #71ad93;
   border-radius: 8px;
   pointer-events: none;
+  color: #343434;
+  -webkit-box-shadow: 0 0 5px #aaa;
+  box-shadow: 0 0 5px #aaa;
 }
 </style>
 <!-- End of styles .css -->
@@ -213,19 +234,24 @@ div.tooltip {
 <body>
 
 <div id="front_wrapper">
-  <div id="header_wrapper">
-    <div id="logo">
+  <div class="header-wrapper">
+    <div class="logo">
     </div> <!-- "logo" -->
-    <div id="navigator">
-      <div style="height: 36px;"></div>
+    <div class="navigator">
+      <div style="height: 36px;">
+        <div style="height: 16px; font: 14px 'Roboto', sans-serif; font-weight: bold; color: White;"></div>
+        <div style="height: 20px; float: right; text-align: right; padding-right: 16px; width:512px; font: 14px 'Roboto', sans-serif; font-weight: bold; color: White;">
+        <span style="font: 10px 'Roboto', sans-serif; font-weight: bold;  color: Lavender;">HARDWARE:</span> @HARDWARE@
+        </div>
+      </div>
       <div style="height: 42px; padding-left: 16px; font: 28px 'Roboto', sans-serif; font-weight: bold; color: White;">
       <span style="color: Lavender;">@ROOT@</span> - Requires Tree
       </div>
     </div> <!-- "navigator" -->
   </div> <!-- "header_wrapper" -->
 
-  <div id="content_wrapper">
-    <div id="content">
+  <div class="content-wrapper">
+    <div class="content">
 
       <div id="tree_view" class="ui-widget-content">
       </div>
@@ -233,15 +259,15 @@ div.tooltip {
     </div> <!-- "content" -->
   </div> <!-- "content_wrapper" -->
 
-  <div id="footer_wrapper">
-    <div id="footer">
+  <div class="footer-wrapper">
+    <div class="footer">
 
-      <div id="footer_top">
-        <a id="copyright" target="_blank" href="@BUG_URL@"
+      <div class="footer-top">
+        <a class="copyright" target="_blank" href="@BUG_URL@"
           onmouseover="show_link( 'copyright' );"
           onmouseout="hide_link( 'copyright' );">Copyright</a>
       </div>
-      <div id="footer_bottom">
+      <div class="footer-bottom">
       </div>
     </div> <!-- "footer" -->
   </div> <!-- "footer_wrapper" -->
@@ -269,10 +295,10 @@ div.tooltip {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var div = d3.select(document.getElementById( 'front_wrapper' )).append("div")
-      .attr("class", "tooltip")
+      .attr("class", "tree-tooltip")
       .style("opacity", 0);
 
-  d3.json("./@JSON_DATA_FILE@", function(error, requires) {
+  d3.json("@JSON_DATA_FILE@", function(error, requires) {
     root = requires;
     root.x0 = height / 2;
     root.y0 = 0;
@@ -326,21 +352,27 @@ div.tooltip {
             }
             else
             {
-              div.html('<div style="text-align: left; font: 14px Roboto,sans-serif; font-weight: bold; color: DarkRed;">' +
-                       d.name + "</div>" +
-                       '<div style="text-align: left; padding-left: 1.5em; padding-top: .5em; font: 14px Roboto,sans-serif; font-weight: bold; font-style: italic; color: DarkBlue;">' +
-                       d.description + "</div><br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group: " + d.group + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;architecture: " + d.arch + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hardware: " + d.hardware + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;distribution name: " + root.distro[0] + "<br/>" +
-                       "distribution version: " + root.distro[1] + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bug report url: " + root.distro[2] + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package tarball: " + d.name + "-" +
-                          d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "@TARBALL_SUFFIX@" + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;uncompressed size: " + d.uncompressed_size + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of files: " + d.total_files + "<br/>" +
-                       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;license: " + d.license)
+              var content = '<div style="text-align: left; font: 14px Roboto,sans-serif; font-weight: bold; color: DarkRed;">' +
+                            d.name + "</div>" +
+                            '<div style="text-align: left; padding-left: 1.5em; padding-top: .5em; font: 14px Roboto,sans-serif; font-weight: bold; font-style: italic; color: #343434;">' +
+                            d.description + "</div><br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group: " + d.group + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;architecture: " + d.arch + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hardware: " + d.hardware + "<br/>";
+              if( d.flavour != "" )
+              {
+                 content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: DarkBlue;">edition</span>: ' + d.flavour + "<br/>";
+              }
+                 content += "&nbsp;&nbsp;&nbsp;distribution name: " + root.distro[0] + "<br/>" +
+                            "distribution version: " + root.distro[1] + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bug report url: " + root.distro[2] + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package tarball: " + d.name + "-" +
+                               d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "@TARBALL_SUFFIX@" + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;uncompressed size: " + d.uncompressed_size + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of files: " + d.total_files + "<br/>" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;license: " + d.license;
+
+              div.html( content )
                   .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
                   .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
             }
@@ -353,11 +385,11 @@ div.tooltip {
 
     nodeEnter.append("circle")
     /* Additional attributes (see the 'style' section) */
-        .attr("stroke", "DarkBlue")
+        .attr("stroke", "#5d5d5d")
         .attr("stroke-width", "1.0")
     /* End of additional attributes */
         .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "DodgerBlue" : "#fff"; });
+        .style("fill", function(d) { return d._children ? "#abd8d4" : "#fff"; });
 
     nodeEnter.append("text")
         .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
@@ -376,7 +408,7 @@ div.tooltip {
         .style("fill", function(d) {
           if( d._children )
           {
-            return "DodgerBlue";
+            return "#abd8d4";
           }
           else
           {
@@ -393,7 +425,7 @@ div.tooltip {
             }
             else
             {
-              return "lightblue";
+              return "#d2ebd8";
             }
           }
         });

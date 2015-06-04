@@ -22,26 +22,28 @@ use _kxLab;
 # where:
 #      'topdir' - is a absolute path to the top directory of checked out branch
 #   'toolchain' - is a TOOLCHAIN name
-#    'hardware' - is a HARDWARE variant
+#    'hardware' - is a HARDWARE  name
+#     'flavour' - is a HARDWARE  variant
 #
 
 # global variables
 my (%all_requires, $top_dir, $opt_max_depth, %requires_depend, $requires_file, %skip_dirs);
 
-my ($toolchain, $hardware);
+my ($toolchain, $hardware, $flavour, $target_build_dir);
 
 
 sub usage
 {
   print <<EOF;
 
-Usage: build_requires [options] topdir toolchain hardware
+Usage: build_requires [options] topdir toolchain hardware [flavour]
 Options:
    --max-depth=i - where 'i' is a maximal directory depth for finding requires;
       --skip-dir - directory to be skipped (such as dist or TARGET_BUILD_DIR);
           topdir - is a absolute path to the top of checked out branch;
        toolchain - is a TOOLCHAIN name;
-        hardware - is a HARDWARE variant.
+        hardware - is a HARDWARE name.
+         flavour - is a HARDWARE variant.
 
 EOF
   exit;
@@ -63,6 +65,7 @@ sub requires_depend
 sub read_requires
 {
   my $makefile = shift;
+  my $flavour  = shift;
 
   # Add a dependency to the Makefile
   requires_depend( $makefile );
@@ -78,15 +81,29 @@ sub read_requires
   my $shell_output = <<`SHELL`;
 cd $cdir
 head -n `cat Makefile | grep -n "__END_OF_REQUIRES__" | cut -f 1 -d ':'` Makefile | \
-  make TOOLCHAIN=$toolchain HARDWARE=$hardware -f - -p __build_requires__ 2>/dev/null | grep "REQUIRES"
+  make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f - -p __build_requires__ 2>/dev/null | grep "REQUIRES"
 exit 0
 SHELL
 
   while( $shell_output =~ m/^REQUIRES(.+= +)(.+)/gm )
   {
     my @n = split( " ", $2 );
-    foreach my $d ( @n )
+    foreach my $req ( @n )
     {
+      my ($d, $f);
+
+      $d = `echo $req | cut -f 1 -d '^'`;
+      $d =~ s/^\s+|\s+$//;
+      if( $req =~ m/\^/ )
+      {
+        $f = `echo $req | cut -f 2 -d '^'`;
+        $f =~ s/^\s+|\s+$//;
+      }
+      else
+      {
+        $f = "";
+      }
+
       if( $d eq "ALL_DIRS" )
       {
         my $dirname = dirname( $makefile );
@@ -110,7 +127,8 @@ SHELL
 
         if( -f "$top_dir/$d/Makefile" )
         {
-          $requires{$d} = "";
+          if( $f eq "" ) { $requires{$d} = "";            }
+          else           { $requires{$d . "^" . $f} = ""; }
         }
       }
     }
@@ -145,15 +163,30 @@ sub make_sub_requires
   {
     $all_requires{$req} = "";
 
+    my ($d, $f);
+
+    $d = `echo $req | cut -f 1 -d '^'`;
+    $d =~ s/^\s+|\s+$//;
+    if( $req =~ m/\^/ )
+    {
+      $f = `echo $req | cut -f 2 -d '^'`;
+      $f =~ s/^\s+|\s+$//;
+    }
+    else
+    {
+      $f = "";
+    }
+
     # Read sub requires
-    my $makefile = "$top_dir/$req/Makefile";
-    my %sub_requires = read_requires( $makefile );
+    my $makefile = "$top_dir/$d/Makefile";
+    my %sub_requires = read_requires( $makefile, $f );
     if( scalar(%sub_requires) )
     {
       my @sorted_sub_requires = sort(keys %sub_requires);
 
       # Build dependencies for sub requires
-      start_depend( $req );
+      if( $f eq "" ) { start_depend( $d );            }
+      else           { start_depend( $d . "^" . $f ); }
       foreach my $sub_req ( @sorted_sub_requires )
       {
         depend( $sub_req );
@@ -182,12 +215,22 @@ GetOptions( "max-depth=i" => \$opt_max_depth, "skip-dir=s" => \@opt_skip_dirs );
 my $topdir = shift;
 $toolchain = shift;
 $hardware  = shift;
+$flavour   = shift;
 
 my $makefile = "Makefile";
 
 if( ! defined $topdir    or $topdir eq "" )    { usage; }
 if( ! defined $toolchain or $toolchain eq "" ) { usage; }
 if( ! defined $hardware  or $hardware eq "" )  { usage; }
+if( ! defined $flavour   or $flavour eq "" )
+{
+  $flavour = "";
+  $target_build_dir = "." . $toolchain . "/" . $hardware;
+}
+else
+{
+  $target_build_dir = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+}
 
 _kxLab::error( "build_requires: $topdir is not a directory" ) if( ! -d $topdir );
 _kxLab::error( "build_requires: Makefile missing: $makefile" ) if ( ! -f $makefile );
@@ -196,7 +239,9 @@ _kxLab::error( "build_requires: Makefile missing: $makefile" ) if ( ! -f $makefi
 $top_dir = $topdir;
 my $build_system = $top_dir . "/build-system";
 
-$requires_file = "." . $hardware . "_requires";
+_kxLab::system( "mkdir -p $target_build_dir" );
+
+$requires_file = $target_build_dir . "/" . ".requires";
 my $requires_depend_file = $requires_file . "_depend";
 
 # open the output files
@@ -225,7 +270,7 @@ print REQUIRES_FILE "# ROOT=$root\n\n";
 print REQUIRES_DEPEND_FILE "\n";
 
 # read the makefile
-my %requires = read_requires( "$pwd/$makefile" );
+my %requires = read_requires( "$pwd/$makefile", $flavour );
 
 #$requires{"build-system"} = "";
 # ignore the "build-system" dependency (if any), since this dependency is implicit
@@ -251,7 +296,7 @@ foreach my $req ( @sorted_requires )
 print REQUIRES_FILE "TREEDIRS = ", join(" ", sort(keys %all_requires)), "\n\n";
 if( $pwd =~ m/$build_system/ )
 {
-  print REQUIRES_FILE "include \$(BUILDSYSTEM)/tree-build-system.mk\n";
+  print REQUIRES_FILE "include \$(BUILDSYSTEM)/tree-bs.mk\n";
 }
 else
 {
