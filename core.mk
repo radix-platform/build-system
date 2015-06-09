@@ -355,7 +355,7 @@ rootfs_clean:
 
 
 # MAKE goals which not depended from Makefile
-__quick_targets := help ccache_stats local_clean global_clean downloads_clean build-config.mk $(HACK_TARGETS)
+__quick_targets := help ccache_stats configure_targets local_clean global_clean downloads_clean build-config.mk $(HACK_TARGETS)
 
 
 
@@ -555,6 +555,8 @@ help:
 	@shtool echo -e "   current directory.  Otherwise this goal will be performed for all required"
 	@shtool echo -e "   directories which defined by %BREQUIRES%b variable."
 	@echo ""
+	@shtool echo -e "   %Bconfigure_targets%b  - select hardwares, for which the software will be built."
+	@shtool echo -e "                        This command edits the %Bbuild-config.mk%b file;"
 	@shtool echo -e "   %Brequires_tree%b      - create %BHTML%b file to show the requires tree for current"
 	@shtool echo -e "                        directory. Note that this goal depends on goal %Ball%b;"
 	@shtool echo -e "   %Bglobal_clean%b       - clean up %Bwhole%b sourses tree excluding downloaded"
@@ -591,6 +593,11 @@ else
 	@echo ""
 endif
 
+configure_targets: $(BUILDSYSTEM)/build-config.mk
+	@BUILDSYSTEM=$(BUILDSYSTEM)            \
+	 CONFIG=$(BUILDSYSTEM)/build-config.mk \
+	 CONSTANTS=$(BUILDSYSTEM)/constants.mk \
+	 $(BUILDSYSTEM)/configure-targets
 
 #######
 ####### End of Build preparations & HW Independed GOALs Section.

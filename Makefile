@@ -4,6 +4,7 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 include constants.mk
 
 REQUIRES  = build-system/3pp/fakeroot/0.18
+REQUIRES += build-system/3pp/dialog/1.2-20140112
 REQUIRES += build-system/progs
 
 

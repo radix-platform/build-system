@@ -90,53 +90,72 @@ pkg-files = $1 $(call sign-name,$1) $(call desc-name,$1)
 #######
 ####### Hardware names:
 #######
+###                  |---HW-spec-handy-ruler-----------------------|
 # noarch:
 HARDWARE_NOARCH     = none
 # Host Build:
 HARDWARE_BUILD      = build
 # x86 Personal Computer:
 HARDWARE_PC32       = pc32
+PC32_SPEC           = Intel x86_32 generic Linux machine
 # {x86|x86_64} Personal Computer:
 HARDWARE_PC64       = pc64
+PC64_SPEC           = Intel x86_32 generic Linux machine
 
 # A1N newlib devices (cubieboard 1):
 HARDWARE_CB1N       = cb1n
+CB1N_SPEC           = Cubieboard A10 \(Newlib based\)
 # A1X devices (cubieboard 1 glibc):
 HARDWARE_CB1X       = cb1x
+CB1X_SPEC           = Cubieboard A10 \(Linux, GNU Libc based\)
 # A2N newlib devices (cubieboard 2):
 HARDWARE_CB2N       = cb2n
+CB2N_SPEC           = Cubieboard A20 \(Newlib based\)
 # A2X devices (cubieboard 2 glibc):
 HARDWARE_CB2X       = cb2x
+CB2X_SPEC           = Cubieboard A20 \(Linux, GNU Libc based\)
 # A3N newlib devices (cubieboard 3):
 HARDWARE_CB3N       = cb3n
+CB3N_SPEC           = Cubietrack A20 \(Newlib based\)
 # A3X devices (cubieboard 3 glibc):
 HARDWARE_CB3X       = cb3x
+CB3X_SPEC           = Cubietrack A20 \(Linux, GNU Libc based\)
 
 # AT91SAM7S devices:
 HARDWARE_AT91S      = at91s
+AT91S_SPEC          = Atmel at91sam7s \(Newlib based\)
 # DM644X newlib devices:
 HARDWARE_VIP1830N   = vip1830n
+VIP1830N_SPEC       = Texas dm644x \(Newlib based\)
 # DM644X devices:
 HARDWARE_VIP1830    = vip1830
+VIP1830_SPEC        = Texas dm644x \(Linux, GNU Libc based\)
 # LPC17XX devices:
 HARDWARE_L17UC      = l17uc
+L17UC_SPEC          = NXP lpc17xx \(uCLibc based\)
 # OMAP35X devices:
 HARDWARE_BEAGLE     = beagle
+BEAGLE_SPEC         = Beagleboard OMAP3 \(Linux, GNU Libc based\)
 # OMAP543X devices:
 HARDWARE_OMAP5UEVM  = omap5uevm
+OMAP5UEVM_SPEC      = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
 HARDWARE_DRA7XXEVM  = dra7xxevm
+DRA7XXEVM_SPEC      = Texas DRA7xx EVM \(Linux, GNU Libc based\)
 # BCM74X devices:
 HARDWARE_B74        = b74
+B74_SPEC            = Broadcom bcm74XX \(Linux, GNU Libc based\)
 
 # JZ47XX devices:
 # --------------
 # MIPS Creator CI20 [http://www.elinux.org/MIPS_Creator_CI20]:
 HARDWARE_CI20       = ci20
+CI20_SPEC           = MIPS Creator CI20 \(Linux, GNU Libc based\)
 
 # RK328X devices:
 # --------------
 # Firefly-RK3288 [http://en.t-firefly.com/en/firenow/firefly_rk3288]:
 HARDWARE_FFRK3288   = ffrk3288
+FFRK3288_SPEC       = Firefly RK3288 \(Linux, GNU Libc based\)
 
 
 #######

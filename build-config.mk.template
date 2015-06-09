@@ -10,12 +10,13 @@ ENABLE_PC64       = true
 
 # TARGET: arm-a1x-eabi:
 ENABLE_CB1N       = true
-# TARGET: arm-a1x-linux-gnueabihf:
-ENABLE_CB1X       = true
 
 # TARGET: arm-a2x-eabi:
 ENABLE_CB2N       = true
 ENABLE_CB3N       = true
+
+# TARGET: arm-a1x-linux-gnueabihf:
+ENABLE_CB1X       = true
 
 # TARGET: arm-a2x-linux-gnueabihf:
 ENABLE_CB2X       = true
