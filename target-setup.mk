@@ -161,6 +161,7 @@ else
 TOOLCHAIN_PATH     = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_PATH)/$(TOOLCHAIN_VERSION)
 endif
 
+TOOLCHAIN_TARBALL  = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_TARBALL)
 TOOLCHAIN_VERSION  = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_VERSION)
 TOOLCHAIN_DIR      = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_DIR)
 TARGET             = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_ARCH)

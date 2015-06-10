@@ -1,0 +1,24 @@
+#!/bin/sh
+
+trap 'echo ""; echo "`basename $0`: interrupted"; killall wget && killall "`basename $0`"; exit' 1 2 3 9 15
+
+TARBALL=$1
+
+tarball=`basename $TARBALL`
+
+progress() {
+  echo "#"
+  echo -n "# wgetting '$tarball': "
+  while true ; do
+    echo -n "." ; sleep 1 ;
+  done
+}
+
+progress &
+PID=$!
+echo "$TARBALL" | xargs -n 1 -P 100 wget -q -N -i
+kill $PID > /dev/null 2>&1
+echo -e "\n#"
+echo -n "#   unpack '$tarball': "
+tar --checkpoint=.1000 -xf $tarball
+echo -e "\n#"

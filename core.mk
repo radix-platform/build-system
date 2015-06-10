@@ -639,6 +639,36 @@ APPLY_PATCHES = $(quiet)$(foreach patch,$(PATCHES),\
 APPLY_OPT_PATCHES = $(quiet)$(foreach patch,$(OPT_PATCHES),\
 	$(BUILDSYSTEM)/apply_patches $(patch) $(SRC_DIR_BASE) &&) true
 
+
+################################################################
+# Functions:
+# =========
+#
+# Install package content into the current
+# development environment:
+# --------------------------------------------------------------
+install-into-devenv = \
+	@( cd $1 ; \
+	   DO_CREATE_DIST_FILES=1 CWD=$(CURDIR) \
+	   $(BUILDSYSTEM)/install_targets       \
+	     --preserve-source-dir=true         \
+	     --destination=$(TARGET_DEST_DIR)   \
+	     --toolchain=$(TOOLCHAIN)           \
+	     --hardware=$(HARDWARE)             \
+	     --flavour=$(FLAVOUR)               \
+	    $$(find * \( -type f -o -type l \) -print) > /dev/null ; \
+	 )
+# usage:
+#   $(call install-into-devenv,$(PKGDIR))
+#   where PKGDIR - is a directory where package installed from sources.
+# --------------------------------------------------------------
+#
+#
+# End of unctios.
+################################################################
+
+
+
 ################################################################
 #
 # Example rule:
@@ -917,7 +947,7 @@ _tree := .requires_makefile
 endif
 
 #
-local_all: $(_tree) _install
+local_all: .toolchain $(_tree) _install
 
 
 ifeq ($(CLEAN_TREE),true)
@@ -936,6 +966,38 @@ ifeq ($(ROOTFS_CLEAN_TREE),true)
 local_rootfs_clean: .tree_rootfs_clean
 else
 local_rootfs_clean:
+endif
+
+.toolchain:
+ifneq ($(TOOLCHAIN_PATH),)
+ifeq ($(wildcard $(TOOLCHAIN_PATH)),)
+	@shtool echo -e "%B################################################################%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BStart of downloading toolchain '%b$(shell basename $(TOOLCHAIN_TARBALL))%B':%b"
+	@shtool echo -e "%B#######%b"
+	@if [ -d $(TOOLCHAINS_BASE_PATH) -a -w $(TOOLCHAINS_BASE_PATH) ] ; then \
+	  ( cd $(TOOLCHAINS_BASE_PATH) ; \
+	    $(BUILDSYSTEM)/download-toolchain "$(DOWNLOAD_SERVER)/$(TOOLCHAIN_TARBALL)" ; \
+	  ) ; \
+	 else \
+	   shtool echo -e "%B#%b" ; \
+	   shtool echo -e "%B#%b" ; \
+	   shtool echo -e "%B#%b Please create '%B$(TOOLCHAINS_BASE_PATH)%b' directory" ; \
+	   shtool echo -e "%B#%b and give write permissions to '%B$(shell echo "`id -u -n`")%b':" ; \
+	   shtool echo -e "%B#%b" ; \
+	   shtool echo -e "%B#%b    # sudo mkdir -p %B$(TOOLCHAINS_BASE_PATH)%b" ; \
+	   shtool echo -e "%B#%b    # sudo chown -R %B$(shell echo "`id -u -n`")%b:%B$(shell echo "`id -g -n`")%b $(TOOLCHAINS_BASE_PATH)" ; \
+	   shtool echo -e "%B#%b" ; \
+	   shtool echo -e "%B#%b" ; \
+	   shtool echo -e "%B# ERROR:%b $(TOOLCHAINS_BASE_PATH): Permission denied. Stop." ; \
+	   shtool echo -e "%B#%b" ; \
+	   exit 1 ; \
+	 fi
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B#######%b %BEnd of downloading toolchain '%b$(shell basename $(TOOLCHAIN_TARBALL))%B'.%b"
+	@shtool echo -e "%B#######%b"
+	@shtool echo -e "%B################################################################%b"
+endif
 endif
 
 
@@ -1527,6 +1589,8 @@ endif
 
 # HW depended targets:
 .PHONY: .target*
+
+.PHONY: .toolchain
 
 .PHONY: $(_tree)
 .PHONY: .requires_makefile
