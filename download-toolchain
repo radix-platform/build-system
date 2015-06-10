@@ -4,6 +4,13 @@ trap 'echo ""; echo "`basename $0`: interrupted"; killall wget && killall "`base
 
 TARBALL=$1
 
+if [ -z "$TARBALL" ] ; then
+  echo "#"
+  shtool echo -e "# %BERROR%b: Toolchain URL is not defined."
+  echo "#"
+  exit 1
+fi
+
 tarball=`basename $TARBALL`
 
 progress() {
