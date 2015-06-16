@@ -11,6 +11,7 @@ umask 022
 TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
 
+VERSION=@MKPKGVERSION@
 
 check_link_permissions() {
   ERRCOUNT=0
@@ -145,6 +146,10 @@ Available options:
 EOF
 }
 
+show_version() {
+  echo "$VERSION"
+}
+
 remove_size_info() {
   infile="./.PKGINFO"
   tmpfile=`mktemp $TMP/info.XXXXXX`
@@ -219,6 +224,11 @@ while [[ $# > 0 ]] ; do
       usage
       exit 0
       ;;
+
+    -v|--version)
+      show_version
+      exit 0
+      ;;
     *)
       TARGET_DIR_NAME=$arg
       ;;
@@ -249,13 +259,14 @@ if [ "$pkgname" = "" -o "$pkgver" = "" -o "$arch" = "" -o "$distroname" = "" -o 
   echo "  pkgname    - name of package;"
   echo "  pkgver     - version such as 1.0.4, for example;"
   echo "  arch       - architecture of target machine {x86_64|i686|mipsel|arm|...};"
-  echo "  distroname - name of distributive {slamd64|...};"
-  echo "  distrover  - distributive version {12.2|...};"
+  echo "  distroname - name of distributive {radix|...};"
+  echo "  distrover  - distributive version {1.0|...};"
   echo ""
   echo "Also optional variables are available:"
-  echo "  group      - package group name {applications|libs|...};"
-  echo "  url        - package home site. http://www.pkg.com, for example;"
-  echo "  license    - LICENSE type {GPL|LGPL|BSD|Proprietary}."
+  echo "  group             - package group name {app|libs|dev|...};"
+  echo "  short_description - package description. \"Package Tool\", for example;"
+  echo "  url               - package home site. @BUGURL@, for example;"
+  echo "  license           - LICENSE type {GPLv2|LGPL|BSD|MIT|...}."
   echo ""
   exit 1 
 fi
@@ -268,7 +279,7 @@ if [ ! -e "./.INSTALL" ]; then
 fi
 
 echo
-echo "Package maker, version 0.0.1."
+echo "Package maker, version $VERSION."
 PACKAGE_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.tgz"
 PACKAGE_TEXT="$pkgname-$pkgver-$arch-$distroname-$distrover.txt"
 SHA_SUM_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.sha256"
@@ -291,23 +302,26 @@ fi
 PACKAGE_NAME="`basename $PACKAGE_NAME`"
 TAR_NAME="`basename $PACKAGE_NAME .tgz`"
 echo
-echo "Searching for symbolic links:"
+echo -n "Search for symbolic links: "
 # Get rid of possible pre-existing trouble:
 INST=`mktemp $TMP/makepkg.XXXXXX`
 # This requires the ls from coreutils-5.0 (or newer):
-find . -type l -exec ls -l --time-style=long-iso {} \; | while read foo ; do echo $foo ; done | cut -f 8- -d ' ' | cut -b3- | tee $INST
+find . -type l -exec ls -l --time-style=long-iso {} \; | while read foo ; do echo $foo ; done | cut -f 8- -d ' ' | cut -b3- > $INST
 if [ ! "`cat $INST`" = "" ]; then
   echo
-  echo "Making symbolic link creation script:"
+  echo
+  cat $INST
+  echo
+  echo "Restore symbolic links script:"
   make_install_script $INST | tee .RESTORELINKS
 fi
-echo
 if [ ! "`cat $INST`" = "" ]; then
   if [ ! "$LINKADD" ]; then
-    echo "It is recommended to remove the symbolic links and create the '.RESTORELINKS' script."
     echo
-    echo "Would you like to make this stuff the '.RESTORELINKS' script for this package"
-    echo -n "and remove the symbolic links ([y]es, [n]o)? "
+    echo "It is recommended to remove symbolic links and create the '.RESTORELINKS' script."
+    echo
+    echo "Do you want create the '.RESTORELINKS' script for this package"
+    echo -n "and remove symbolic links from the package archive ([y]es, [n]o)? "
     read LINKADD;
   fi
   if [ "$LINKADD" = "y" ]; then
@@ -324,7 +338,7 @@ if [ ! "`cat $INST`" = "" ]; then
     rm -f .RESTORELINKS
   fi
 else
-  echo "No symbolic links were found, so we won't make an '.RESTORELINKS' script."
+  echo "... symbolic links were not found, .RESTORELINKS script is not needed."
 fi
 rm -f $INST
 

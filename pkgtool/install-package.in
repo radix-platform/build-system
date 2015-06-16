@@ -40,7 +40,7 @@ usage() {
 Usage: $program [options] package_tarball[s]
 
 $program is used to install a *.tgz package like this:
-   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
+   $program /packagesdir/pkgtool-0.0.1-x86_64-glibc-radix-1.0.tgz
 
 options:
    --root /dest    - install someplace else, like /dest;
@@ -128,13 +128,14 @@ strip_description() {
 
 pkglist_get_priority() {
   listfile=$1
-  LINENUM="`cat $listfile | grep -n -e "^$pkgname:" | cut -f 1 -d ':'`"
+  # check only first accurence in this procedure
+  LINENUM="`cat $listfile | grep -m 1 -n -e "^$pkgname:" | cut -f 1 -d ':'`"
   if [ "$LINENUM" = "" ]; then
     ret=""
     return 1
   fi
   LINE="`sed -n "$LINENUM p" $listfile`"
-  ret="`echo "$LINE" | cut -f 5 -d ':' | tr '\n' '\0'`"
+  ret="`echo "$LINE" | cut -f 6 -d ':' | tr '\n' '\0'`"
   if   [ "$ret" = "required"    -o "$ret" = "req" -o "$ret" = "REQUIRED"    -o "$ret" = "REQ" ]; then
     ret="REQUIRED"
   elif [ "$ret" = "recommended" -o "$ret" = "rec" -o "$ret" = "RECOMMENDED" -o "$ret" = "REC" ]; then
@@ -150,6 +151,7 @@ pkglist_get_priority() {
   fi
   return 0
 }
+
 
 
 #
@@ -264,6 +266,101 @@ done
 LOG_PATH=$SETUP_DB_PATH/setup
 LOG_FILE=$LOG_PATH/setup.log
 
+
+extract_links() {
+ sed -n 's,^( *cd \([^ ;][^ ;]*\) *; *rm -rf \([^ )][^ )]*\) *) *$,\1/\2,p'
+}
+
+delete_files() {
+  while read FILE ; do
+    if [ ! -d "${TARGET_ROOT_PATH}$FILE" ]; then
+      if [ -r "${TARGET_ROOT_PATH}$FILE" ]; then
+        # "-nt" is "newer than"; "-ot" is "older than":
+        if [ "${TARGET_ROOT_PATH}$FILE" -nt "$logfile" ]; then
+          if [ "$VERBOSE" == "yes" ] ; then
+            echo "WARNING: ${TARGET_ROOT_PATH}$FILE changed after package installation."
+          fi
+        fi
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Deleting ${TARGET_ROOT_PATH}$FILE"
+        fi
+        rm -f "${TARGET_ROOT_PATH}$FILE"
+        echo "`dirname $FILE`" >> $TMP/not_sorted_dirs$$
+      else
+        echo " ===> ${TARGET_ROOT_PATH}$FILE no longer exists. Skipping."
+      fi
+    else
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> ${TARGET_ROOT_PATH}$FILE is a directory. Skipping."
+      fi
+      echo "$FILE" >> $TMP/not_sorted_dirs$$
+    fi
+  done
+}
+
+delete_links() {
+  while read LINK ; do
+    if [ -L "${TARGET_ROOT_PATH}$LINK" ]; then
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> Deleting symlink ${TARGET_ROOT_PATH}$LINK"
+      fi
+      rm -f ${TARGET_ROOT_PATH}$LINK
+      echo "`dirname $LINK`" >> $TMP/not_sorted_dirs$$
+    else
+      if [ "$VERBOSE" == "yes" ] ; then
+        echo " ===> ${TARGET_ROOT_PATH}$LINK (symlink) no longer exists. Skipping."
+      fi
+    fi
+  done
+}
+
+delete_dirs() {
+  while read DIR ; do
+    if [ -d "${TARGET_ROOT_PATH}$DIR" ]; then
+      if [ `ls -a "${TARGET_ROOT_PATH}$DIR" | wc -l` -eq 2 ]; then
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Deleting empty directory ${TARGET_ROOT_PATH}$DIR"
+        fi
+        rmdir "${TARGET_ROOT_PATH}$DIR"
+      else
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> Preserving non empty directory ${TARGET_ROOT_PATH}$DIR"
+        fi
+      fi
+    fi
+  done
+}
+
+
+remove_installed_files_on_error() {
+  if [ -f $TMP/.RESTORELINKS -a -s $TMP/.RESTORELINKS ]; then
+    cat $TMP/.RESTORELINKS | extract_links | sort -u > $TMP/links$$
+  fi
+
+  if [ -f $TMP/.FILELIST -a -s $TMP/.FILELIST ]; then
+    cat $TMP/.FILELIST | sort -u > $TMP/files$$
+  fi
+
+  rm -f $TMP/not_sorted_dirs$$
+  if [ -f $TMP/links$$ -a -s $TMP/links$$ ]; then
+    delete_links < $TMP/links$$
+  fi
+  rm -f $TMP/links$$
+
+  if [ -f $TMP/files$$ -a -s $TMP/files$$ ]; then
+    delete_files < $TMP/files$$
+  fi
+  rm -f $TMP/files$$
+
+  if [ -f $TMP/not_sorted_dirs$$ -a -s $TMP/not_sorted_dirs$$ ]; then
+    sort -u -r < $TMP/not_sorted_dirs$$ > $TMP/dirs$$
+    rm -f $TMP/not_sorted_dirs$$
+    delete_dirs < $TMP/dirs$$
+    rm -f $TMP/dirs$$
+  fi
+  rm -f $TMP/not_sorted_dirs$$
+}
+
 ################################################################
 # Main loop:
 #
@@ -308,8 +405,13 @@ for pkgtarball in $* ; do
     PKGLIST=/dev/null
   fi
 
-  pkglist_get_priority "$PKGLIST"
-  PRIORITY=$ret
+  # USERPRIORITY overrides .pkglist priority
+  if [ "$USERPRIORITY" = "" ]; then
+    pkglist_get_priority "$PKGLIST"
+    PRIORITY=$ret
+  else
+    PRIORITY=$USERPRIORITY
+  fi
 
   if   [ "$PRIORITY" = "REQUIRED" ]; then
     PMSG="[required]"
@@ -331,7 +433,7 @@ for pkgtarball in $* ; do
   echo "   Compressed Sise: $compressed_size"   >> $TMP/msg$$
 
   # Emit information to the console:
-  if [ "$MODE" = "console" ]; then
+  if [ "$MODE" = "console" -a ! "$PRIORITY" = "SKIP" ]; then
     echo ""
     if [ "$PMSG" = "" ]; then
       echo " Installing package $pkgname... "
@@ -346,33 +448,31 @@ for pkgtarball in $* ; do
   elif [ "$MODE" = "infodialog" -a ! "$PRIORITY" = "SKIP" ]; then
     # install non-SKIP package:
     $DIALOG --colors \
-            --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-            --infobox "`cat $TMP/msg$$`" 16 70
+            --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
+            --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "`cat $TMP/msg$$`" 16 74
   elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "REQUIRED" -a ! "$ALWAYSASK" = "yes" ]; then
     # REQUIRED overrides menu mode unless -ask was used
     $DIALOG --colors \
-            --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-            --infobox "`cat $TMP/msg$$`" 16 70
-  elif [ "$MODE" = "menudialog" -a "$USERPRIORITY" = "REQUIRED" ]; then
-    # install no matter what $PRIORITY
-    $DIALOG --colors \
-            --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-            --infobox "`cat $TMP/msg$$`" 16 70
+            --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
+            --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "`cat $TMP/msg$$`" 16 74
   elif [ "$MODE" = "menudialog" -a "$PRIORITY" = "SKIP" -a ! "$ALWAYSASK" = "yes" ]; then
     # SKIP overrides menu mode unless -ask used
     rm -f $TMP/msg$$
     continue # next package
-  elif [ "$MODE" = "infodialog" -a "$PRIORITY" = "SKIP" -a ! "$ALWAYSASK" = "yes" ]; then
+  elif [ "$MODE" = "infodialog" -a "$PRIORITY" = "SKIP" ]; then
     # SKIP overrides infobox mode, too
     rm -f $TMP/msg$$
-    continue
+    continue # next package
+  elif [ "$MODE" = "console" -a "$PRIORITY" = "SKIP" ]; then
+    # SKIP overrides console mode, too
+    rm -f $TMP/msg$$
+    continue # next package
   else # we must need a full menu:
     $DIALOG --colors \
-            --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Package Name: ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
+            --title " \Z4Package Name: ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
             --menu "`cat $TMP/msg$$`" 0 0 3 \
     "Yes" "Install package $pkg_name" \
     "No" "Do not install package $pkg_name" \
@@ -391,9 +491,9 @@ for pkgtarball in $* ; do
     fi
     # Waiting info dialog
     $DIALOG --sleep 1 --colors \
-            --backtitle "\Z6_kxLab, Inc.\Zn" \
-            --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-            --infobox "\nPlease wait till package is installed.\n" 5 70
+            --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
+            --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+            --infobox "\nPlease wait till package is installed.\n" 5 74
   fi
   rm -f $TMP/msg$$
 
@@ -405,9 +505,9 @@ for pkgtarball in $* ; do
     # package is installed correctly
     if [ ! "$MODE" = "console" ]; then
       $DIALOG --sleep 1 --colors \
-              --backtitle "\Z6_kxLab, Inc.\Zn" \
-              --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-              --infobox "\nPackage is already installed and corect.\n" 5 70
+              --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
+              --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+              --infobox "\nPackage is already installed and corect.\n" 5 74
     else
       echo "Package is already installed and corect."
     fi
@@ -424,9 +524,9 @@ to install again.
 
 EOF
       $DIALOG --sleep 1 --colors \
-              --backtitle "\Z1_kxLab, Inc.\Zn" \
-              --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-              --infobox "`cat $TMP/bad_package$$`" 8 70
+              --backtitle "\Z1Radix\Zn \Z7Pro\Zn\Z1, Ltd.\Zn" \
+              --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+              --infobox "`cat $TMP/bad_package$$`" 8 74
       rm -f $TMP/bad_package$$
     else
       echo "Package is already installed but not corect."
@@ -438,9 +538,8 @@ EOF
   fi
 
   # Install process:
-  echo ""                                            >> $LOG_FILE
-  echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
-  echo -n "Installing: `basename $pkgtarball`: "     >> $LOG_FILE
+  echo -n "[`LANG=en LANGUAGE=en date +'%d-%b-%Y %H:%M:%S'`] " >> $LOG_FILE
+  echo -n "Installing: `basename $pkgtarball`: "               >> $LOG_FILE
 
   DEST=$TARGET_ROOT_PATH
 
@@ -463,9 +562,9 @@ if necessary, install them.
 
 EOF
         $DIALOG --sleep 3 --colors \
-                --backtitle "\Z1_kxLab, Inc.\Zn" \
-                --title " \Z4Installing package ==>\Zn\Z7$pkgname\Zn\Z4<== $PMSG\Zn " \
-                --infobox "`cat $TMP/not_resolved_reqs$$`" 8 70
+                --backtitle "\Z1Radix\Zn \Z7Pro\Zn\Z1, Ltd.\Zn" \
+                --title " \Z4Installing package ==>\Zn\Z1$pkgname\Zn\Z4<== $PMSG\Zn " \
+                --infobox "`cat $TMP/not_resolved_reqs$$`" 8 74
         rm -f $TMP/not_resolved_reqs$$
       fi
       rm -f $TMP/freqs$$ $TMP/hreqs$$
@@ -484,45 +583,57 @@ EOF
 .REQUIRES
 .RESTORELINKS
 EOF
-  zcat $pkgtarball | $TAR -C $TMP --files-from=$TMP/pkg.service.files$$ -xf - > /dev/null 2>&1
+  zcat $pkgtarball | $TAR -C $TMP --files-from=$TMP/pkg.service.files$$ -xf -  > /dev/null 2>&1
   ( cd $DEST
     if [ -x $TMP/.INSTALL ]; then
-      $TMP/.INSTALL pre_install
+      $TMP/.INSTALL pre_install $pkgver > /dev/null 2>&1
       if [ ! "$?" = "0" ]; then
         echo "ERROR: Pre Install script returns bad status."
         echo "ERROR: Pre Install script returns bad status." >> $LOG_FILE
-        cd $CWD
         EXITSTATUS=19
         exit $EXITSTATUS
       fi
     fi
   )
+  EXITSTATUS=$?
+  if [ ! "$EXITSTATUS" = "0" ]; then
+    break
+  fi
   # unpack archive excluding service files:
   zcat $pkgtarball | $TAR -C $DEST --exclude-from=$TMP/pkg.service.files$$ -xpf -  > /dev/null 2>&1
   if [ ! "$?" = "0" ]; then
     echo "ERROR: $TAR has returned error code."
     echo "ERROR: $TAR has returned error code." >> $LOG_FILE
     EXITSTATUS=1
-    exit $EXITSTATUS
+    break
   fi
   ( cd $DEST
     if [ -f $TMP/.RESTORELINKS ]; then
       sh $TMP/.RESTORELINKS
     fi
+    pkglog $TMP/.PKGINFO $SETUP_DB_PATH/packages  > /dev/null 2>&1
+    if [ ! "$?" = "0" ]; then
+      echo "ERROR: Log file has not been created."
+      echo "ERROR: Log file has not been created." >> $LOG_FILE
+      remove_installed_files_on_error
+      ( . $TMP/.PKGINFO
+        cd $SETUP_DB_PATH/packages; rm -f "$pkgname-$pkgver-$arch-$distroname-$distrover"
+      )
+      EXITSTATUS=23
+      exit $EXITSTATUS
+    fi
     if [ -x $TMP/.INSTALL ]; then
-      $TMP/.INSTALL post_install
+      $TMP/.INSTALL post_install $pkgver > /dev/null 2>&1
       if [ ! "$?" = "0" ]; then
         echo "ERROR: Post Install script returns bad status."
         echo "ERROR: Post Install script returns bad status." >> $LOG_FILE
-        cd $CWD
+        remove_installed_files_on_error
+        ( . $TMP/.PKGINFO
+          cd $SETUP_DB_PATH/packages; rm -f "$pkgname-$pkgver-$arch-$distroname-$distrover"
+        )
         EXITSTATUS=20
         exit $EXITSTATUS
       fi
-    fi
-    pkglog $TMP/.PKGINFO $SETUP_DB_PATH/packages  > /dev/null 2>&1
-    if [ ! "$?" = "0" ]; then
-      echo "WARNING: Log file has not been created."
-      echo "WARNING: Log file has not been created." >> $LOG_FILE
     fi
     # Increase REFERENCE COUNTER in the required packages:
     ( . $TMP/.PKGINFO
@@ -533,6 +644,10 @@ EOF
       cd $SETUP_DB_PATH/removed_packages; rm -f "$pkgname-$pkgver-$arch-$distroname-$distrover"
     )
   )
+  EXITSTATUS=$?
+  if [ ! "$EXITSTATUS" = "0" ]; then
+    break
+  fi
   echo "SUCCESS: Package has been installed." >> $LOG_FILE
 done
 #

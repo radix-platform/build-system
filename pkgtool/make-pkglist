@@ -118,7 +118,7 @@ if [ "$PRIORITY" = "" ]; then
   PRIORITY="RECOMMENDED"
 fi
 
-probe=`ls *.tgz > /dev/null 2>&1`
+probe=`find $CWD -name "*.tgz" > /dev/null 2>&1`
 if [ ! "$?" = "0" ]; then
   usage
   echo "WARNING: There are not package tarballs in current directory."
@@ -131,18 +131,22 @@ fi
 # file format:
 # ===========
 #
-# Each line contains five fields separated by colon symbol ':' like following.
+# Each line contains six fields separated by colon symbol ':' like following.
 #
-# pkgname:version:description:tarball:priority
+# pkgname:version:description:tarball:procedure:priority
 #
 # where:
 #
 #   pkgname     - should be the same as the value of pkgname  in the '.DESCRIPTION' file;
 #   version     - package version for showing in check list  dialog box  if this file is
 #                 used to complete common check dialog for installing group  of packages;
-#   description - Short description for showing in check list dialog box if this file is 
+#   description - short description for showing in check list dialog box if this file is
 #                 used to complete common check dialog for installing  group of packages;
 #   tarball     - should end in '.tgz';
+#   procedure   - installation procedure {install | update}:
+#                  * 'install' - if package requires normal installation,
+#                  * 'update'  - if already installed package should be updated by this
+#                                package archive;
 #   priority    - { REQUIRED|RECOMMENDED|OPTIONAL|SKIP }
 #                  synonims:
 #                    { REQUIRED    | required    | REQ | req }
@@ -155,9 +159,9 @@ EOF
 ################################################################
 # Main loop:
 #
-for pkgtarball in `ls *.tgz` ; do
+for pkgtarball in `find $CWD -name "*.tgz"` ; do
 
-  pkgtarball=`basename $pkgtarball`
+  pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
 
   # Simple package integrity check:
   if [ ! -f $pkgtarball ]; then
@@ -187,7 +191,7 @@ for pkgtarball in `ls *.tgz` ; do
   #
   echo -n  "$pkgname:$pkgver:"                         >> $PKGLIST
   echo -n   $short_description | sed "s,[\]\(.\),\1,g" >> $PKGLIST
-  echo    ":$pkgtarball:$PRIORITY"                     >> $PKGLIST
+  echo    ":$pkgtarball:install:$PRIORITY"             >> $PKGLIST
 
 done
 #

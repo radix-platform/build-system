@@ -19,7 +19,7 @@ program=`basename $0`
 # 20 = post install script returns bad status
 # 21 =  pre Remove script returns bad status
 # 22 = post Remove script returns bad status
-# 23 = package is not installed correctly
+# 23 = package is not installed
 # 24 = {Setup | Package} database directory doesn't exist.
 # 25 = {There are not resolved requires | Reference counter is not empty}
 # 92 = Cannot create '/tmp/...' directory
@@ -108,6 +108,9 @@ while [ 0 ]; do
   elif [ "$1" = "--dark" ]; then
     DARKMODE="yes"
     shift 1
+  elif [ "$1" = "--without-logs" ]; then
+    WITHOUTLOGS="yes"
+    shift 1
   elif [ "$1" = "--skip-refs" ]; then
     SKIPREFERENCES="yes"
     shift 1
@@ -173,7 +176,11 @@ done
 
 REMOVED_PKG_DB_PATH=$SETUP_DB_PATH/removed_packages
 LOG_PATH=$SETUP_DB_PATH/setup
-LOG_FILE=$LOG_PATH/setup.log
+if [ "$WITHOUTLOGS" != "yes" ] ; then
+  LOG_FILE=$LOG_PATH/setup.log
+else
+  LOG_FILE=/dev/null
+fi
 
 delete_files() {
   while read FILE ; do
@@ -290,17 +297,16 @@ for PKGFILE in $* ; do
 
   # check installed pkglog file:
   if [ ! -f $PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
-    echo "ERROR: The package '$pkgname-$pkgver-$arch-$distroname-$distrover' is not installed correctly."
+    echo "ERROR: The package '$pkgname-$pkgver-$arch-$distroname-$distrover' is not installed."
     EXITSTATUS=23
     exit $EXITSTATUS 
   fi
   # So continue with logfile
   logfile=$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover
 
-  # Install process:
-  echo ""                                            >> $LOG_FILE
-  echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
-  echo -n "Removing: `basename $logfile`: "          >> $LOG_FILE
+  # Removing process:
+  echo -n "[`LANG=en LANGUAGE=en date +'%d-%b-%Y %H:%M:%S'`] " >> $LOG_FILE
+  echo -n "Removing: `basename $logfile`: "                    >> $LOG_FILE
 
   # check REFERENCE COUNTER: if non zero then exit.
   if [ ! "$SKIPREFERENCES" = "yes" ]; then
@@ -319,18 +325,21 @@ for PKGFILE in $* ; do
     rm -f $TMP/.INSTALL
   else
     ( cd $TARGET_ROOT_PATH
-      $TMP/.INSTALL pre_remove
+      $TMP/.INSTALL pre_remove $pkgver > /dev/null 2>&1
       if [ ! "$?" = "0" ]; then
         echo "ERROR: Pre Remove script returns bad status."
         echo "ERROR: Pre Remove script returns bad status." >> $LOG_FILE
-        cd $CWD
         rm -f $TMP/.INSTALL
         EXITSTATUS=21
         exit $EXITSTATUS
       fi
       rm -f $TMP/.INSTALL
     )
+    EXITSTATUS=$?
     rm -f $TMP/.INSTALL
+    if [ ! "$EXITSTATUS" = "0" ] ; then
+      break
+    fi
   fi
 
   # Getting saved links:
@@ -396,17 +405,23 @@ for PKGFILE in $* ; do
     rm -f $TMP/.INSTALL
   else
     ( cd $TARGET_ROOT_PATH
-      $TMP/.INSTALL post_remove
+      $TMP/.INSTALL post_remove $pkgver > /dev/null 2>&1
       if [ ! "$?" = "0" ]; then
-        echo "ERROR: Post Remove script returns bad status."
-        echo "ERROR: Post Remove script returns bad status." >> $LOG_FILE
-        cd $CWD
+        echo "ERROR: Post Remove script returns bad status, but package has been removed."
+        echo "ERROR: Post Remove script returns bad status, but package has been removed." >> $LOG_FILE
+        # but package removed successful
         rm -f $TMP/.INSTALL
         EXITSTATUS=22
         exit $EXITSTATUS
       fi
     )
+    EXITSTATUS=$?
     rm -f $TMP/.INSTALL
+    if [ ! "$EXITSTATUS" = "0" ] ; then
+      # mv logfile to removed_packages/ data base directory.
+      ( cd $PKG_DB_PATH; mv -f "$pkgname-$pkgver-$arch-$distroname-$distrover" $REMOVED_PKG_DB_PATH )
+      break
+    fi
   fi
 
   # mv logfile to removed_packages/ data base directory.

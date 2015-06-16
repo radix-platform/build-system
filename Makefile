@@ -22,6 +22,7 @@ CLEANUP_FILES += $(CURDIR)/pkgtool/check-db-integrity
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-package
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-requires
 CLEANUP_FILES += $(CURDIR)/pkgtool/install-package
+CLEANUP_FILES += $(CURDIR)/pkgtool/make-package
 CLEANUP_FILES += $(CURDIR)/pkgtool/remove-package
 CLEANUP_FILES += $(CURDIR)/pkgtool/update-package
 
@@ -37,12 +38,15 @@ $(config_makefile): $(config_makefile).template
 	   cat check-package.in      | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > check-package      ; \
 	   cat check-requires.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > check-requires     ; \
 	   cat install-package.in    | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > install-package    ; \
+	   cat make-package.in       | sed -e "s/@MKPKGVERSION@/$(DISTRO_VERSION)/g" \
+	                             | sed -e "s,@BUGURL@,$(BUG_URL),g"     > make-package       ; \
 	   cat remove-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > remove-package     ; \
 	   cat update-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > update-package     ; \
 	   chmod 0755 check-db-integrity ; \
 	   chmod 0755 check-package      ; \
 	   chmod 0755 check-requires     ; \
 	   chmod 0755 install-package    ; \
+	   chmod 0755 make-package       ; \
 	   chmod 0755 remove-package     ; \
 	   chmod 0755 update-package     ; \
 	 )
