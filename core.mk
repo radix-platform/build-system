@@ -656,7 +656,7 @@ install-into-devenv = \
 	     --toolchain=$(TOOLCHAIN)           \
 	     --hardware=$(HARDWARE)             \
 	     --flavour=$(FLAVOUR)               \
-	    $$(find * \( -type f -o -type l \) -print) > /dev/null ; \
+	    $$(find . \( -type f -o -type l \) -print | sed -e 's,^\./,,g') > /dev/null ; \
 	 )
 # usage:
 #   $(call install-into-devenv,$(PKGDIR))
