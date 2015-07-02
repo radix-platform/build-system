@@ -39,7 +39,7 @@ trap "rm -rf $TMP" 0 $SIG_NONE $SIG_HUP $SIG_INT $SIG_TRAP $SIG_TERM
 
 cat > $TMP/sel$$ << EOF
 --colors \\
---backtitle "\Z7Radix\Zn" \\
+--backtitle "\Z7Build System\Zn" \\
 --title " \Z1SELECTING HARDWARE TO BUILD\Zn " \\
 --clear \\
 --checklist "\\n\\
