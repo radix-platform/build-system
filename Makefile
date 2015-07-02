@@ -38,7 +38,7 @@ $(config_makefile): $(config_makefile).template
 	   cat check-package.in      | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > check-package      ; \
 	   cat check-requires.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > check-requires     ; \
 	   cat install-package.in    | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > install-package    ; \
-	   cat make-package.in       | sed -e "s/@MKPKGVERSION@/$(DISTRO_VERSION)/g" \
+	   cat make-package.in       | sed -e "s/@MKPKGVERSION@/$(SYSTEM_VERSION)/g" \
 	                             | sed -e "s,@BUGURL@,$(BUG_URL),g"     > make-package       ; \
 	   cat remove-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > remove-package     ; \
 	   cat update-package.in     | sed -e "s/@DISTRO@/$(DISTRO_NAME)/g" > update-package     ; \

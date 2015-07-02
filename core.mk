@@ -418,9 +418,9 @@ ifneq ($(if $(MAKECMDGOALS),$(filter-out $(__quick_targets),$(MAKECMDGOALS)),tru
 	@touch $@
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 	@echo ""
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BNew makefile (%b$(<F)%B), clean up & rebuild source requires!%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### New makefile ($(<F)), clean up & rebuild source requires!"
+	@echo -e "#######"
 	@echo ""
 	@$(MAKE) local_dist_clean
 	@if $(MAKE) local_clean; then true; else rm -f $@; fi
@@ -467,16 +467,16 @@ ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(filter %_clean,$(MAKECMDGOALS)),)
 ifeq ($(__final__),)
 	@echo ""
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of building source requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Start of building source requires for '$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))':"
+	@echo -e "#######"
 	@$(BUILDSYSTEM)/build_src_requires $(TOP_BUILD_DIR_ABS)
 	@__final__= TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_NOARCH) HARDWARE=$(HARDWARE_NOARCH) FLAVOUR= -f .src_requires
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building source requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B'.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
+	@echo -e "#######"
+	@echo -e "####### End of building source requires for '$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))'."
+	@echo -e "#######"
+	@echo -e "################################################################"
 	@echo ""
 	@touch $@
 	@touch .src_requires_depend
@@ -490,15 +490,15 @@ endif
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd | grep $(BUILDSYSTEM)),)
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart to Check the BUILDSYSTEM is ready:%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Start to Check the BUILDSYSTEM is ready:"
+	@echo -e "#######"
 	@( cd $(BUILDSYSTEM) ; __final__= $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) FLAVOUR= all )
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of checking the BUILDSYSTEM.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
+	@echo -e "#######"
+	@echo -e "####### End of checking the BUILDSYSTEM."
+	@echo -e "#######"
+	@echo -e "################################################################"
 endif
 endif
 endif
@@ -513,9 +513,9 @@ global_clean: .global_clean
 
 .global_clean:
 	@echo ""
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BCleaning the whole sources tree excluding downloaded sources...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Cleaning the whole sources tree excluding downloaded sources..."
+	@echo -e "#######"
 	@$(BUILDSYSTEM)/global_clean $(addprefix ., $(TOOLCHAIN_NAMES)) $(TOP_BUILD_DIR_ABS)
 
 
@@ -527,9 +527,9 @@ downloads_clean: .downloads_clean
 
 .downloads_clean:
 	@echo ""
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BCleaning Up all downloaded sources...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Cleaning Up all downloaded sources..."
+	@echo -e "#######"
 	@$(BUILDSYSTEM)/downloads_clean $(addprefix ., $(TOOLCHAIN_NOARCH)) $(BUILDSYSTEM)/3pp/sources
 ifneq ($(wildcard $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR)),)
 	@$(BUILDSYSTEM)/downloads_clean $(addprefix ., $(TOOLCHAIN_NOARCH)) $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR)
@@ -538,70 +538,70 @@ endif
 
 help:
 	@echo ""
-	@shtool echo -e "%BBuild System $(SYSTEM_VERSION)%b"
+	@echo -e "Build System $(SYSTEM_VERSION)"
 	@echo ""
-	@shtool echo -e "You can build and install software using command line such as follow:"
+	@echo -e "You can build and install software using command line such as follow:"
 	@echo ""
-	@shtool echo -e "   %B$$%b [%BTOOLCHAIN=%btoolchain] [%BHARDWARE=%bhardware] [%BFLAVOUR=%bflavour] %Bmake%b [%Bgoal%b]"
+	@echo -e "   $$ [TOOLCHAIN=toolchain] [HARDWARE=hardware] [FLAVOUR=flavour] make [goal]"
 	@echo ""
-	@shtool echo -e "The following MAKE goals are available:"
+	@echo -e "The following MAKE goals are available:"
 	@echo ""
-	@shtool echo -e "   %Ball%b                - perform make build and install software in the all"
-	@shtool echo -e "                        required directories which defined by %BREQUIRES%b"
-	@shtool echo -e "                        variable in the local Makefile;"
-	@shtool echo -e "   %Blocal_all%b          - build and install software prepared onlu by local"
-	@shtool echo -e "                        Makefile;"
-	@shtool echo -e "   %Bdist_clean%b,"
-	@shtool echo -e "   %Blocal_dist_clean%b   - remove distribution packages from target directory"
-	@shtool echo -e "                        defined by %BPRODUCTS_DEST_DIR%b variable. Note that"
-	@shtool echo -e "                        is depends from targets defined by %BCOMPONENT_TARGETS%b"
-	@shtool echo -e "                        variable or command line;"
-	@shtool echo -e "   %Brootfs_clean%b,"
-	@shtool echo -e "   %Blocal_rootfs_clean%b - uninstall packages installed into target 'root file"
-	@shtool echo -e "                        system' directory which defined by %BROOTFS_DEST_DIR%b"
-	@shtool echo -e "                        variable;"
-	@shtool echo -e "   %Bclean%b,"
-	@shtool echo -e "   %Blocal_clean%b        - clean up all built targets by this Makefile;"
+	@echo -e "   all                - perform make build and install software in the all"
+	@echo -e "                        required directories which defined by REQUIRES"
+	@echo -e "                        variable in the local Makefile;"
+	@echo -e "   local_all          - build and install software prepared onlu by local"
+	@echo -e "                        Makefile;"
+	@echo -e "   dist_clean,"
+	@echo -e "   local_dist_clean   - remove distribution packages from target directory"
+	@echo -e "                        defined by PRODUCTS_DEST_DIR variable. Note that"
+	@echo -e "                        is depends from targets defined by COMPONENT_TARGETS"
+	@echo -e "                        variable or command line;"
+	@echo -e "   rootfs_clean,"
+	@echo -e "   local_rootfs_clean - uninstall packages installed into target 'root file"
+	@echo -e "                        system' directory which defined by ROOTFS_DEST_DIR"
+	@echo -e "                        variable;"
+	@echo -e "   clean,"
+	@echo -e "   local_clean        - clean up all built targets by this Makefile;"
 	@echo ""
-	@shtool echo -e "   If the one from above goals has prefix '%Blocal_%b' then this goal affects only"
-	@shtool echo -e "   current directory.  Otherwise this goal will be performed for all required"
-	@shtool echo -e "   directories which defined by %BREQUIRES%b variable."
+	@echo -e "   If the one from above goals has prefix 'local_' then this goal affects only"
+	@echo -e "   current directory.  Otherwise this goal will be performed for all required"
+	@echo -e "   directories which defined by REQUIRES variable."
 	@echo ""
-	@shtool echo -e "   %Bconfigure_targets%b  - select hardwares, for which the software will be built."
-	@shtool echo -e "                        This command edits the %Bbuild-config.mk%b file;"
-	@shtool echo -e "   %Brequires_tree%b      - create %BHTML%b file to show the requires tree for current"
-	@shtool echo -e "                        directory. Note that this goal depends on goal %Ball%b;"
-	@shtool echo -e "   %Bglobal_clean%b       - clean up %Bwhole%b sourses tree excluding downloaded"
-	@shtool echo -e "                        source tarballs;"
-	@shtool echo -e "   %Bdownloads_clean%b    - remove %Ball%b sourse tarball from '%Bsourses%b' directory;"
+	@echo -e "   configure_targets  - select hardwares, for which the software will be built."
+	@echo -e "                        This command edits the build-config.mk file;"
+	@echo -e "   requires_tree      - create HTML file to show the requires tree for current"
+	@echo -e "                        directory. Note that this goal depends on goal all;"
+	@echo -e "   global_clean       - clean up whole sourses tree excluding downloaded"
+	@echo -e "                        source tarballs;"
+	@echo -e "   downloads_clean    - remove all sourse tarball from 'sourses' directory;"
 	@echo ""
-	@shtool echo -e "   %Bccache_stats%b       - show the %Bccache%b statistic."
+	@echo -e "   ccache_stats       - show the ccache statistic."
 	@echo ""
-	@shtool echo -e "Local Makefile is prepared for following target HW platforms:"
+	@echo -e "Local Makefile is prepared for following target HW platforms:"
 	@echo ""
 	@for platform in $(COMPONENT_TARGETS) ; do \
-	  shtool echo -e "   %B$$platform%b"; \
+	  echo -e "   $$platform"; \
 	 done
 	@echo ""
-	@shtool echo -e "%BEnjoy%b."
+	@echo -e "Enjoy."
 	@echo ""
 
 ccache_stats:
 ifeq ($(NO_CCACHE),)
 	@echo ""
-	@shtool echo -e "%BCCACHE statistic:%b"
+	@echo -e "CCACHE statistic:"
 	@echo ""
 	@CCACHE_DIR=$(CACHED_CC_OUTPUT) $(CCACHE) -s
 	@echo ""
-	@shtool echo -e "To set max %Bcache%b size make use the following command"
+	@echo -e "To set max cache size make use the following command"
 	@echo ""
-	@shtool echo -e "   %B$$%b CCACHE_DIR=$(CACHED_CC_OUTPUT) $(CCACHE)%B-M%b 64%BG%b"
+	@echo -e "   $$ CCACHE_DIR=$(CACHED_CC_OUTPUT) $(CCACHE)-M 64G"
 	@echo ""
-	@shtool echo -e "see %BCCACHE%b(%B1%b) for more information."
+	@echo -e "see CCACHE(1) for more information."
 	@echo ""
 else
 	@echo ""
-	@shtool echo -e "%BCCACHE%b disabled by setting '%BNO_CCACHE%b=$(NO_CCACHE)' variable for this Makefile."
+	@echo -e "CCACHE disabled by setting 'NO_CCACHE=$(NO_CCACHE)' variable for this Makefile."
 	@echo ""
 endif
 
@@ -929,10 +929,10 @@ requires_tree: $(__targets)
 .target_%: FLAVOUR = $(if $(word 4, $(subst _, , $@)),$(word 4, $(subst _, , $@)),$(if $(filter $(shell echo $(word 3, $(subst _, , $@))),$(HARDWARE_ALL)),,$(word 3, $(subst _, , $@))))
 .target_%:
 	@echo ""
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b TOOLCHAIN=%B$(TOOLCHAIN)%b ; HARDWARE=%B$(HARDWARE)%b ; FLAVOUR=%B$(if $(FLAVOUR),$(FLAVOUR))%b ;"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### TOOLCHAIN=$(TOOLCHAIN) ; HARDWARE=$(HARDWARE) ; FLAVOUR=$(if $(FLAVOUR),$(FLAVOUR)) ;"
+	@echo -e "#######"
 	@__final__=true $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR=$(FLAVOUR) $(GOAL)
 
 
@@ -991,32 +991,32 @@ endif
 .toolchain:
 ifneq ($(TOOLCHAIN_PATH),)
 ifeq ($(wildcard $(TOOLCHAIN_PATH)),)
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of downloading toolchain '%b$(shell basename $(TOOLCHAIN_TARBALL))%B':%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Start of downloading toolchain '$(shell basename $(TOOLCHAIN_TARBALL))':"
+	@echo -e "#######"
 	@if [ -d $(TOOLCHAINS_BASE_PATH) -a -w $(TOOLCHAINS_BASE_PATH) ] ; then \
 	  ( cd $(TOOLCHAINS_BASE_PATH) ; \
 	    $(BUILDSYSTEM)/download-toolchain "$(DOWNLOAD_SERVER)/$(TOOLCHAIN_TARBALL)" ; \
 	  ) ; \
 	 else \
-	   shtool echo -e "%B#%b" ; \
-	   shtool echo -e "%B#%b" ; \
-	   shtool echo -e "%B#%b Please create '%B$(TOOLCHAINS_BASE_PATH)%b' directory" ; \
-	   shtool echo -e "%B#%b and give write permissions to '%B$(shell echo "`id -u -n`")%b':" ; \
-	   shtool echo -e "%B#%b" ; \
-	   shtool echo -e "%B#%b    # sudo mkdir -p %B$(TOOLCHAINS_BASE_PATH)%b" ; \
-	   shtool echo -e "%B#%b    # sudo chown -R %B$(shell echo "`id -u -n`")%b:%B$(shell echo "`id -g -n`")%b $(TOOLCHAINS_BASE_PATH)" ; \
-	   shtool echo -e "%B#%b" ; \
-	   shtool echo -e "%B#%b" ; \
-	   shtool echo -e "%B# ERROR:%b $(TOOLCHAINS_BASE_PATH): Permission denied. Stop." ; \
-	   shtool echo -e "%B#%b" ; \
+	   echo -e "#" ; \
+	   echo -e "#" ; \
+	   echo -e "# Please create '$(TOOLCHAINS_BASE_PATH)' directory" ; \
+	   echo -e "# and give write permissions to '$(shell echo "`id -u -n`")':" ; \
+	   echo -e "#" ; \
+	   echo -e "#    # sudo mkdir -p $(TOOLCHAINS_BASE_PATH)" ; \
+	   echo -e "#    # sudo chown -R $(shell echo "`id -u -n`"):$(shell echo "`id -g -n`") $(TOOLCHAINS_BASE_PATH)" ; \
+	   echo -e "#" ; \
+	   echo -e "#" ; \
+	   echo -e "# ERROR: $(TOOLCHAINS_BASE_PATH): Permission denied. Stop." ; \
+	   echo -e "#" ; \
 	   exit 1 ; \
 	 fi
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of downloading toolchain '%b$(shell basename $(TOOLCHAIN_TARBALL))%B'.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
+	@echo -e "#######"
+	@echo -e "####### End of downloading toolchain '$(shell basename $(TOOLCHAIN_TARBALL))'."
+	@echo -e "#######"
+	@echo -e "################################################################"
 endif
 endif
 
@@ -1026,23 +1026,23 @@ endif
 .tree_all: $(TARGET_BUILD_DIR)/.requires
 ifneq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@shtool echo -e "%B#######%b %BStart of building requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
+	@echo -e "####### Start of building requires for '$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))':"
 else
-	@shtool echo -e "%B#######%b %BStart of building requires for %bTOOLCHAIN=%B$(TOOLCHAIN) %bHARDWARE=%B$(HARDWARE) %bFLAVOUR=%B$(FLAVOUR) in '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B':%b"
+	@echo -e "####### Start of building requires for TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR=$(FLAVOUR) in '$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))':"
 endif
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
 ifeq ($(shell pwd),$(BUILDSYSTEM))
 	@__final__=true TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN_BUILD_MACHINE) HARDWARE=$(HARDWARE_BUILD) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
 else
 	@__final__=true TREE_RULE=local_all $(MAKE) TOOLCHAIN=$(TOOLCHAIN) HARDWARE=$(HARDWARE) FLAVOUR= -f $(TARGET_BUILD_DIR)/.requires
 endif
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building requires for '%b$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))%B'.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
+	@echo -e "#######"
+	@echo -e "####### End of building requires for '$(subst $(TOP_BUILD_DIR_ABS)/,,$(CURDIR))'."
+	@echo -e "#######"
+	@echo -e "################################################################"
 endif
 endif
 
@@ -1149,9 +1149,9 @@ endif
 
 .local_clean:
 ifneq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B#######%b %BCleaning in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Cleaning in '`basename $(CURDIR)`' directory is not supported."
 else
-	@shtool echo -e "%B#######%b %BLocal Cleaning in '%b`basename $(CURDIR)`%B' directory...%b"
+	@echo -e "####### Local Cleaning in '`basename $(CURDIR)`' directory..."
 endif
 
 
@@ -1176,7 +1176,7 @@ local_dist_clean: .local_dist_clean
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(wildcard $(TARGET_BUILD_DIR)/.dist),)
-	@shtool echo -e "   %B(nothing to be done).%b"
+	@echo -e "   (nothing to be done)."
 else
 	@if [ -f $(TARGET_BUILD_DIR)/.dist ] ; then \
 	  $(BUILDSYSTEM)/dist_clean --destination=$(DEST_DIR) \
@@ -1184,19 +1184,19 @@ else
 	  rm -f $(TARGET_BUILD_DIR)/.dist ; \
 	fi
 	@rm -rf $(TARGET_BUILD_DIR)/.dist*
-	@shtool echo -e "   %B(done).%b"
+	@echo -e "   (done)."
 endif
 endif
 endif
 
 .local_dist_clean:
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@shtool echo -e "%B#######%b %BDestination cleaning in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Destination cleaning in '`basename $(CURDIR)`' directory is not supported."
 else
 ifneq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B#######%b %BDestination cleaning in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Destination cleaning in '`basename $(CURDIR)`' directory is not supported."
 else
-	@shtool echo -n -e "%B#######%b %BDestination cleaning in '%b`basename $(CURDIR)`%B' directory...%b"
+	@echo -n -e "####### Destination cleaning in '`basename $(CURDIR)`' directory..."
 endif
 endif
 
@@ -1209,7 +1209,7 @@ local_rootfs_clean: .local_rootfs_clean
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
-	@shtool echo -e "%B#######%b %BRoot File System cleaning...   (nothing to be done).%b"
+	@echo -e "####### Root File System cleaning...   (nothing to be done)."
 else
 	@if [ -f $(TARGET_BUILD_DIR)/.rootfs ]; then \
 	  REMOVE_PACKAGE="$(REMOVE_PACKAGE)" $(BUILDSYSTEM)/rootfs_clean \
@@ -1218,7 +1218,7 @@ else
 	                                                    --hardware=$(HARDWARE)    \
 	                                                    --flavour=$(FLAVOUR)    ; \
 	else \
-	  shtool echo -e "B#######%b %B... Nothing to be done (there are no installed packages).%b" ; \
+	  echo -e "B####### ... Nothing to be done (there are no installed packages)." ; \
 	fi
 	@rm -rf $(TARGET_BUILD_DIR)/.rootfs
 endif
@@ -1227,14 +1227,14 @@ endif
 
 .local_rootfs_clean:
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@shtool echo -e "%B#######%b %BRoot file system cleaning in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Root file system cleaning in '`basename $(CURDIR)`' directory is not supported."
 else
 ifneq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B#######%b %BRoot file system cleaning in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Root file system cleaning in '`basename $(CURDIR)`' directory is not supported."
 else
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BRemove packages from%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Remove packages from 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' file system..."
+	@echo -e "#######"
 endif
 endif
 
@@ -1261,37 +1261,37 @@ requires_tree: .requires_tree
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(wildcard $(TARGET_BUILD_DIR)/.requires),)
-	@shtool echo -e "   %B(nothing to be done).%b"
+	@echo -e "   (nothing to be done)."
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BRequires Tree creation in the top of '%b`basename $(CURDIR)`%B' directory is not supported.%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Requires Tree creation in the top of '`basename $(CURDIR)`' directory is not supported."
+	@echo -e "#######"
 else
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BBefore creating a dependency tree all goals have to be made.%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Before creating a dependency tree all goals have to be made."
+	@echo -e "#######"
 endif
 else
 	@$(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BEnd of building Requires Tree in '%b`basename $(CURDIR)`%B' directory.%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B################################################################%b"
+	@echo -e "#######"
+	@echo -e "####### End of building Requires Tree in '`basename $(CURDIR)`' directory."
+	@echo -e "#######"
+	@echo -e "################################################################"
 endif
 endif
 endif
 
 .requires_tree:
 ifeq ($(shell pwd),$(BUILDSYSTEM))
-	@shtool echo -e "%B#######%b %BRequires Tree creation in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Requires Tree creation in '`basename $(CURDIR)`' directory is not supported."
 else
 ifneq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
-	@shtool echo -e "%B#######%b %BRequires Tree creation in '%b`basename $(CURDIR)`%B' directory is not supported.%b"
+	@echo -e "####### Requires Tree creation in '`basename $(CURDIR)`' directory is not supported."
 else
-	@shtool echo -e "%B################################################################%b"
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BStart of building Requires Tree in '%b`basename $(CURDIR)`%B' directory...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Start of building Requires Tree in '`basename $(CURDIR)`' directory..."
+	@echo -e "#######"
 endif
 endif
 
@@ -1440,9 +1440,9 @@ endif
 #
 $(_install_pkgs): $(ROOTFS_TARGETS)
 ifdef ROOTFS_TARGETS
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BInstall packages into%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Install packages into 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' file system..."
+	@echo -e "#######"
 ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
 	@CWD=$(CURDIR) INSTALL_PACKAGE="$(INSTALL_PACKAGE)" \
 	   $(BUILDSYSTEM)/install_pkgs --destination=$(ROOTFS_DEST_DIR) \
@@ -1453,7 +1453,7 @@ ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
 else
 	@echo ""
 	@for pkg in $(ROOTFS_TARGETS) ; do \
-	   shtool echo -e "%B#######%b %B ... package `basename $$pkg` is already installed.%b" ; \
+	   echo -e "#######  ... package `basename $$pkg` is already installed." ; \
 	 done
 	@echo ""
 endif
@@ -1462,9 +1462,9 @@ endif
 
 $(_update_pkgs): $(ROOTFS_UPDATE_TARGETS)
 ifdef ROOTFS_UPDATE_TARGETS
-	@shtool echo -e "%B#######%b"
-	@shtool echo -e "%B#######%b %BUpdate packages into%b 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' %Bfile system...%b"
-	@shtool echo -e "%B#######%b"
+	@echo -e "#######"
+	@echo -e "####### Update packages into 'dist/rootfs/$(TOOLCHAIN)/$(HARDWARE)/...' file system..."
+	@echo -e "#######"
 ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
 	@CWD=$(CURDIR) UPDATE_PACKAGE="$(UPDATE_PACKAGE)" \
 	   $(BUILDSYSTEM)/update_pkgs --destination=$(ROOTFS_DEST_DIR) \
@@ -1475,7 +1475,7 @@ ifeq ($(wildcard $(TARGET_BUILD_DIR)/.rootfs),)
 else
 	@echo ""
 	@for pkg in $(ROOTFS_UPDATE_TARGETS) ; do \
-	   shtool echo -e "%B#######%b %B ... package `basename $$pkg` is already installed.%b" ; \
+	   echo -e "#######  ... package `basename $$pkg` is already installed." ; \
 	 done
 	@echo ""
 endif
@@ -1507,7 +1507,7 @@ BASIC_LDOPTS += -o $@ $(filter %.o,$^)
 
 define cmdheader
   @echo -e ""
-  @shtool echo -e "%B=======%b $(1) %B=======%b"
+  @echo -e "======= $(1) ======="
   $(2)
   @echo -e ""
 endef
@@ -1536,7 +1536,7 @@ DEPSETUP = -MD -MP -MF $(DEPFILE) -MT $@
 ####### .cpp -> .o
 %.o: %.cpp
 	@echo -e ""
-	@shtool echo -e "%B=======%b $< -> $@ %B=======%b"
+	@echo -e "======= $< -> $@ ======="
 	$(quiet)$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ $(DEPSETUP) $<
 
 $(TARGET_BUILD_DIR)/%.o: %.cpp
@@ -1547,11 +1547,11 @@ $(TARGET_BUILD_DIR)/%.o: %.cpp
 ####### .c -> .o
 %.o: %.c
 	@echo -e ""
-	@shtool echo -e "%B=======%b $< -> $@ %B=======%b"
+	@echo -e "======= $< -> $@ ======="
 	$(quiet)$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $(DEPSETUP) $<
 
 $(TARGET_BUILD_DIR)/%.o: %.c
-	@shtool echo -e "%B=======%b $< -> $@ %B=======%b"
+	@echo -e "======= $< -> $@ ======="
 	@mkdir -p $(dir $@)
 	$(quiet)$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $(DEPSETUP) $<
 
