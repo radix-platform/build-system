@@ -550,6 +550,13 @@ Table of Contents
    onmouseover="show_link( 'tmp_build_dirs_tc' );"
    onmouseout="hide_link( 'tmp_build_dirs_tc' );">Temporary Build Directories</a>
 </div>
+<div id="tc_level_4">
+<a id="tmp_reserved_files_tc" style="text-decoration: none; color: #646464;"
+   href="#tmp_reserved_files"
+   onmouseover="show_link( 'tmp_reserved_files_tc' );"
+   onmouseout="hide_link( 'tmp_reserved_files_tc' );">Reserved Temporary Files</a>
+</div>
+
 <div id="tc_level_3">
 <a id="main_targets_tc" style="text-decoration: none; color: #646464;"
    href="#main_targets"
@@ -1142,6 +1149,43 @@ Temporary Build Directories
 создавать все промежуточные цели лучше всего в каталоге <span id="bs_var">TARGET_BUILD_DIR</span>.
 Это позволит избежать множество проблем, особенно при параллельной сборке.
 </p>
+
+<a name="tmp_reserved_files"></a>
+<div id="head_4" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">
+Reserved Temporary Files
+</div>
+
+<p>
+Необходимо сказать, что <span id="build_system_name">система сборки</span> создает в каталоге
+<span id="bs_var">TARGET_BUILD_DIR</span> собственные временные файлы. Пользователь не имеет права
+создавать или изменять зарезервированные <span id="build_system_name">системой сборки</span>
+временные файлы.
+</p>
+
+<div id="code">
+$(<span id="bs_var">TARGET_BUILD_DIR</span>)/<span id="bs_file">.dist</span><br/>
+$(<span id="bs_var">TARGET_BUILD_DIR</span>)/<span id="bs_file">.rootfs</span><br/>
+$(<span id="bs_var">TARGET_BUILD_DIR</span>)/<span id="bs_file">.requires</span><br/>
+$(<span id="bs_var">TARGET_BUILD_DIR</span>)/<span id="bs_file">.requires_depend</span><br/>
+</div>
+
+<p>
+Кроме того, в текущем каталоге, где располагается <span id="mono">Make</span>-файл пользователя,
+<span id="build_system_name">система сборки</span> может создавать файлы, в которых описаны зависимости
+текущего пакета от исходных архивов.
+</p>
+
+<div id="code">
+$(<span id="make_keyword">CURDIR</span>)/<span id="bs_file">.src_requires</span><br/>
+$(<span id="make_keyword">CURDIR</span>)/<span id="bs_file">.src_requires_depend</span><br/>
+</div>
+
+<p>
+Пользователю необходимо помнить о том, что все, перечисленные выше, временные файлы принадлежат
+<span id="build_system_name">системе сборки</span> и ни в коем случае не нельзя создавать файлы
+с такими именами самостоятельно.
+</p>
+
 
 <a name="main_targets"></a>
 <div id="head_3" onclick="window.location.href='#top_of_contents';" title="Click to return to contents">

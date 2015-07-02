@@ -36,21 +36,6 @@ EOF
 }
 
 
-print_without_priority() {
-  pkglst=$1
-  pkg=$2
-  outfile=$3
-  LINENUM="`cat $pkglst | grep -n -e "$pkg" | cut -f 1 -d ':'`"
-  if [ ! "$LINENUM" = "" ]; then
-    LINE="`sed -n "$LINENUM p" $pkglst`"
-    pnam="`echo $LINE | cut -f 1 -d ':'`"
-    pver="`echo $LINE | cut -f 2 -d ':'`"
-    desc="`echo $LINE | cut -f 3 -d ':'`"
-    ball="`echo $LINE | cut -f 4 -d ':'`"
-    echo -n "$pnam:$pver:$desc:$ball:" >> $outfile
-  fi
-}
-
 #
 # Parse options:
 #
@@ -97,7 +82,7 @@ else
   PKGLIST=$CWD/.pkglist
 fi
 
-probe=`ls *.tgz > /dev/null 2>&1`
+probe=`find $CWD -name "*.tgz" > /dev/null 2>&1`
 if [ ! "$?" = "0" ]; then
   usage
   echo "WARNING: There are not package tarballs in current directory."
@@ -107,17 +92,15 @@ fi
 
 cat > $TMP/pkglst$$ << EOF
 --colors \\
---backtitle "\Z6_kxLab, Inc.\Zn" \\
+--backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \\
 --title " \Z4SELECTING PACKAGES TO INSTALL\Zn " \\
 --checklist "\\n\\
 Please confirm the packages  you wish to install.  Use the UP/DOWN\\n\\
 keys to scroll through the list, and the SPACE key to deselect any\\n\\
 items you don't want to install.\\n\\n\\
 Press ENTER when you are done." \\
-12 70 2 \\
+15 74 3 \\
 EOF
-
-LISTOFPKGS=
 
 # read lines from '$PKGLIST' file in original order:
 LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
@@ -127,11 +110,14 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
   let LINENUM_REQ+=1
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`
-    pkgtarball=`ls ./$pnam-*.tgz`
+    pver=`echo "$LINE" | cut -f 2 -d ':'`
+    proc=`echo "$LINE" | cut -f 5 -d ':'`
+    # version is used to avoid errors related equal substring in packagenames
+    pkgtarball=`find $CWD -name "$pnam-$pver-*.tgz"`
+    pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
-      pkgtarball=`basename $pkgtarball`
       desc="`echo $LINE | cut -f 3 -d ':'`"
-      prio="`echo $LINE | cut -f 5 -d ':' | tr '\n' '\0'`"
+      prio="`echo $LINE | cut -f 6 -d ':' | tr '\n' '\0'`"
       if   [ "$prio" = "required"    -o "$prio" = "req" -o "$prio" = "REQUIRED"    -o "$prio" = "REQ" ]; then
         ret="REQUIRED"
       elif [ "$prio" = "recommended" -o "$prio" = "rec" -o "$prio" = "RECOMMENDED" -o "$prio" = "REC" ]; then
@@ -148,7 +134,11 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
         continue
       fi
 
-      echo -n "\"$pnam\" " >> $TMP/pkglst$$
+      if [ "$proc" = "update" ] ; then
+        echo -n "\"$pnam UPDATE\" " >> $TMP/pkglst$$
+      else
+        echo -n "\"$pnam\" " >> $TMP/pkglst$$
+      fi
       echo -n "\"$desc\" " >> $TMP/pkglst$$
       if [ "$prio" = "OPTIONAL" ]; then
         echo "off \\" >> $TMP/pkglst$$
@@ -156,7 +146,6 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
         echo "on  \\" >> $TMP/pkglst$$
       fi
 
-      LISTOFPKGS="$LISTOFPKGS $pnam"
     fi
   fi
 done
@@ -164,25 +153,53 @@ done
 # remove last '\' symbol
 cat $TMP/pkglst$$ | sed -e "$ s/[:\\:]//" > $TMP/pkglist$$
 
-
 $DIALOG --file $TMP/pkglist$$ 2> $TMP/setofpkgs$$
 if [ $? = 1 -o $? = 255 ]; then
   > $TMP/newpkglist$$
-  for pkg in $LISTOFPKGS ; do
-    # change all priorities to 'SKIP'
-    print_without_priority $PKGLIST $pkg $TMP/newpkglist$$
-    echo "SKIP" >> $TMP/newpkglist$$
+  # read lines from '$PKGLIST' file in original order:
+  LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
+  LINENUM_REQ=1
+  while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
+    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST | tr '\n' '\0'`"
+    let LINENUM_REQ+=1
+    if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
+      pnam="`echo "$LINE" | cut -f 1 -d ':'`"
+      pver="`echo "$LINE" | cut -f 2 -d ':'`"
+      desc="`echo "$LINE" | cut -f 3 -d ':'`"
+      ball="`echo "$LINE" | cut -f 4 -d ':'`"
+      proc="`echo "$LINE" | cut -f 5 -d ':'`"
+      echo -n "$pnam:$pver:$desc:$ball:$proc:" >> $TMP/newpkglist$$
+      echo "SKIP" >> $TMP/newpkglist$$
+    fi
   done
 else
   > $TMP/newpkglist$$
-  for pkg in $LISTOFPKGS ; do
-    # place pkgs which founded in $TMP/pkglist$$
-    # into $TMP/newpkglist$$ with 'REQUIRED' priority
-    print_without_priority $PKGLIST $pkg $TMP/newpkglist$$
-    if grep $pkg $TMP/setofpkgs$$ 1> /dev/null 2> /dev/null ; then
-      echo "REQUIRED" >> $TMP/newpkglist$$
-    else
-      echo "SKIP" >> $TMP/newpkglist$$
+  # read lines from '$PKGLIST' file in original order:
+  LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
+  LINENUM_REQ=1
+  while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
+    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST | tr '\n' '\0'`"
+    let LINENUM_REQ+=1
+    if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
+      pnam="`echo "$LINE" | cut -f 1 -d ':'`"
+      pver="`echo "$LINE" | cut -f 2 -d ':'`"
+      desc="`echo "$LINE" | cut -f 3 -d ':'`"
+      ball="`echo "$LINE" | cut -f 4 -d ':'`"
+      proc="`echo "$LINE" | cut -f 5 -d ':'`"
+      echo -n "$pnam:$pver:$desc:$ball:$proc:" >> $TMP/newpkglist$$
+      if [ "$proc" = "update" ] ; then
+        if grep -e "\"$pnam UPDATE\"$" -e "\"$pnam UPDATE\"[[:space:]]" $TMP/setofpkgs$$ 1> /dev/null 2> /dev/null ; then
+          echo "REQUIRED" >> $TMP/newpkglist$$
+        else
+          echo "SKIP" >> $TMP/newpkglist$$
+        fi
+      else
+        if grep -e "$pnam$" -e "$pnam[[:space:]]" $TMP/setofpkgs$$ 1> /dev/null 2> /dev/null ; then
+          echo "REQUIRED" >> $TMP/newpkglist$$
+        else
+          echo "SKIP" >> $TMP/newpkglist$$
+        fi
+      fi
     fi
   done
 fi
@@ -212,23 +229,28 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
   let LINENUM_REQ+=1
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`
-    pkgtarball=`ls ./$pnam-*.tgz`
+    pver=`echo "$LINE" | cut -f 2 -d ':'`
+    proc=`echo "$LINE" | cut -f 5 -d ':'`
+    # version is used to avoid errors related equal substring in packagenames
+    pkgtarball=`find $CWD -name "$pnam-$pver-*.tgz"`
+    pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
-      pkgtarball=`basename $pkgtarball`
-      PKGS="$PKGS $pkgtarball"
+      # newpkglist required only for saving order of installation,
+      # package priority will be set directly by command line arguments:
+      if [ "$proc" = "update" ] ; then
+        update-package $OPTIONS --root $TARGET_ROOT_PATH --infodialog --priority REQUIRED $pkgtarball
+      else
+        install-package $OPTIONS --root $TARGET_ROOT_PATH --infodialog --priority REQUIRED $pkgtarball
+      fi
     fi
   fi
 done
 
-# Install the selected packages using new packages list $TMP/newpkglist$$:
-for PKG in $PKGS ; do
-  install-package $OPTIONS --root $TARGET_ROOT_PATH --infodialog --pkglist $TMP/newpkglist$$ $PKG
-done
 rm -f $TMP/newpkglist$$
 
 $DIALOG --sleep 1 --colors \
-        --backtitle "\Z6_kxLab, Inc.\Zn" \
+        --backtitle "\Z7Radix\Zn \Z1Pro\Zn\Z7, Ltd.\Zn" \
         --title " \Z4Installing packages\Zn " \
-        --infobox "\nDone installing packages.\n" 5 70
+        --infobox "\nInstalling packages is completed.\n" 5 74
 
 exit $EXITSTATUS

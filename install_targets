@@ -38,6 +38,28 @@ my $header_printed = 0;
 my $cleanup = $ENV{DO_CREATE_DIST_FILES} ? 0 : 1;
 my ($tempfd, $tempname);
 
+sub usage
+{
+  print <<EOF;
+
+Usage: install_targets [options] source[ source]
+Options:
+   --preserve-source-dir={true|one} - preserve source directory tree in the DEST dir.
+                                      true: If source is foo/bar/file then destination
+                                            file will be DEST/foo/bar/file.
+                                       one: depth is only one directory. If source is
+                                            fo/bar/file then destination will be
+                                            DEST/bar/file.
+   --destination=DEST               - where DEST is a destination directory.
+   --toolchain=TOOLCHAIN            - where TOOLCHAIN ia a toolchain name;
+   --hardware=HARDWARE              - where HARDWARE ia a HARDWARE name;
+   --flavour=FLAVOUR                - where FLAVOUR ia a FLAVOUR name.
+
+EOF
+  exit;
+}
+
+
 # cleanpath( path )
 sub cleanpath
 {
@@ -61,6 +83,20 @@ sub newer_than
   my $file2 = shift;
   _kxLab::error( "install_targets: Source file missing: $file1" ) if ( ! -f $file1 );
   return( ! -f $file2 or -M $file1 < -M $file2 );
+}
+
+sub dir_is_empty
+{
+  my ($path) = @_;
+  opendir DIR, $path;
+  while( my $entry = readdir DIR )
+  {
+    next if( $entry =~ /^\.\.?$/ );
+    closedir DIR;
+    return 0;
+  }
+  closedir DIR;
+  return 1;
 }
 
 # install_tree( install_dir, file, target, verbose )
@@ -89,12 +125,15 @@ sub install_tree
         $header_printed = 1;
       }
       print "Installing $f in $install_dir\n" if ( $verbose );
-      _kxLab::system( "mkdir -p $install_dir" );
-      _kxLab::system( "cp -fa $target/$f $install_dir" );
+      _kxLab::system( "mkdir -p \"$install_dir\"" );
+      _kxLab::system( "cp -fa \"$target/$f\" \"$install_dir\"" );
       dist( "$install_dir/$f" );
     }
   }
 }
+
+
+
 
 # install( install_dir, preserve_source_dir, verbose, targets )
 sub install
@@ -117,33 +156,53 @@ sub install
       $path = dirname( $target );
       $path = basename( $path );
     }
+    elsif( $preserve_source_dir eq "two" )
+    {
+      my ($first, $second);
+
+      $path = dirname( $target );
+      $second = basename( $path );
+      $path = dirname( $path );
+      $first = basename( $path );
+      $path = $first . "/" . $second;
+    }
 
     if( -d $target )
     {
-      install_tree( "$install_dir/$path/$file", "$file", "$target", $verbose );
+      if ( dir_is_empty( $target ) )
+      {
+        _kxLab::system( "mkdir -p \"$install_dir/$path/$file\"" );
+        dist( "$install_dir/$path/$file" );
+      }
+      else
+      {
+        install_tree( "$install_dir/$path/$file", "$file", "$target", $verbose );
+      }
     }
     elsif( newer_than( $target, "$install_dir/$path/$file" ) )
     {
       if( !$header_printed )
       {
-        print "\n======= Installing files =======\n";
+        print "\n======= Installing files =======\n" if ( $verbose );
         $header_printed = 1;
       }
       print "Installing $file in $install_dir/$path\n" if ( $verbose );
-      _kxLab::system( "mkdir -p $install_dir/$path" );
-      _kxLab::system( "cp -fa $target $install_dir/$path" );
+      _kxLab::system( "mkdir -p \"$install_dir/$path\"" );
+      _kxLab::system( "cp -fa \"$target\" \"$install_dir/$path\"" );
       dist( "$install_dir/$path/$file" );
     }
   }
 }
 
 my $preserve_source_dir = "";
-my $hardware;
 my $dest_dir;
+my ($toolchain, $hardware, $flavour);
+my $target_build_dir;
 my @targets;
 my $verbose = $ENV{VERBOSE};
 my $curdir  = $ENV{CWD};
 my $fname = "";
+
 
 foreach ( @ARGV )
 {
@@ -151,21 +210,72 @@ foreach ( @ARGV )
   {
     $preserve_source_dir = $1;
   }
+  elsif( /--destination=(\S*)/ )
+  {
+    $dest_dir = $1;
+  }
+  elsif( /--toolchain=(\S*)/ )
+  {
+    $toolchain = $1;
+  }
+  elsif( /--hardware=(\S*)/ )
+  {
+    $hardware = $1;
+  }
+  elsif( /--flavour=(\S*)/ )
+  {
+    $flavour = $1;
+  }
+  elsif( /--help/ )
+  {
+    usage;
+  }
+  elsif( /--/ )
+  {
+    while( <STDIN> )
+    {
+      #
+      # NOTE: arguments from STDIN should be splitted by '\n'
+      #
+      my $arg = $_;
+
+      chomp $arg;  $arg =~ s/\\040/ /g;
+
+      push @targets, $arg;
+    }
+
+    last;
+  }
   else
   {
-    push @targets, $_;
+    my $arg = $_;
+
+    chomp $arg; $arg =~ s/\\040/ /g;
+
+    push @targets, $arg;
   }
 }
-$hardware = pop @targets;
-$dest_dir = pop @targets;
 
-if ( $curdir )
+if( ! defined $dest_dir  or $dest_dir eq "" )  { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+if( ! defined $flavour   or $flavour eq "" )
 {
-  $fname = "$curdir/.$hardware.dist.XXXXXX";
+  $flavour = "";
+  $target_build_dir = "." . $toolchain . "/" . $hardware;
 }
 else
 {
-  $fname = ".$hardware.dist.XXXXXX";
+  $target_build_dir = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+}
+
+if ( $curdir )
+{
+  $fname = "$curdir/" . $target_build_dir . "/.dist.XXXXXX";
+}
+else
+{
+  $fname = $target_build_dir . "/.dist.XXXXXX";
 }
 
 ($tempfd, $tempname) = File::Temp::tempfile( $fname, UNLINK => $cleanup );

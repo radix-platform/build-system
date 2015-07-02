@@ -11,6 +11,7 @@ umask 022
 TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
 
+VERSION=@MKPKGVERSION@
 
 check_link_permissions() {
   ERRCOUNT=0
@@ -67,7 +68,7 @@ create_file_list() {
       for file in `ls $dir`;
       do
         if [ -f "$dir/$file" ]; then
-          echo "$dir/$file" | sed -e "s/^\.\///" >> .FILELIST
+          echo "$dir/$file" | sed -e "s/^\.\///" | sed -e "s/\.new$//g" >> .FILELIST
           let FCOUNT+=1 
         fi
       done
@@ -137,10 +138,16 @@ Optionally current directory may contants '.DESCRIPTION' and
 'total_files' variables (calculated at runtime) into .PKGINFO file.
 Available options:
 
-  -l, --linkadd {y|n}  - moves symlinks into .RESTORELINKS scrypt
-                         ( recommended ).
+   -l, --linkadd {y|n}   - moves symlinks into .RESTORELINKS scrypt
+                           ( recommended );
+  -fl, --flavour FLAVOUR - name of additional subdirectory in GROUP
+                           directory for created package.
 
 EOF
+}
+
+show_version() {
+  echo "$VERSION"
 }
 
 remove_size_info() {
@@ -158,23 +165,75 @@ remove_backslash_info() {
 
 
 # Parse options
-while [ 0 ]; do
-  if [ "$1" = "--linkadd" -o "$1" = "-l" ]; then
-    if [ "$2" = "yes" -o "$2" = "y" ]; then
-      LINKADD=y
-    elif [ "$2" = "no" -o "$2" = "n" ]; then
-      LINKADD=n
-    else
+#while [ 0 ]; do
+#  if [ "$1" = "--linkadd" -o "$1" = "-l" ]; then
+#    if [ "$2" = "yes" -o "$2" = "y" ]; then
+#      LINKADD=y
+#    elif [ "$2" = "no" -o "$2" = "n" ]; then
+#      LINKADD=n
+#    else
+#      usage
+#      exit 2
+#    fi
+#    shift 2
+#  elif [ "$1" = "-h" -o "$1" = "--help" -o $# = 0 ]; then
+#    usage
+#    exit 0
+#  else
+#    break
+#  fi
+#done
+
+while [[ $# > 0 ]] ; do
+  arg=$1
+  case $arg in
+    -l|--linkadd)
+      if [ "$2" = "yes" -o "$2" = "y" ]; then
+        LINKADD=y
+        shift
+      elif [ "$2" = "no" -o "$2" = "n" ]; then
+        LINKADD=n
+        shift
+      else
+        usage
+        exit 2
+      fi
+      ;;
+
+    --linkadd=*)
+      if [ "${arg#*=}" = "yes" -o "${arg#*=}" = "y" ]; then
+        LINKADD=y
+      elif [ "${arg#*=}" = "no" -o "${arg#*=}" = "n" ]; then
+        LINKADD=n
+      else
+        usage
+        exit 2
+      fi
+      ;;
+
+    -fl|--flavour)
+      FLAVOUR="$2"
+      shift
+      ;;
+
+    --flavour=*)
+      FLAVOUR="${arg#*=}"
+      ;;
+
+    -h|--help)
       usage
-      exit 2
-    fi
-    shift 2
-  elif [ "$1" = "-h" -o "$1" = "--help" -o $# = 0 ]; then
-    usage
-    exit 0
-  else
-    break
-  fi
+      exit 0
+      ;;
+
+    -v|--version)
+      show_version
+      exit 0
+      ;;
+    *)
+      TARGET_DIR_NAME=$arg
+      ;;
+  esac
+  shift
 done
 
 
@@ -200,13 +259,14 @@ if [ "$pkgname" = "" -o "$pkgver" = "" -o "$arch" = "" -o "$distroname" = "" -o 
   echo "  pkgname    - name of package;"
   echo "  pkgver     - version such as 1.0.4, for example;"
   echo "  arch       - architecture of target machine {x86_64|i686|mipsel|arm|...};"
-  echo "  distroname - name of distributive {slamd64|...};"
-  echo "  distrover  - distributive version {12.2|...};"
+  echo "  distroname - name of distributive {radix|...};"
+  echo "  distrover  - distributive version {1.0|...};"
   echo ""
   echo "Also optional variables are available:"
-  echo "  group      - package group name {applications|libs|...};"
-  echo "  url        - package home site. http://www.pkg.com, for example;"
-  echo "  license    - LICENSE type {GPL|LGPL|BSD|Proprietary}."
+  echo "  group             - package group name {app|libs|dev|...};"
+  echo "  short_description - package description. \"Package Tool\", for example;"
+  echo "  url               - package home site. @BUGURL@, for example;"
+  echo "  license           - LICENSE type {GPLv2|LGPL|BSD|MIT|...}."
   echo ""
   exit 1 
 fi
@@ -219,41 +279,49 @@ if [ ! -e "./.INSTALL" ]; then
 fi
 
 echo
-echo "Package maker, version 0.0.1."
+echo "Package maker, version $VERSION."
 PACKAGE_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.tgz"
 PACKAGE_TEXT="$pkgname-$pkgver-$arch-$distroname-$distrover.txt"
 SHA_SUM_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.sha256"
-TARGET_DIR_NAME=$1
 if [ "$TARGET_DIR_NAME" = "" ]; then
   TARGET_DIR_NAME="."
   echo "WARNING: DESTDIR is not defined. Use current directory."
 fi
 # add group directory to target dir:
-if [ ! "$TARGET_DIR_NAME" = "" ]; then
+if [ ! "$TARGET_DIR_NAME" = "." ]; then
   if [ ! "$group" = "" ]; then
     TARGET_DIR_NAME="$TARGET_DIR_NAME/$group"
+  fi
+fi
+# add FLAVOUR subdirectory to group directory in the target dir:
+if [ ! "$TARGET_DIR_NAME" = "." ]; then
+  if [ ! "$FLAVOUR" = "" ]; then
+    TARGET_DIR_NAME="$TARGET_DIR_NAME/$FLAVOUR"
   fi
 fi
 PACKAGE_NAME="`basename $PACKAGE_NAME`"
 TAR_NAME="`basename $PACKAGE_NAME .tgz`"
 echo
-echo "Searching for symbolic links:"
+echo -n "Search for symbolic links: "
 # Get rid of possible pre-existing trouble:
 INST=`mktemp $TMP/makepkg.XXXXXX`
 # This requires the ls from coreutils-5.0 (or newer):
-find . -type l -exec ls -l --time-style=long-iso {} \; | while read foo ; do echo $foo ; done | cut -f 8- -d ' ' | cut -b3- | tee $INST
+find . -type l -exec ls -l --time-style=long-iso {} \; | while read foo ; do echo $foo ; done | cut -f 8- -d ' ' | cut -b3- > $INST
 if [ ! "`cat $INST`" = "" ]; then
   echo
-  echo "Making symbolic link creation script:"
+  echo
+  cat $INST
+  echo
+  echo "Restore symbolic links script:"
   make_install_script $INST | tee .RESTORELINKS
 fi
-echo
 if [ ! "`cat $INST`" = "" ]; then
   if [ ! "$LINKADD" ]; then
-    echo "It is recommended to remove the symbolic links and create the '.RESTORELINKS' script."
     echo
-    echo "Would you like to make this stuff the '.RESTORELINKS' script for this package"
-    echo -n "and remove the symbolic links ([y]es, [n]o)? "
+    echo "It is recommended to remove symbolic links and create the '.RESTORELINKS' script."
+    echo
+    echo "Do you want create the '.RESTORELINKS' script for this package"
+    echo -n "and remove symbolic links from the package archive ([y]es, [n]o)? "
     read LINKADD;
   fi
   if [ "$LINKADD" = "y" ]; then
@@ -270,7 +338,7 @@ if [ ! "`cat $INST`" = "" ]; then
     rm -f .RESTORELINKS
   fi
 else
-  echo "No symbolic links were found, so we won't make an '.RESTORELINKS' script."
+  echo "... symbolic links were not found, .RESTORELINKS script is not needed."
 fi
 rm -f $INST
 

@@ -12,7 +12,8 @@ use _kxLab;
 my $distro = _kxLab::distro_name();
 
 my @arguments;
-my ( $base, $hardware );
+my ( $base, $toolchain, $hardware, $flavour );
+my $target_build_dir;
 
 my $curdir     = $ENV{CWD};
 my $removepkg  = $ENV{REMOVE_PACKAGE};
@@ -23,22 +24,65 @@ my $pkg_name   = "";
 my $pkg_dir    = "";
 my $rootfs_dir = "";
 
+sub usage
+{
+  print <<EOF;
+
+Usage: rootfs_clean [options]
+Options:
+   --destination=ROOTFS  - where ROOTFS is a destination directory.
+   --toolchain=TOOLCHAIN - where TOOLCHAIN ia a toolchain name;
+   --hardware=HARDWARE   - where HARDWARE ia a HARDWARE name;
+   --flavour=FLAVOUR     - where FLAVOUR ia a FLAVOUR name.
+
+EOF
+  exit;
+}
 
 foreach ( @ARGV )
 {
-  push @arguments, $_;
+  if( /--destination=(\S*)/ )
+  {
+    $base = $1;
+  }
+  elsif( /--toolchain=(\S*)/ )
+  {
+    $toolchain = $1;
+  }
+  elsif( /--hardware=(\S*)/ )
+  {
+    $hardware = $1;
+  }
+  elsif( /--flavour=(\S*)/ )
+  {
+    $flavour = $1;
+  }
+  elsif( /--help/ )
+  {
+    usage;
+  }
 }
 
-$hardware = pop @arguments;
-$base     = pop @arguments;
-
-if ( $curdir )
+if( ! defined $base      or $base eq "" )      { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+if( ! defined $flavour   or $flavour eq "" )
 {
-  $fname = "$curdir/.$hardware.rootfs";
+  $flavour = "";
+  $target_build_dir = "." . $toolchain . "/" . $hardware;
 }
 else
 {
-  $fname = ".$hardware.rootfs";
+  $target_build_dir = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+}
+
+if ( $curdir )
+{
+  $fname = "$curdir/" . $target_build_dir . "/.rootfs";
+}
+else
+{
+  $fname = $target_build_dir . "/.rootfs";
 }
 
 

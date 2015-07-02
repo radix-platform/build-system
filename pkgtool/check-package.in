@@ -87,7 +87,7 @@ strip_description() {
   infile=$1
   outfile=$2
   echo " " > $outfile
-  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  LINENUMS="`cat $infile | grep -n -e "^$pkgname:" | cut -f 1 -d ':'`"
   if [ "$LINENUMS" = "" ]; then
     echo "WARNING: Description is empty or corrupted."
     return
@@ -302,9 +302,8 @@ fi
 logfile=$PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover
 
 # Checking process:
-echo ""                                            >> $LOG_FILE
-echo "======= `LANG=en LANGUAGE=en date` ======="  >> $LOG_FILE
-echo -n "Checking: `basename $logfile`: "          >> $LOG_FILE
+echo -n "[`LANG=en LANGUAGE=en date +'%d-%b-%Y %H:%M:%S'`] " >> $LOG_FILE
+echo -n "Checking: `basename $logfile`: "                    >> $LOG_FILE
 
 # Getting saved links:
 pkginfo --dest $TMP restore_links $logfile
@@ -420,4 +419,3 @@ fi
 ################################################################
 
 exit $EXITSTATUS
-

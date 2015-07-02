@@ -10,15 +10,20 @@ ENABLE_PC64       = true
 
 # TARGET: arm-a1x-eabi:
 ENABLE_CB1N       = true
-# TARGET: arm-a1x-linux-gnueabihf:
-ENABLE_CB1X       = true
 
 # TARGET: arm-a2x-eabi:
 ENABLE_CB2N       = true
 ENABLE_CB3N       = true
+
+# TARGET: arm-a1x-linux-gnueabihf:
+ENABLE_CB1X       = true
+
 # TARGET: arm-a2x-linux-gnueabihf:
 ENABLE_CB2X       = true
 ENABLE_CB3X       = true
+
+# TARGET: arm-rk328x-linux-gnueabihf:
+ENABLE_FFRK3288   = true
 
 # TARGET: arm-at91sam7s-elf-newlib:
 ENABLE_AT91S      = true
@@ -38,4 +43,8 @@ ENABLE_BEAGLE     = true
 ENABLE_OMAP5UEVM  = true
 ENABLE_DRA7XXEVM  = true
 
+# TARGETS: mipsel-bcm74x-linux-gnu:
 ENABLE_B74        = true
+
+# TARGETS: mipsel-jz47xx-linux-gnu:
+ENABLE_CI20       = true

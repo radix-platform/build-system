@@ -22,7 +22,7 @@ sub usage
 {
   print <<EOF;
 
-Usage: install_pkgs [options] package[ package]
+Usage: update_pkgs [options] package[ package]
 Options:
    --destination=ROOTFS   - where ROOTFS is a destination directory.
    --toolchain=TOOLCHAIN  - where TOOLCHAIN ia a toolchain name;
@@ -32,6 +32,7 @@ Options:
 EOF
   exit;
 }
+
 
 # cleanpath( path )
 sub cleanpath
@@ -50,13 +51,13 @@ sub rootfs
   print $tempfd "$dest_dir/var/log/$distro/packages/$file\n";
 }
 
-# install( installpkg, rootfs_dest_dir, verbose, targets )
-sub install
+# update( updatepkg, rootfs_dest_dir, verbose, targets )
+sub update
 {
-  my $installpkg = shift;
+  my $updatepkg       = shift;
   my $rootfs_dest_dir = shift;
-  my $verbose = shift;
-  my $targets = shift;
+  my $verbose         = shift;
+  my $targets         = shift;
 
   foreach my $target ( @{$targets} )
   {
@@ -64,11 +65,11 @@ sub install
     my $cdir = dirname( $target );
     if( !$header_printed )
     {
-      print "\n======= Installing packages =======\n" if ( $verbose );
+      print "\n======= Update packages =======\n";
       $header_printed = 1;
     }
-    print "Installing $target ...\n" if ( $verbose );
-    _kxLab::system( "cd $cdir; $installpkg --root $rootfs_dest_dir $pkg" );
+    print "Update $target ...\n" if ( $verbose );
+    _kxLab::system( "cd $cdir; $updatepkg --root $rootfs_dest_dir $pkg" );
     rootfs( $rootfs_dest_dir, $target );
   }
 }
@@ -79,7 +80,7 @@ my $target_build_dir;
 my @targets;
 my $verbose    = $ENV{VERBOSE};
 my $curdir     = $ENV{CWD};
-my $installpkg = $ENV{INSTALL_PACKAGE};
+my $updatepkg  = $ENV{UPDATE_PACKAGE};
 my $fname      = "";
 my $dest_fname = "";
 
@@ -137,7 +138,7 @@ else
 
 ($tempfd, $tempname) = File::Temp::tempfile( $fname, UNLINK => $cleanup );
 
-install( $installpkg, $rootfs_dest_dir, $verbose, \@targets );
+update( $updatepkg, $rootfs_dest_dir, $verbose, \@targets );
 
 # reverse file line by line:
 _kxLab::system( "tac $tempname >> $dest_fname" );

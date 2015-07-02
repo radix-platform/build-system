@@ -1,0 +1,86 @@
+#!/bin/sh
+
+CWD=`pwd`
+
+BUILDSYSTEM=${BUILDSYSTEM:-$CWD}
+
+CONFIG=${CONFIG:-build-config.mk}
+CONSTANTS=${CONSTANTS:-constants.mk}
+
+if [ ! -r $CONFIG ] ; then
+  echo "$0: ERROR: There is no $CONFIG file for configuring target HW."
+  echo ""
+  exit 1
+fi
+
+: ${DIALOG=$BUILDSYSTEM/sbin/dialog}
+: ${DIALOGRC=$BUILDSYSTEM/pkgtool/dialogrc}
+
+export DIALOGRC
+
+: ${DIALOG_OK=0}
+: ${DIALOG_CANCEL=1}
+: ${DIALOG_HELP=2}
+: ${DIALOG_EXTRA=3}
+: ${DIALOG_ITEM_HELP=4}
+: ${DIALOG_ESC=255}
+
+: ${SIG_NONE=0}
+: ${SIG_HUP=1}
+: ${SIG_INT=2}
+: ${SIG_QUIT=3}
+: ${SIG_KILL=9}
+: ${SIG_TERM=15}
+
+
+TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+trap "rm -rf $TMP" 0 $SIG_NONE $SIG_HUP $SIG_INT $SIG_TRAP $SIG_TERM
+
+
+cat > $TMP/sel$$ << EOF
+--colors \\
+--backtitle "\Z7Radix\Zn" \\
+--title " \Z1SELECTING HARDWARE TO BUILD\Zn " \\
+--clear \\
+--checklist "\\n\\
+Please confirm the hardwares, for which you wish to build\\n\\
+software. Use the UP/DOWN keys to scroll through the list,\\n\\
+and the SPACE key to deselect any items you don't want to\\n\\
+build.\\n\\n\\
+Press ENTER when you are done." \\
+21 68 8 \\
+EOF
+
+
+hwlist=`cat $CONFIG | grep "^ENABLE_.*[ \t]*=.*" | sed "s,^ENABLE_\(.*\)[ \t]*=.*,\1," | tr 'A-Z' 'a-z'`
+
+for hw in $hwlist ; do
+  hh=`echo $hw | tr 'a-z' 'A-Z'`
+  spec=`cat $CONSTANTS | grep "^${hh}_SPEC[ \t]*=.*" | sed "s,^${hh}_SPEC[ \t]*=[ \t]*\(.*\),\1," | sed "s,\\\\\,,g"`
+  enabled=`cat $CONFIG | grep "^ENABLE_${hh}[ \t]*=.*" | sed "s,^ENABLE_${hh}[ \t]*=[ \t]*\(.*\),\1,"`
+  if [ "$enabled" == "true" ] ; then
+    en="on"
+  else
+    en="off"
+  fi
+  echo "\"$hw\" \"$spec\" $en \\" >> $TMP/sel$$
+done
+
+
+$DIALOG --file $TMP/sel$$  2> $TMP/ret$$
+
+retval=$?
+
+case $retval in
+  $DIALOG_OK)
+    enabled="`cat $TMP/ret$$`"
+    for hw in $hwlist ; do
+      hh=`echo $hw | tr 'a-z' 'A-Z'`
+      sed -i "s,^\(ENABLE_${hh}[ \t]*=[ \t]*\).*,\1false," $CONFIG
+    done
+    for hw in $enabled ; do
+      hh=`echo $hw | tr 'a-z' 'A-Z'`
+      sed -i "s,^\(ENABLE_${hh}[ \t]*=[ \t]*\).*,\1true," $CONFIG
+    done
+    ;;
+esac
