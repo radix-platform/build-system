@@ -64,7 +64,7 @@ sub install
     my $cdir = dirname( $target );
     if( !$header_printed )
     {
-      print "\n======= Installing packages =======\n";
+      print "\n======= Installing packages =======\n" if ( $verbose );
       $header_printed = 1;
     }
     print "Installing $target ...\n" if ( $verbose );

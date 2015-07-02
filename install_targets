@@ -85,6 +85,20 @@ sub newer_than
   return( ! -f $file2 or -M $file1 < -M $file2 );
 }
 
+sub dir_is_empty
+{
+  my ($path) = @_;
+  opendir DIR, $path;
+  while( my $entry = readdir DIR )
+  {
+    next if( $entry =~ /^\.\.?$/ );
+    closedir DIR;
+    return 0;
+  }
+  closedir DIR;
+  return 1;
+}
+
 # install_tree( install_dir, file, target, verbose )
 sub install_tree
 {
@@ -111,12 +125,15 @@ sub install_tree
         $header_printed = 1;
       }
       print "Installing $f in $install_dir\n" if ( $verbose );
-      _kxLab::system( "mkdir -p $install_dir" );
-      _kxLab::system( "cp -fa $target/$f $install_dir" );
+      _kxLab::system( "mkdir -p \"$install_dir\"" );
+      _kxLab::system( "cp -fa \"$target/$f\" \"$install_dir\"" );
       dist( "$install_dir/$f" );
     }
   }
 }
+
+
+
 
 # install( install_dir, preserve_source_dir, verbose, targets )
 sub install
@@ -152,18 +169,26 @@ sub install
 
     if( -d $target )
     {
-      install_tree( "$install_dir/$path/$file", "$file", "$target", $verbose );
+      if ( dir_is_empty( $target ) )
+      {
+        _kxLab::system( "mkdir -p \"$install_dir/$path/$file\"" );
+        dist( "$install_dir/$path/$file" );
+      }
+      else
+      {
+        install_tree( "$install_dir/$path/$file", "$file", "$target", $verbose );
+      }
     }
     elsif( newer_than( $target, "$install_dir/$path/$file" ) )
     {
       if( !$header_printed )
       {
-        print "\n======= Installing files =======\n";
+        print "\n======= Installing files =======\n" if ( $verbose );
         $header_printed = 1;
       }
       print "Installing $file in $install_dir/$path\n" if ( $verbose );
-      _kxLab::system( "mkdir -p $install_dir/$path" );
-      _kxLab::system( "cp -fa $target $install_dir/$path" );
+      _kxLab::system( "mkdir -p \"$install_dir/$path\"" );
+      _kxLab::system( "cp -fa \"$target\" \"$install_dir/$path\"" );
       dist( "$install_dir/$path/$file" );
     }
   }
@@ -177,6 +202,7 @@ my @targets;
 my $verbose = $ENV{VERBOSE};
 my $curdir  = $ENV{CWD};
 my $fname = "";
+
 
 foreach ( @ARGV )
 {
@@ -204,9 +230,29 @@ foreach ( @ARGV )
   {
     usage;
   }
+  elsif( /--/ )
+  {
+    while( <STDIN> )
+    {
+      #
+      # NOTE: arguments from STDIN should be splitted by '\n'
+      #
+      my $arg = $_;
+
+      chomp $arg;  $arg =~ s/\\040/ /g;
+
+      push @targets, $arg;
+    }
+
+    last;
+  }
   else
   {
-    push @targets, $_;
+    my $arg = $_;
+
+    chomp $arg; $arg =~ s/\\040/ /g;
+
+    push @targets, $arg;
   }
 }
 

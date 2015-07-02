@@ -300,6 +300,18 @@ __available_targets := $(sort $(__available_targets))
 
 
 #######
+####### Number of CPU cores:
+#######
+
+NUMPROCS := 1
+OS       := $(shell uname -s)
+
+ifeq ($(OS),Linux)
+NUMPROCS := $(shell grep -c ^processor /proc/cpuinfo)
+endif
+
+
+#######
 ####### Parallel control:
 #######
 
@@ -647,8 +659,16 @@ APPLY_OPT_PATCHES = $(quiet)$(foreach patch,$(OPT_PATCHES),\
 # Install package content into the current
 # development environment:
 # --------------------------------------------------------------
+#
+# NOTE:
+#     - When we pass ARGS through STDIN [using '--' as end of options] we splits ARGS
+#       by new-line '\n' symbol.
+#     - When we pass ARGS in the command line, we have to add  | tr '\n' ' ' | filter
+#       to change new-line with space.
+#
 install-into-devenv = \
 	@( cd $1 ; \
+	   find . \( -type d -empty -o -type f -o -type l \) -printf '%P\n' | sed -e 's, ,\\040,g' | \
 	   DO_CREATE_DIST_FILES=1 CWD=$(CURDIR) \
 	   $(BUILDSYSTEM)/install_targets       \
 	     --preserve-source-dir=true         \
@@ -656,7 +676,7 @@ install-into-devenv = \
 	     --toolchain=$(TOOLCHAIN)           \
 	     --hardware=$(HARDWARE)             \
 	     --flavour=$(FLAVOUR)               \
-	    $$(find . \( -type f -o -type l \) -print | sed -e 's,^\./,,g') > /dev/null ; \
+	     --                                 \
 	 )
 # usage:
 #   $(call install-into-devenv,$(PKGDIR))

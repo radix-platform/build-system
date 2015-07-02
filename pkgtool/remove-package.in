@@ -76,7 +76,7 @@ strip_description() {
   infile=$1
   outfile=$2
   echo " " > $outfile
-  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  LINENUMS="`cat $infile | grep -n -e "^$pkgname:" | cut -f 1 -d ':'`"
   if [ "$LINENUMS" = "" ]; then
     if [ "$VERBOSE" == "yes" ] ; then
       echo "WARNING: Description is empty or corrupted."
@@ -198,7 +198,9 @@ delete_files() {
         rm -f "${TARGET_ROOT_PATH}$FILE"
         echo "`dirname $FILE`" >> $TMP/not_sorted_dirs$$
       else
-        echo " ===> ${TARGET_ROOT_PATH}$FILE no longer exists. Skipping."
+        if [ "$VERBOSE" == "yes" ] ; then
+          echo " ===> ${TARGET_ROOT_PATH}$FILE no longer exists. Skipping."
+        fi
       fi
     else
       if [ "$VERBOSE" == "yes" ] ; then

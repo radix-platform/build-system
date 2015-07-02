@@ -87,7 +87,7 @@ strip_description() {
   infile=$1
   outfile=$2
   echo " " > $outfile
-  LINENUMS="`cat $infile | grep -n -e "$pkgname" | cut -f 1 -d ':'`"
+  LINENUMS="`cat $infile | grep -n -e "^$pkgname:" | cut -f 1 -d ':'`"
   if [ "$LINENUMS" = "" ]; then
     echo "WARNING: Description is empty or corrupted."
     return
