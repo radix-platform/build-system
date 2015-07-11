@@ -259,8 +259,8 @@ __available_targets =                                                           
   $(foreach arch, $(shell echo $(COMPONENT_TOOLCHAINS) | sed -e 's/x86_64/x86-64/g'),      \
     $(foreach hardware, $($(shell echo ${arch} | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS), \
       $(if $(filter $(hardware),$(COMPONENT_TARGETS)),                                     \
-        $(if $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),                   \
-          $(foreach flavour, $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),   \
+        $(if $($(shell echo $(hardware) | tr '[a-z]' '[A-Z]')_FLAVOURS),                   \
+          $(foreach flavour, $($(shell echo $(hardware) | tr '[a-z]' '[A-Z]')_FLAVOURS),   \
             .target_$(arch)_$(hardware)_$(flavour)                                         \
            ) .target_$(arch)_$(hardware),                                                  \
           $(if $(FLAVOURS),                                                                \
@@ -771,7 +771,7 @@ endif
 # -----------+----------+---------+-------------------+-----
 ##############################################################
 
-# we allow available combinations, for example, if HW specified then we allow only HW specific flavours
+# we allow only available combinations according to component targets and flavours lists
 
 ifeq ($(TOOLCHAIN),)
 ifeq ($(HARDWARE),)
@@ -808,8 +808,12 @@ __target_args = $(foreach arch, $(shell echo $(call toolchain,$(HARDWARE)) | sed
                   $(if $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),                        \
                     $(foreach flavour, $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),        \
                       .target_$(arch)_$(HARDWARE)_$(flavour)                                              \
-                     ),                                                                                   \
-                     .target_$(arch)_$(HARDWARE)                                                          \
+                     ) .target_$(arch)_$(HARDWARE),                                                       \
+                     $(if $(FLAVOURS),                                                                    \
+                       $(foreach flavour, $(FLAVOURS),                                                    \
+                         .target_$(arch)_$(HARDWARE)_$(flavour)                                           \
+                        ),                                                                                \
+                      ) .target_$(arch)_$(HARDWARE)                                                       \
                    )                                                                                      \
                  )
 else
@@ -834,7 +838,7 @@ __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[
                   $(if $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),                             \
                     $(foreach flavour, $($(shell echo ${hardware} | tr '[a-z]' '[A-Z]')_FLAVOURS),             \
                       .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(hardware)_$(flavour)   \
-                     ),                                                                                        \
+                     ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(hardware),            \
                     $(if $(FLAVOURS),                                                                          \
                       $(foreach flavour, $(FLAVOURS),                                                          \
                         .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(hardware)_$(flavour) \
@@ -846,29 +850,36 @@ __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[
 else
 # (4) ======= loop:  , H,  ; where T=const, F=0        =======
 __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS), \
-                    .target_$(TOOLCHAIN)_$(hardware)                                                        \
+                    .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(hardware)             \
                  )
 endif
 else
 # (3) ======= loop:  , H,  ; where T=const, F=const    =======
 __target_args = $(foreach hardware, $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_HARDWARE_VARIANTS), \
-                    .target_$(TOOLCHAIN)_$(hardware)_$(FLAVOUR)                                             \
+                    .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(hardware)_$(FLAVOUR)  \
                  )
 endif
 else
 ifeq ($(FLAVOUR),)
 ifeq ($(__cmdline_flavour_defined),false)
 # (2) ======= loop:  ,  , F; where T=const, H=const    =======
-__target_args = $(foreach flavour, $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),           \
-                  .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)_$(flavour) \
-                 ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)
+__target_args = $(if $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),                              \
+                  $(foreach flavour, $($(shell echo $(HARDWARE) | tr '[a-z]' '[A-Z]')_FLAVOURS),              \
+                    .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)_$(flavour)    \
+                   ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE),             \
+                   $(if $(FLAVOURS),                                                                          \
+                     $(foreach flavour, $(FLAVOURS),                                                          \
+                       .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)_$(flavour) \
+                      ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE),          \
+                    ) .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)             \
+                 )
 else
 # (1) ======= loop:  ,  ,  ; T=const, H=const, F=0     =======
-__target_args = .target_$(TOOLCHAIN)_$(HARDWARE)
+__target_args = .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)
 endif
 else
 # (0) ======= loop:  ,  ,  ; T=const, H=const, F=const =======
-__target_args = .target_$(TOOLCHAIN)_$(HARDWARE)_$(FLAVOUR)
+__target_args = .target_$(shell echo $(TOOLCHAIN) | sed -e 's/x86_64/x86-64/g')_$(HARDWARE)_$(FLAVOUR)
 endif
 endif
 endif
