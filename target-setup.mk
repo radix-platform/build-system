@@ -305,7 +305,11 @@ BUILD_MULTILIB_SUFFIX = $(shell echo $(shell gcc -print-multi-os-directory) | se
 
 
 
+ifneq ($(filter $(TOOLCHAIN),$(TOOLCHAIN_JZ47XX_GLIBC)),)
+OPTIMIZATION_FLAGS ?= -O2
+else
 OPTIMIZATION_FLAGS ?= -O3
+endif
 
 
 ################################################################
