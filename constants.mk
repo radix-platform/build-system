@@ -5,7 +5,7 @@ ifndef CONSTANTS_MK
 ####### Constants:
 #######
 
-SYSTEM_VERSION       = 1.0.6
+SYSTEM_VERSION       = 1.0.7
 
 #
 # Distribution:
@@ -520,7 +520,7 @@ JZ47XX_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(JZ47XX_GLIBC_DIR)
 JZ47XX_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(JZ47XX_GLIBC_VERSION)/$(JZ47XX_GLIBC_DIR)-$(JZ47XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 JZ47XX_GLIBC_ARCH_DEFS       = -D__JZ47XX_GLIBC__=1
-JZ47XX_GLIBC_ARCH_FLAGS      = -march=mips32r2 -mel -mhard-float -fomit-frame-pointer
+JZ47XX_GLIBC_ARCH_FLAGS      = -march=mips32r2 -mhard-float
 JZ47XX_GLIBC_OPTIMIZATION    = -O2
 
 JZ47XX_GLIBC_SYSROOT         = sys-root
