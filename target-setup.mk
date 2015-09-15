@@ -168,6 +168,7 @@ TARGET             = $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_ARCH)
 
 ARCH_DEFS         ?= $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_ARCH_DEFS)
 ARCH_FLAGS        ?= $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_ARCH_FLAGS)
+ARCH_OPTIMIZATION ?= $($(shell echo $(TOOLCHAIN) | tr '[a-z-]' '[A-Z_]')_OPTIMIZATION)
 
 ifeq ($(filter $(TOOLCHAIN),$(TOOLCHAIN_NOARCH) $(TOOLCHAIN_BUILD_MACHINE)),)
 HW_FLAGS           = -D__HARDWARE__=$(call hw_id,$(HARDWARE)) $(HW_DEFS)
@@ -305,10 +306,42 @@ BUILD_MULTILIB_SUFFIX = $(shell echo $(shell gcc -print-multi-os-directory) | se
 
 
 
-ifneq ($(filter $(TOOLCHAIN),$(TOOLCHAIN_JZ47XX_GLIBC)),)
-OPTIMIZATION_FLAGS ?= -O2
+# NOTE:
+# ====
+#
+#   Default optimization is -O3 and defined by 'OPTIMIZATION_FLAGS' variable
+#   in the target-setup.mk. The 'OPTIMIZATION_FLAGS' variable can be overriden
+#   in user Makefile by following definition.
+#
+#   OPTIMIZATION_FLAGS = -O2
+#
+#   However some HW requires specific optimization which should't be overriden
+#   by user. In this case we define toolchain depended variable *_OPTIMIZATION
+#   within constants.mk file. This variable is used to assign a value to the
+#   ARCH_OPTIMIZATION variable, which, in turn, sets the actual (depending on
+#   the current HW) optimization.
+#
+#   This way allow us prioritize the HW specific optimisation. If user
+#   want  to override HW specific optimization then hi can override the
+#   ARCH_OPTIMISATION variable. In this case user have to be sure that
+#   this redefinition doesn't affect other HW:
+#
+#   ifeq ($(HARDWARE),$(HARDWARE_CI20))
+#   ARCH_OPTIMIZATION = -O2
+#   endif
+#
+#   Resume:
+#   ------
+#    - OPTIMIZATION_FLAGS can be overriden only if ARCH_OPTIMIZATION is not set.
+#    - ARCH_OPTIMIZATION can be overriden always and ARCH_OPTIMIZATION has highest priority.
+#    - default optimization is -O3
+#    - the condition (OPTIMIZATION_FLAGS == ARCH_OPTIMIZATION) is always true.
+#
+ifneq ($(ARCH_OPTIMIZATION),)
+OPTIMIZATION_FLAGS         = $(ARCH_OPTIMIZATION)
 else
-OPTIMIZATION_FLAGS ?= -O3
+OPTIMIZATION_FLAGS        ?= -O3
+ARCH_OPTIMIZATION          = $(OPTIMIZATION_FLAGS)
 endif
 
 
