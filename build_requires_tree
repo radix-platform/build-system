@@ -26,7 +26,7 @@ use _kxLab;
 
 # global variables
 my ($topdir, $toolchain, $hardware, $flavour, $build_system, $requires_file);
-my ($html_tree_file, $js_tree_file, $pkglist_file);
+my ($html_tree_file, $js_tree_file, $js_min_tree_file, $pkglist_file);
 my ($distro_name, $distro_version, $url);
 my $tarball_suffix = "tgz";
 
@@ -602,6 +602,13 @@ else
   $pkglist_file   = $target_build_dir . "/" . $hardware . "-" . $flavour . ".pkglist";
 }
 
+my $jsmin = $ENV{JSMIN};
+if( $jsmin ne "" )
+{
+  $js_min_tree_file = $js_tree_file;
+  $js_min_tree_file =~ s/\.json$/\.min\.json/;
+}
+
 # open the intput file
 open(REQUIRES_FILE, "< $requires_file") or
   _kxLab::error( "$0: Could not open $requires_file file: $!" );
@@ -805,7 +812,16 @@ $copyright_url =~ s/\-/\\\-/g;
 $copyright_url =~ s/\+/\\\+/g;
 $copyright_url =~ s/\./\\\./g;
 
+
+
 my $js_data_file = basename( $js_tree_file );
+
+if( $jsmin ne "" )
+{
+  # minimize JSON data file:
+  _kxLab::system( "$jsmin -o $js_min_tree_file $js_tree_file" );
+  $js_data_file = basename( $js_min_tree_file );
+}
 
 my $call_string = sprintf( "cat %s | "                          .
                            "sed 's/\@HARDWARE\@/%s/g' | "       .
