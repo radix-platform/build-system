@@ -1283,7 +1283,7 @@ else
 	@echo -e "#######"
 endif
 else
-	@$(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
+	@JSMIN=$(JSMIN) $(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
 	@echo -e "#######"
 	@echo -e "####### End of building Requires Tree in '`basename $(CURDIR)`' directory."
 	@echo -e "#######"

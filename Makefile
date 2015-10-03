@@ -5,6 +5,7 @@ include constants.mk
 
 REQUIRES  = build-system/3pp/fakeroot/0.18
 REQUIRES += build-system/3pp/dialog/1.2-20140112
+REQUIRES += build-system/3pp/jsmin/0.0.1
 REQUIRES += build-system/progs
 
 
