@@ -68,7 +68,7 @@ create_file_list() {
       for file in `ls $dir`;
       do
         if [ -f "$dir/$file" ]; then
-          echo "$dir/$file" | sed -e "s/^\.\///" >> .FILELIST
+          echo "$dir/$file" | sed -e "s/^\.\///" | sed -e "s/\.new$//g" >> .FILELIST
           let FCOUNT+=1 
         fi
       done
