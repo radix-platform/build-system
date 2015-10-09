@@ -111,9 +111,15 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`
     pver=`echo "$LINE" | cut -f 2 -d ':'`
+    pdir=`dirname $(echo "$LINE" | cut -f 4 -d ':')`
     proc=`echo "$LINE" | cut -f 5 -d ':'`
-    # version is used to avoid errors related equal substring in packagenames
-    pkgtarball=`find $CWD -name "$pnam-$pver-*.tgz"`
+    # version    - is used to avoid errors related equal substring in packagenames
+    # packagedir - is used to recognize same packages in different directories
+    if [ ! -z "$pdir" -a "$pdir" != "." ] ; then
+      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.tgz"`
+    else
+      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.tgz"`
+    fi
     pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
       desc="`echo $LINE | cut -f 3 -d ':'`"
@@ -230,9 +236,15 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`
     pver=`echo "$LINE" | cut -f 2 -d ':'`
+    pdir=`dirname $(echo "$LINE" | cut -f 4 -d ':')`
     proc=`echo "$LINE" | cut -f 5 -d ':'`
-    # version is used to avoid errors related equal substring in packagenames
-    pkgtarball=`find $CWD -name "$pnam-$pver-*.tgz"`
+    # version    - is used to avoid errors related equal substring in packagenames
+    # packagedir - is used to recognize same packages in different directories
+    if [ ! -z "$pdir" -a "$pdir" != "." ] ; then
+      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.tgz"`
+    else
+      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.tgz"`
+    fi
     pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
       # newpkglist required only for saving order of installation,

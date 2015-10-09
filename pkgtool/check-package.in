@@ -346,15 +346,13 @@ if [ -f $TMP/links$$ -a -s $TMP/links$$ ]; then
   link_counter=0
   line_counter=`sed -n "$=" $TMP/links$$ | tr '\n' '\0'`
   check_links < $TMP/links$$
-  if [ ! "$link_counter" = "0" ]; then
-    if [ $link_counter -lt $line_counter ]; then
+  if [ ! "$link_counter" = "0" ] ; then
+    if [ $link_counter -lt $line_counter ] ; then
       # not correct
-      if [ ! "$DARK" = "yes" ];then
+      if [ ! "$DARK" = "yes" ] ; then
         echo " ERROR: There {is|are} $link_counter not resolved symbolic link[s]."
         echo ""
       fi
-      echo "ERROR: There are $link_counter not resolved symbolic links." >> $LOG_FILE
-      echo -n "Checking: `basename $logfile`: "                          >> $LOG_FILE
     else
       # not installed
       let not_installed+=1
@@ -367,15 +365,13 @@ if [ -f $TMP/files$$ -a -s $TMP/files$$ ]; then
   file_counter=0
   line_counter=`sed -n "$=" $TMP/files$$ | tr '\n' '\0'`
   check_files < $TMP/files$$
-  if [ ! "$file_counter" = "0" ]; then
-    if [ $file_counter -lt $line_counter ]; then
+  if [ ! "$file_counter" = "0" ] ; then
+    if [ $file_counter -lt $line_counter ] ; then
       # not correct
-      if [ ! "$DARK" = "yes" ];then
+      if [ ! "$DARK" = "yes" ] ; then
         echo " ERROR: There {is|are} $file_counter not resolved file[s]."
         echo ""
       fi
-      echo "ERROR: There are $file_counter not resolved files." >> $LOG_FILE
-      echo -n "Checking: `basename $logfile`: "                 >> $LOG_FILE
     else
       # not installed
       let not_installed+=1
