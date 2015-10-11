@@ -18,6 +18,8 @@ src_done        = $(TARGET_BUILD_DIR)/.source-done
 SRC_DIR         = $(TARGET_BUILD_DIR)/populatefs-$(version)
 SRC_ARCHIVE     = $(tar_xz_archive)
 
+PATCHES = PATCHES
+
 build_target    = $(TARGET_BUILD_DIR)/.built
 install_target  = $(TARGET_BUILD_DIR)/.installed
 
@@ -38,6 +40,7 @@ environment    += VERSION_MINOR=0
 
 $(src_done): $(SRC_ARCHIVE) $(PATCHES_DEP)
 	$(UNPACK_SRC_ARCHIVE)
+	$(APPLY_PATCHES)
 	@touch $@
 
 $(build_target): $(src_done)

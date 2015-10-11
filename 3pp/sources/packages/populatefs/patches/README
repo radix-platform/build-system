@@ -1,0 +1,8 @@
+
+/* begin *
+
+   populatefs-1.0-squash.patch - Original populatefs owerrides uid:gid defined by devices table.
+                                 This is an issue. This patch changes this behaviour according
+                                 to normal genext2fs tool.
+
+ * end */
