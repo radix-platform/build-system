@@ -7,4 +7,4 @@ TAR    := @TAR@
 BASH   := @BASH@
 AWK    := @AWK@
 BISON  := @BISON@
-MKE2FS := @MKE2FS@
+MKE4FS := @MKE4FS@
