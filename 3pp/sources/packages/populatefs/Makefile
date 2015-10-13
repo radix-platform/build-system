@@ -16,6 +16,8 @@ tarballs    = $(addsuffix .$(suffix), $(addprefix $(pkgname)-, $(versions)))
 sha1s       = $(addsuffix .sha1sum, $(tarballs))
 
 patches     = $(CURDIR)/patches/populatefs-1.0-squash.patch
+patches    += $(CURDIR)/patches/populatefs-1.0-notrunc-rfiles.patch
+patches    += $(CURDIR)/patches/populatefs-1.0-version.patch
 
 .NOTPARALLEL: $(patches)
 
@@ -50,7 +52,9 @@ $(sha1s): $(tarballs)
 
 $(patches): $(sha1s)
 	@echo -e "\n======= Create Patches =======\n" ; \
-	 ( cd create-1.0-squash-patch ; ./create.patch.sh ) ; \
+	 ( cd create-1.0-squash-patch         ; ./create.patch.sh ) ; \
+	 ( cd create-1.0-notrunc-rfiles-patch ; ./create.patch.sh ) ; \
+	 ( cd create-1.0-version-patch        ; ./create.patch.sh ) ; \
 	 echo -e "\n"
 
 download_clean:

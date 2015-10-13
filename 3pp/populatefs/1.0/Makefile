@@ -34,8 +34,6 @@ environment    += bindir=/sbin
 environment    += libdir=/usr/lib$(BUILD_MULTILIB_SUFFIX)
 environment    += includedir=/usr/include
 environment    += LDFLAGS=-L/usr/lib$(BUILD_MULTILIB_SUFFIX)
-environment    += VERSION_MAJOR=1
-environment    += VERSION_MINOR=0
 
 
 $(src_done): $(SRC_ARCHIVE) $(PATCHES_DEP)
