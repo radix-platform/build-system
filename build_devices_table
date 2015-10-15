@@ -1,0 +1,283 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use IO::Handle;
+use File::Basename;
+use File::Temp;
+use Getopt::Long;
+
+use _kxLab;
+
+#
+# Generate $(TARGET_BUILD_DIR)/.DEVLIST file
+#
+# usage:
+#   $0 [options] topdir toolchain hardware flavour
+#
+# where:
+#      'topdir' - is a absolute path to the top directory of checked out branch
+#   'toolchain' - is a TOOLCHAIN name
+#    'hardware' - is a HARDWARE  name
+#     'flavour' - is a HARDWARE  variant
+#
+
+my (%devices, $devices_file);
+my ($products_dest_dir, $pkglist_file);
+my ($top_dir, $toolchain, $hardware, $flavour, $target_build_dir);
+my ($arch, $products_base_dir);
+
+
+sub usage
+{
+  print <<EOF;
+
+Usage: build_devices_list [options] topdir toolchain hardware [flavour]
+Options:
+  -a, --arch=<z|j|J>
+                 - where 'z' is gzip, 'j' is bzip2, and 'J' is xz arcive format;
+
+  -p, --products-dir=<DIR>
+                 - base name of products dir default value is 'products';
+
+Args:
+          topdir - is a absolute path to the top of checked out branch;
+       toolchain - is a TOOLCHAIN name;
+        hardware - is a HARDWARE name.
+         flavour - is a HARDWARE variant.
+
+EOF
+  exit;
+}
+
+
+#
+# http://permissions-calculator.org
+#
+sub text2spec_mode
+{
+  my $tmode = shift;
+  my $smode = '0';
+
+  foreach my $ugo ( $tmode =~ /^.(.{3})(.{3})(.{3})/ )
+  {
+    $ugo =~ /[SsTt]/ && ($smode += 1);
+  }
+  return $smode;
+}
+
+sub text2oct_mode
+{
+  my $tmode = shift;
+  my $omode = '0';
+
+  if( $tmode =~ /^.(.{3})(.{3})(.{3})/ )
+  {
+    my ($u, $g, $o) = ($1, $2, $3);
+    my ($sm, $um, $gm, $om) = (0, 0, 0, 0);
+
+    $u =~ /r/ && ($um += 4);
+    $u =~ /w/ && ($um += 2);
+    $u =~ /x/ && ($um += 1);
+    if( $u =~ /s/ ) { $um += 1; $sm += 4; }
+    $u =~ /S/ && ($sm += 4);
+
+    $g =~ /r/ && ($gm += 4);
+    $g =~ /w/ && ($gm += 2);
+    $g =~ /x/ && ($gm += 1);
+    if( $g =~ /s/ ) { $gm += 1; $sm += 2; }
+    $g =~ /S/ && ($sm += 2);
+
+    $o =~ /r/ && ($om += 4);
+    $o =~ /w/ && ($om += 2);
+    $o =~ /x/ && ($om += 1);
+    if( $o =~ /t/ ) { $om += 1; $sm += 1;}
+    $o =~ /T/ && ($sm += 1);
+
+    $omode = $sm . $um . $gm . $om;
+  }
+  return $omode;
+}
+
+
+
+sub read_devices
+{
+  my $tarball = shift;
+  my $args;
+  my %devs;
+
+  $args = "--numeric-owner -" . $arch . "tvf " . $tarball;
+  #
+  # We read the head of Makefile until '__END_OF_REQUIRES__' keyword.
+  # The 'build-system/constants.mk' should be included before requires.
+  #
+  my $shell_output = <<`SHELL`;
+tar $args
+exit 0
+SHELL
+
+#                            | permissions               | uid/gid              | size         | date             | time           | file
+# ---------------------------+---------------------------+----------------------+--------------+------------------+----------------+---------
+  while( $shell_output =~ m!^([\-bcpdlrwxSsTt]{10})[ \t]+([0-9]+)/([0-9]+)[ \t]+([0-9,]+)[ \t]+([\-0-9]{10})[ \t]+([:0-9]{5})[ \t]+(.+)$!gm )
+  {
+    my $perm  = $1;
+    my $uid   = $2;
+    my $gid   = $3;
+    my $size  = $4;
+    my $dev   = $7;
+
+    my ($name, $type, $smode, $mode, $owner, $major, $minor, $start, $inc, $count);
+
+    $perm =~ s/^\s+|\s+$//g;
+    $uid  =~ s/^\s+|\s+$//g;
+    $gid  =~ s/^\s+|\s+$//g;
+    $size =~ s/^\s+|\s+$//g;
+    $dev  =~ s/^\s+|\s+$//g;
+
+    $owner = $uid . ":" . $gid;
+
+    $name = "/" . $dev;
+    $type = substr($perm, 0, 1);
+    $mode = text2oct_mode( $perm );
+
+    $type =~ tr/-/f/;
+    $smode = text2spec_mode( $perm );
+
+    if( ($smode or 
+         $type eq "b" or $type eq "c" or $type eq "s" or 
+         $type eq "p" or $uid ne "0" or $gid ne "0"
+        ) and $type ne "l"
+      )
+    {
+
+      if( $type eq "b" or $type eq "c" )
+      {
+        ($major, $minor) = split( /,/, $size );
+        $devs{$name} = $type . "\t" . $mode . "\t" . $uid . "\t" . $gid . "\t" . $major . "\t" . $minor;
+      }
+      else
+      {
+        $devs{$name} = $type . "\t" . $mode . "\t" . $uid . "\t" . $gid;
+      }
+
+    }
+  }
+  return %devs;
+
+}
+
+
+sub get_tarballs_list
+{
+  my @tarballs;
+
+  while( my $line = <PKGLIST_FILE> )
+  {
+
+    $line =~ /^$/ and next;
+    $line =~ /^#/ and next;
+
+    if( $line =~ m!^(.+):(.+):(.+):(.+):(.+):(.+)!gm )
+    {
+      my $pkg = $4;
+      my $tarball = $products_dest_dir . "/" . $pkg;
+      push @tarballs, $tarball;
+    }
+  }
+  return @tarballs;
+}
+
+
+#
+# Parse the command line options
+#
+$arch = 'z';
+if( ! GetOptions( 'a=s' => \$arch,
+                  'arch=s' => \$arch,
+                  'p=s' => \$products_base_dir,
+                  'products-dir=s' => \$products_base_dir,
+                  'help|h|?'  => sub { usage() }
+                )
+  )
+{
+  usage();
+}
+
+# Get the rest of the command line
+my $topdir = shift;
+
+$toolchain = shift;
+$hardware  = shift;
+$flavour   = shift;
+
+if( $arch eq '' )
+{
+  $arch = 'z';
+}
+
+
+if( ! defined $products_base_dir or $products_base_dir eq "" ) { $products_base_dir = "products"; }
+
+if( ! defined $topdir    or $topdir eq "" )    { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+
+
+if( ! defined $flavour   or $flavour eq "" )
+{
+  $flavour = "";
+  $target_build_dir  = "." . $toolchain . "/" . $hardware;
+  $products_dest_dir = $topdir . "/dist/" . $products_base_dir . "/" . $toolchain . "/" . $hardware;
+}
+else
+{
+  $target_build_dir  = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+  $products_dest_dir = $topdir . "/dist/" . $products_base_dir . "/" . $toolchain . "/" . $hardware . "/" . $flavour;
+}
+
+# setup $top_build_dir
+$top_dir = $topdir;
+my $build_system = $top_dir . "/build-system";
+
+_kxLab::system( "mkdir -p $target_build_dir" );
+
+#
+# The HW.pkglist shoul be installed into PRODUCTS_DEST_DIR.
+#
+$pkglist_file = $products_dest_dir . "/" . $hardware . ".pkglist";
+$devices_file = $target_build_dir . "/" . ".DEVTABLE";
+
+_kxLab::error( "build_devices_list: $topdir is not a directory" ) if( ! -d $topdir );
+_kxLab::error( "build_devices_list: .pkglist missing: $pkglist_file" ) if ( ! -f $pkglist_file );
+
+
+# open the intput file:
+open(PKGLIST_FILE, "< $pkglist_file") or
+  _kxLab::error( "$0: Could not open $pkglist_file file: $!" );
+# open the output file:
+open(DEVICES_FILE, "> $devices_file") or
+  _kxLab::error( "build_devices_list: Could not open $devices_file file: $!" );
+
+my @pkgs = get_tarballs_list( $pkglist_file );
+
+# close input file:
+close PKGLIST_FILE;
+
+foreach my $pkg ( @pkgs ) { %devices = (%devices, read_devices( $pkg ) ); }
+
+print DEVICES_FILE "# device table\n\n";
+print DEVICES_FILE "# <name>\t\t<type>\t<mode>\t<uid>\t<gid>\t<major>\t<minor>\t<start>\t<inc>\t<count>\n";
+foreach my $dev ( sort keys %devices )
+{
+  print DEVICES_FILE $dev . "\t\t" .  $devices{$dev} . "\n";
+}
+
+print sprintf( "####### There are %d inodes to be created or changed.\n", scalar keys %devices );
+
+# close output file:
+close DEVICES_FILE;

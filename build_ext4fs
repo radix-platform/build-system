@@ -1,0 +1,423 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use POSIX;
+
+use IO::Handle;
+use File::Basename;
+use File::Temp;
+use Getopt::Long;
+
+use _kxLab;
+
+#
+# Generate $(TARGET_BUILD_DIR)/HW.ext4fs file
+#
+# usage:
+#   $0 [options] topdir toolchain hardware flavour
+#
+# where:
+#      'topdir' - is a absolute path to the top directory of checked out branch
+#   'toolchain' - is a TOOLCHAIN name
+#    'hardware' - is a HARDWARE  name
+#     'flavour' - is a HARDWARE  variant
+#
+
+my ($rootfs_dest_dir, $devices_file);
+my ($top_dir, $toolchain, $hardware, $flavour, $target_build_dir);
+my ($size, $rootfs_base_dir);
+
+#
+# Default values:
+#
+my $default_requested_size = "4.1G";
+my $reserved_space_coeff   =  0.4;
+#
+# Constants:
+#
+my $SDHC_blksz   = 524288;
+my $SDHC_min_blks  = 4224;
+my $GiB      = 1073741824;
+my $MiB      =    1048576;
+my $KiB      =       1024;
+
+#
+# NOTE:
+# ====
+#   Вообще размер создаваемой файловой системы выбирается кратным
+#   величине SDHC блока. Это позволяет не задумываться о геометрии
+#   целевого носителя, а также, о выравнивании разделов по границе
+#   4096 байтов.
+#
+
+#
+# To be calculated:
+#
+my $rootfs_in_bytes;
+my ($size_in_bytes, $size_in_1K_blks, $size_in_SDHC_blks);
+
+
+sub usage
+{
+  print <<EOF;
+
+Usage: build_ext4fs [options] topdir toolchain hardware [flavour]
+Options:
+  -s, --size=<size{K|M|G}>
+                 - where <size> is a number of GiB, MiB, or KiB
+                   (Note that {K|M|G} shoud follow without spaces);
+
+  -r, --rootfs-dir=<DIR>
+                 - base name of rootfs dir default value is 'rootfs';
+
+Args:
+          topdir - is a absolute path to the top of checked out branch;
+       toolchain - is a TOOLCHAIN name;
+        hardware - is a HARDWARE name.
+         flavour - is a HARDWARE variant.
+
+EOF
+  exit;
+}
+
+#
+# returns directory size in bytes:
+#
+sub directory_size
+{
+  my $dir = shift;
+  my $size;
+
+  if( ! defined $dir or $dir eq "" ) { $dir = "."; }
+
+  $size = `du -s -B 1 $dir | cut -f1 -d'\t'`;  chomp( $size );
+
+  return $size;
+}
+
+#
+# Calculate dest rootfs image size according to
+# requested size (argument) and size of rootfs.
+#
+#  size_arg - requested size;
+#  src_size - the size of rootfs directory.
+#
+sub calculate_sizes
+{
+  my  $size_arg = shift;
+  my  $src_size = shift;
+
+  my ($min_size, $z, $m);
+
+  #
+  # Initial Size = source rootfs size + reserved space:
+  #
+  $min_size = floor( $src_size + $src_size * $reserved_space_coeff );
+  $z        = $min_size;
+
+  #
+  # File System Size:
+  #
+  if( $size_arg =~ m!^([0-9.]+)([GKM]{0,1})!gm )
+  {
+    my ($rsz, $mul) = ($1, $2);
+
+    if( defined $mul )
+    {
+      if   ( $mul eq "G" ) { $m = $GiB; }
+      elsif( $mul eq "M" ) { $m = $MiB; }
+      elsif( $mul eq "K" ) { $m = $KiB; }
+      else                 { $m =    1; }
+    }
+    else
+    {
+      $m = 1;
+    }
+    $z = $rsz * $m;
+    $z = floor( $z );
+
+    if( $z < $min_size ) { $z = $min_size; }
+  }
+
+  if( $z > $SDHC_blksz ) { $size_in_SDHC_blks = ceil( $z / $SDHC_blksz ); }
+  else                   { $size_in_SDHC_blks = 1; }
+
+  if( $size_in_SDHC_blks < $SDHC_min_blks ) { $size_in_SDHC_blks = $SDHC_min_blks; }
+
+  $size_in_bytes   = $size_in_SDHC_blks * $SDHC_blksz;
+  $size_in_1K_blks = $size_in_bytes / $KiB;
+}
+
+
+#
+# Parse the command line options
+#
+$size = $default_requested_size;
+if( ! GetOptions( 's=s' => \$size,
+                  'size=s' => \$size,
+                  'r=s' => \$rootfs_base_dir,
+                  'rootfs-dir=s' => \$rootfs_base_dir,
+                  'help|h|?'  => sub { usage() }
+                )
+  )
+{
+  usage();
+}
+
+# Get the rest of the command line
+my $topdir = shift;
+
+$toolchain = shift;
+$hardware  = shift;
+$flavour   = shift;
+
+if( ! defined $size or $size eq "" ) { $size = $default_requested_size; }
+
+if( ! defined $rootfs_base_dir or $rootfs_base_dir eq "" ) { $rootfs_base_dir   = "rootfs"; }
+
+if( ! defined $topdir    or $topdir eq "" )    { usage; }
+if( ! defined $toolchain or $toolchain eq "" ) { usage; }
+if( ! defined $hardware  or $hardware eq "" )  { usage; }
+
+
+if( ! defined $flavour   or $flavour eq "" )
+{
+  $flavour = "";
+  $target_build_dir  = "." . $toolchain . "/" . $hardware;
+  $rootfs_dest_dir   = $topdir . "/dist/" . $rootfs_base_dir . "/" . $toolchain . "/" . $hardware;
+}
+else
+{
+  $target_build_dir  = "." . $toolchain . "/" . $hardware . "/" . $flavour;
+  $rootfs_dest_dir   = $topdir . "/dist/" . $rootfs_base_dir . "/" . $toolchain . "/" . $hardware . "/" . $flavour;
+}
+
+# setup $top_build_dir
+$top_dir = $topdir;
+my $build_system = $top_dir . "/build-system";
+
+_kxLab::system( "mkdir -p $target_build_dir" );
+
+#
+# The .DEVTABLE shoul be created in TARGET_BUILD_DIR.
+#
+$devices_file = $target_build_dir . "/" . ".DEVTABLE";
+
+_kxLab::error( "build_ext4fs: $topdir is not a directory" ) if( ! -d $topdir );
+_kxLab::error( "build_ext4fs: .DEVTABLE missing: $devices_file" ) if ( ! -f $devices_file );
+
+
+$rootfs_in_bytes = directory_size( $rootfs_dest_dir );
+calculate_sizes( $size, $rootfs_in_bytes);
+
+################ debug ################
+#
+# root_src - only for log messages:
+#
+my $root_src = $rootfs_dest_dir;
+if( $rootfs_dest_dir =~ m!$top_dir/(.+)! )
+{
+  $root_src = $1;
+}
+print "#######   requested size          = '" . $size . "';\n";
+print "#######\n";
+print "####### SOURCE:\n";
+print "####### ------\n";
+print "#######   rootfs source           = '" . $root_src . "';\n";
+print "#######   rootfs size_in_bytes    = '" . $rootfs_in_bytes . "';\n";
+print "#######\n";
+print "####### TARGET:\n";
+print "####### ------\n";
+print "#######   image size_in_bytes     = '" . $size_in_bytes . "';\n";
+print "#######   image size_in_1K_blks   = '" . $size_in_1K_blks . "';\n";
+print "#######   image size_in_SDHC_blks = '" . $size_in_SDHC_blks . "';\n";
+############# end of debug ############
+
+my $ext4fs_file = $target_build_dir . "/" . $hardware . ".ext4fs";
+my $ext2fs_file = $target_build_dir . "/" . $hardware . ".ext2fs";
+
+my $MKE4FS = $ENV{MKE4FS};
+if( ! defined $MKE4FS or $MKE4FS eq "" )
+{
+  $MKE4FS = "/sbin/mkfs.ext4";
+}
+my $POPULATEFS = $ENV{POPULATEFS};
+if( ! defined $POPULATEFS or $POPULATEFS eq "" )
+{
+  $POPULATEFS = $build_system . "/sbin/populatefs";
+}
+my $GENEXT2FS = $ENV{GENEXT2FS};
+if( ! defined $GENEXT2FS or $GENEXT2FS eq "" )
+{
+  $GENEXT2FS = $build_system . "/sbin/genext2fs";
+}
+
+
+my $label = $hardware;
+
+#my $rootfs_maxnode_arg = "-N 1073741824";
+my $rootfs_maxnode_arg = "";
+
+my $rootfs_reserved_pst_arg = "-m 5";
+
+_kxLab::system( "dd if=/dev/zero of=$ext4fs_file"        .
+                "   seek=$size_in_1K_blks count=0 bs=1k" .
+                "   1> /dev/null 2> /dev/null" );
+
+_kxLab::system( $MKE4FS .
+                " -F -E root_owner=0:0 -L $label $rootfs_maxnode_arg" .
+                             " -O has_journal,ext_attr,resize_inode," .
+                                 "dir_index,filetype,extent,flex_bg," .
+                                 "sparse_super,large_file,uninit_bg," .
+                                 "dir_nlink,extra_isize" .
+                             " $rootfs_reserved_pst_arg $ext4fs_file" );
+
+_kxLab::system( $POPULATEFS .
+                " -U -d $rootfs_dest_dir -D $devices_file" .
+                " $ext4fs_file" );
+
+#################################################################################
+#######
+####### Also the Ext2 Root FS image can be created by `genext2fs' utility.
+#######
+#  _kxLab::system( $GENEXT2FS .
+#                  " -U -B 1024 -b $size_in_1K_blks $rootfs_reserved_pst_arg" .
+#                  " -d $rootfs_dest_dir -D $devices_file $ext2fs_file" );
+#######
+#######
+#################################################################################
+
+
+#################################################################################
+#######
+####### Simple MBR for SDHC cards with one primary Linux partition:
+#######
+my $MBR_file = $target_build_dir . "/" . $hardware . ".SD.MBR";
+
+my $heads             =   4;
+my $sectors_per_track =  16;
+my $sector_size       = 512;
+my $track_size        = $sector_size * $sectors_per_track;
+
+my $cylinder_size = $heads * $sectors_per_track * $sector_size;
+my $cylinders     = $size_in_bytes / $cylinder_size;
+my $disk_size     = $MiB + $size_in_bytes;
+
+my ($part0, $part1, $part2, $part3);
+
+my ($c, $h, $s, $p, $q);
+
+#
+# Calculate CHS Start Address (assume 1Mib offset):
+#
+$c = floor( $MiB / $cylinder_size );
+$p = $MiB % $cylinder_size;
+$h = floor( $p / $track_size );
+$q = $p % $track_size;
+$s = floor( $q / $sector_size ) + 1;
+
+$part0 =     0; # not active partition (MBR has no 32-bit digital signeture)
+$part0 = $part0 | ( $h & 0x000000ff ) <<  8;
+$part0 = $part0 | ( $s & 0x0000003f ) << 16;
+$part0 = $part0 | ( ( $c & 0x00000030 ) >> 8 ) << 22;
+$part0 = $part0 | ( $c & 0x000000ff ) << 24;
+
+################ debug ################
+print "#######\n";
+print "####### Master Boot Record:\n";
+print "####### ------------------\n";
+print "#######   CHS Start Address       = ($c/$h/$s);\n";
+############# end of debug ############
+
+#
+# Calculate CHS End Address (assume 1Mib offset):
+#
+$c = floor( ($disk_size - $sector_size) / $cylinder_size );
+$p = ($disk_size - $sector_size) % $cylinder_size;
+$h = floor( $p / $track_size );
+$q = $p % $track_size;
+$s = floor( $q / $sector_size ) + 1;
+
+$part1 =  0x83; # Linux partition
+$part1 = $part1 | ( $h & 0x000000ff ) <<  8;
+$part1 = $part1 | ( $s & 0x0000003f ) << 16;
+$part1 = $part1 | ( ( $c & 0x00000300 ) >> 8 ) << 22;
+$part1 = $part1 | ( $c & 0x000000ff ) << 24;
+
+################ debug ################
+print "#######   CHS End Address         = ($c/$h/$s);\n";
+############# end of debug ############
+
+my $lba;
+#
+# Calculate LBA Start Address [assume 1048576 byte (2048 sectors) offset]:
+#
+$lba = floor( $MiB / $sector_size );
+$part2 = $lba;
+################ debug ################
+print "#######   LBA Start Address       = $lba;\n";
+############# end of debug ############
+
+#
+# calculate LBA numbers  (1Mib offset):
+#
+$lba = floor( ($disk_size - $MiB) / $sector_size );
+$part3 = $lba;
+################ debug ################
+print "#######   LBA sectors             = $lba;\n";
+############# end of debug ############
+
+my $zero = 0;
+my $sign = 0xaa55;
+
+#
+# The documentation about packing binary date is available at:
+#
+#    http://perldoc.perl.org/functions/pack.html
+#
+#  We are using Little endian 16-bit and 32-bit data.
+#
+#  MBR Info can be found, for example at:
+#  -------------------------------------
+#    https://en.wikipedia.org/wiki/Master_boot_record
+#    https://en.wikipedia.org/wiki/Master_boot_record#PTE
+#
+open( MBR, '>', $MBR_file) or _kxLab::error( "build_ext4fs: Could not open $MBR_file file: $!" );
+binmode( MBR );
+
+#
+# Fill first 446 bytes of MBR:
+#
+for ( my $n = 0; $n < 111; ++$n ) { print MBR pack( 'L<', $zero ); }
+print MBR pack( 'S<', $zero );
+
+#
+# First primary partition:
+#
+print MBR pack( 'L<', $part0 );
+print MBR pack( 'L<', $part1 );
+print MBR pack( 'L<', $part2 );
+print MBR pack( 'L<', $part3 );
+
+#
+# Three zero primary partitions:
+#
+for ( my $n = 0; $n < 12; ++$n )
+{
+  print MBR pack( 'L<', $zero );
+}
+#
+# Boot Signature:
+#
+print MBR pack( 'S<', $sign );
+
+close( MBR );
+#######
+####### End of Simple MBR writing.
+#######
+#################################################################################
