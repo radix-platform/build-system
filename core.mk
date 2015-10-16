@@ -1388,11 +1388,12 @@ else
 	   else \
 	     sizeoption="--size=$$size" ; \
 	   fi ; \
-	   MKEE4FS=$(MKE4FS) POPULATEFS=$(POPULATEFS) \
+	   MKEE4FS=$(MKE4FS) E4FSCK=$(E4FSCK) POPULATEFS=$(POPULATEFS) \
 	      $(BUILDSYSTEM)/build_ext4fs $$sizeoption $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR) ; \
 	 )
-	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
 	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).SD.MBR $(PRODUCTS_DEST_DIR)/$(HARDWARE).SD.MBR
+	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
+	@$(E4FSCK) -fy $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
 	@echo -e "#######"
 	@echo -e "####### End of building Ext4 Root FS Image in '`basename $(CURDIR)`' directory."
 	@echo -e "#######"

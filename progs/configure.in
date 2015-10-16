@@ -65,6 +65,8 @@ AC_PATH_PROG(BISON, bison, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 
 AC_PATH_PROG(MKE4FS, mkfs.ext4 mke2fs, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
 
+AC_PATH_PROG(E4FSCK, fsck.ext4 e2fsck, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+
 
 
 dnl ============================================================

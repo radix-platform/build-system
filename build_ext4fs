@@ -246,6 +246,11 @@ if( ! defined $MKE4FS or $MKE4FS eq "" )
 {
   $MKE4FS = "/sbin/mkfs.ext4";
 }
+my $E4FSCK = $ENV{E4FSCK};
+if( ! defined $E4FSCK or $E4FSCK eq "" )
+{
+  $E4FSCK = "/sbin/fsck.ext4";
+}
 my $POPULATEFS = $ENV{POPULATEFS};
 if( ! defined $POPULATEFS or $POPULATEFS eq "" )
 {
@@ -280,6 +285,14 @@ _kxLab::system( $MKE4FS .
 _kxLab::system( $POPULATEFS .
                 " -U -d $rootfs_dest_dir -D $devices_file" .
                 " $ext4fs_file" );
+
+#######
+####### skip message that the file system was modified:
+#######
+_kxLab::system( $E4FSCK .
+                " -fy"  .
+                " $ext4fs_file 1>/dev/null 2>/dev/null ; exit 0" );
+
 
 #################################################################################
 #######

@@ -8,3 +8,4 @@ BASH   := @BASH@
 AWK    := @AWK@
 BISON  := @BISON@
 MKE4FS := @MKE4FS@
+E4FSCK := @E4FSCK@
