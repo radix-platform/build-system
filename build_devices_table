@@ -29,6 +29,7 @@ use _kxLab;
 my (%devices, $devices_file);
 my ($products_dest_dir, $pkglist_file);
 my ($top_dir, $toolchain, $hardware, $flavour, $target_build_dir);
+my ($system_version, $distro_version, $distro_name);
 my ($arch, $products_base_dir);
 
 
@@ -176,6 +177,20 @@ sub get_tarballs_list
 {
   my @tarballs;
 
+  if( defined $system_version and defined $distro_version and defined $distro_name )
+  {
+    my $init_dev_package = $products_dest_dir     .
+                           "/base/init-devices-"  .
+                           $system_version .  "-" .
+                           $toolchain      .  "-" .
+                           $distro_name    .  "-" .
+                           $distro_version . ".tgz";
+    if( -f $init_dev_package )
+    {
+      push @tarballs, $init_dev_package;
+    }
+  }
+
   while( my $line = <PKGLIST_FILE> )
   {
 
@@ -243,6 +258,10 @@ else
 # setup $top_build_dir
 $top_dir = $topdir;
 my $build_system = $top_dir . "/build-system";
+
+$system_version = $ENV{SYSTEM_VERSION};
+$distro_version = $ENV{DISTRO_VERSION};
+$distro_name    = $ENV{DISTRO_NAME};
 
 _kxLab::system( "mkdir -p $target_build_dir" );
 

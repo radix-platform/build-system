@@ -1345,7 +1345,10 @@ else
 	@echo -e "#######"
 	@echo -e "####### Start of building Devices Table in '`basename $(CURDIR)`' directory..."
 	@echo -e "#######"
-	@$(BUILDSYSTEM)/build_devices_table $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
+	@SYSTEM_VERSION=$(SYSTEM_VERSION) \
+	 DISTRO_VERSION=$(DISTRO_VERSION) \
+	 DISTRO_NAME=$(DISTRO_NAME)       \
+	  $(BUILDSYSTEM)/build_devices_table $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
 	@echo -e "#######"
 	@echo -e "####### End of building Devices Table in '`basename $(CURDIR)`' directory."
 	@echo -e "#######"
