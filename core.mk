@@ -1338,7 +1338,7 @@ ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 	@echo -e "#######"
-	@echo -e "####### Devices Table creation in the top of '`basename $(CURDIR)'`' directory is not supported."
+	@echo -e "####### Devices Table creation in the top of '`basename $(CURDIR)`' directory is not supported."
 	@echo -e "#######"
 else
 	@echo -e "################################################################"
