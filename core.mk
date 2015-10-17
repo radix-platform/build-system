@@ -1301,7 +1301,7 @@ ifeq ($(wildcard $(TARGET_BUILD_DIR)/.requires),)
 else
 	@echo -e "################################################################"
 	@echo -e "#######"
-	@echo -e "####### Start of building Requires Tree in '`basename $(CURDIR)`' directory..."
+	@echo -e "####### Start of building Requires Tree in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
 	@echo -e "#######"
 	@JSMIN=$(JSMIN) $(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
 	@mkdir -p $(PRODUCTS_DEST_DIR)
@@ -1312,7 +1312,7 @@ else
 	@ln -sf $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist $(PRODUCTS_DEST_DIR)/.pkglist
 	@touch $@
 	@echo -e "#######"
-	@echo -e "####### End of building Requires Tree in '`basename $(CURDIR)`' directory."
+	@echo -e "####### End of building Requires Tree in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
 	@echo -e "#######"
 	@echo -e "################################################################"
 endif
@@ -1338,19 +1338,19 @@ ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 	@echo -e "#######"
-	@echo -e "####### Devices Table creation in the top of '`basename $(CURDIR)`' directory is not supported."
+	@echo -e "####### Devices Table creation in the top of '`basename $(CURDIR)'`' directory is not supported."
 	@echo -e "#######"
 else
 	@echo -e "################################################################"
 	@echo -e "#######"
-	@echo -e "####### Start of building Devices Table in '`basename $(CURDIR)`' directory..."
+	@echo -e "####### Start of building Devices Table in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
 	@echo -e "#######"
 	@SYSTEM_VERSION=$(SYSTEM_VERSION) \
 	 DISTRO_VERSION=$(DISTRO_VERSION) \
 	 DISTRO_NAME=$(DISTRO_NAME)       \
 	  $(BUILDSYSTEM)/build_devices_table $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
 	@echo -e "#######"
-	@echo -e "####### End of building Devices Table in '`basename $(CURDIR)`' directory."
+	@echo -e "####### End of building Devices Table in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
 	@echo -e "#######"
 	@echo -e "################################################################"
 endif
@@ -1380,7 +1380,7 @@ ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
 else
 	@echo -e "################################################################"
 	@echo -e "#######"
-	@echo -e "####### Start of building Ext4 Root FS Image in '`basename $(CURDIR)`' directory..."
+	@echo -e "####### Start of building Ext4 Root FS Image in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
 	@echo -e "#######"
 	@( size=`echo $(MAKEFLAGS) | grep 'size=' | sed -e 's,.*size=\([0-9.]*[KMG]\?\).*,\1,'` ; \
 	   if [ -z "$$size" ] ; then \
@@ -1395,7 +1395,7 @@ else
 	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
 	@$(E4FSCK) -fy $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
 	@echo -e "#######"
-	@echo -e "####### End of building Ext4 Root FS Image in '`basename $(CURDIR)`' directory."
+	@echo -e "####### End of building Ext4 Root FS Image in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
 	@echo -e "#######"
 	@echo -e "################################################################"
 endif
