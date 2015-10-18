@@ -1309,7 +1309,9 @@ else
 	       $(TARGET_BUILD_DIR)/$(HARDWARE).min.json \
 	       $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist  \
 	       $(PRODUCTS_DEST_DIR)
-	@ln -sf $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist $(PRODUCTS_DEST_DIR)/.pkglist
+	@( cd $(PRODUCTS_DEST_DIR) ; \
+	   ln -sf $(HARDWARE).pkglist .pkglist ; \
+	 )
 	@touch $@
 	@echo -e "#######"
 	@echo -e "####### End of building Requires Tree in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
