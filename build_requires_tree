@@ -25,7 +25,9 @@ use _kxLab;
 #
 
 # global variables
-my ($topdir, $toolchain, $hardware, $flavour, $build_system, $requires_file);
+my ($build_system);
+my ($topdir, $toolchain, $hardware, $flavour);
+my ($target_build_dir, $requires_file);
 my ($html_tree_file, $js_tree_file, $js_min_tree_file, $pkglist_file);
 my ($distro_name, $distro_version, $url);
 my $tarball_suffix = "tgz";
@@ -435,7 +437,7 @@ sub fill_package_info
   if( -e $tarball_file )
   {
     my $cleanup = 1;
-    my $fname   = ".$hardware.pkginfo.XXXXXXXX";
+    my $fname   = "$target_build_dir/.$hardware.pkginfo.XXXXXXXX";
     my $tempname;
 
     (undef, $tempname) = File::Temp::tempfile( $fname, OPEN => 0, UNLINK => $cleanup );
@@ -576,7 +578,6 @@ $distro_name    = distro_name( $build_system );
 $distro_version = distro_version( $build_system );
 $url            = bug_url( $build_system );
 
-my $target_build_dir;
 
 if( $flavour eq "" )
 {

@@ -1,0 +1,4 @@
+
+../../sources/packages/populatefs/patches/populatefs-1.0-squash.patch         -p0
+../../sources/packages/populatefs/patches/populatefs-1.0-notrunc-rfiles.patch -p0
+../../sources/packages/populatefs/patches/populatefs-1.0-version.patch        -p0

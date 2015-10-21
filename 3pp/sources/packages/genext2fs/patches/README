@@ -1,0 +1,10 @@
+
+/* begin *
+
+   genext2fs-1.4.1-blocksize.patch - adds the two options to set block size and CREATOR_OS.
+                                     Also the two duncrions swap_goodblocks() [line: 1751]
+                                     and swap_badblocks() [line: 1810] are fixed;
+
+   genext2fs-1.4.1-configure.patch - changes according to new version of autotools.
+
+ * end */

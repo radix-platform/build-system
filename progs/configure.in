@@ -37,8 +37,8 @@ AC_PATH_PROG_LN_S
 AC_SUBST(LN)
 AC_SUBST(LN_S)
 
-dnl  Ω–‹ ›„÷’› ÿ·ﬂﬁ€›Ô’‹ÎŸ ‰–Ÿ€ pwd. ≤·‚‡ﬁ’››ÎŸ "pwd -P" ›–·
-dnl  ›’ „·‚‡–ÿ“–’‚( ÿ◊ ·ﬁﬁ—‡–÷’›ÿŸ ﬂ’‡’›ﬁ·ÿ‹ﬁ·‚ÿ ) .
+dnl  –ù–∞–º –Ω—É–∂–µ–Ω –∏—Å–ø–æ–ª–Ω—è–µ–º—ã–π —Ñ–∞–π–ª pwd. –í—Å—Ç—Ä–æ–µ–Ω–Ω—ã–π "pwd -P" –Ω–∞—Å
+dnl  –Ω–µ —É—Å—Ç—Ä–∞–∏–≤–∞–µ—Ç( –∏–∑ —Å–æ–æ–±—Ä–∞–∂–µ–Ω–∏–π –ø–µ—Ä–µ–Ω–æ—Å–∏–º–æ—Å—Ç–∏ ) .
 AC_PATH_PROG(PWD_P, pwd, no)
 if test "$PWD_P" = no; then
    AC_MSG_ERROR(********   A pwd binary could not be found.)
@@ -62,6 +62,16 @@ AC_SUBST(parse_conf_cv_have_bash2)
 AC_PATH_PROGS(AWK, gawk awk, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 
 AC_PATH_PROG(BISON, bison, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROG(MKE4FS, mkfs.ext4 mke2fs, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+AC_PATH_PROG(E4FSCK, fsck.ext4 e2fsck, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+
+AC_PATH_PROG(MKDOSFS, mkfs.fat mkdosfs, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+AC_PATH_PROG(DOSFSCK, fsck.fat dosfsck, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+
+AC_PATH_PROG(MCOPY, mcopy, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROG(DD, dd, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 
 
 
