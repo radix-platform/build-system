@@ -1,11 +1,15 @@
 
-LN     := @LN@
-LN_S   := @LN_S@
-PWD_P  := @PWD_P@
-SED    := @SED@
-TAR    := @TAR@
-BASH   := @BASH@
-AWK    := @AWK@
-BISON  := @BISON@
-MKE4FS := @MKE4FS@
-E4FSCK := @E4FSCK@
+LN      := @LN@
+LN_S    := @LN_S@
+PWD_P   := @PWD_P@
+SED     := @SED@
+TAR     := @TAR@
+BASH    := @BASH@
+AWK     := @AWK@
+BISON   := @BISON@
+MKE4FS  := @MKE4FS@
+E4FSCK  := @E4FSCK@
+MKDOSFS := @MKDOSFS@
+DOSFSCK := @DOSFSCK@
+MCOPY   := @MCOPY@
+DD      := @DD@

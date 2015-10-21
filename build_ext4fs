@@ -28,9 +28,9 @@ use _kxLab;
 #     'flavour' - is a HARDWARE  variant
 #
 
-my ($rootfs_dest_dir, $devices_file);
+my ($rootfs_dest_dir, $products_dest_dir, $devices_file);
 my ($top_dir, $toolchain, $hardware, $flavour, $target_build_dir);
-my ($size, $rootfs_base_dir);
+my ($size, $rootfs_base_dir, $products_base_dir);
 
 #
 # Default values:
@@ -162,6 +162,8 @@ if( ! GetOptions( 's=s' => \$size,
                   'size=s' => \$size,
                   'r=s' => \$rootfs_base_dir,
                   'rootfs-dir=s' => \$rootfs_base_dir,
+                  'p=s' => \$products_base_dir,
+                  'products-dir=s' => \$products_base_dir,
                   'help|h|?'  => sub { usage() }
                 )
   )
@@ -178,7 +180,8 @@ $flavour   = shift;
 
 if( ! defined $size or $size eq "" ) { $size = $default_requested_size; }
 
-if( ! defined $rootfs_base_dir or $rootfs_base_dir eq "" ) { $rootfs_base_dir   = "rootfs"; }
+if( ! defined $rootfs_base_dir   or $rootfs_base_dir   eq "" ) { $rootfs_base_dir     = "rootfs";   }
+if( ! defined $products_base_dir or $products_base_dir eq "" ) { $products_base_dir   = "products"; }
 
 if( ! defined $topdir    or $topdir eq "" )    { usage; }
 if( ! defined $toolchain or $toolchain eq "" ) { usage; }
@@ -196,6 +199,8 @@ else
   $target_build_dir  = "." . $toolchain . "/" . $hardware . "/" . $flavour;
   $rootfs_dest_dir   = $topdir . "/dist/" . $rootfs_base_dir . "/" . $toolchain . "/" . $hardware . "/" . $flavour;
 }
+
+$products_dest_dir   = $topdir . "/dist/" . $products_base_dir . "/" . $toolchain . "/" . $hardware;
 
 # setup $top_build_dir
 $top_dir = $topdir;
@@ -310,6 +315,99 @@ _kxLab::system( $E4FSCK .
 #######
 ####### Simple MBR for SDHC cards with one primary Linux partition:
 #######
+sub partition_record
+{
+  my $type          = shift;
+  my $sector_size   = shift;
+  my $track_size    = shift;
+  my $cylinder_size = shift;
+  my $skip_size     = shift;
+  my $disk_size     = shift;
+
+  my ($part0, $part1, $part2, $part3);
+
+  my ($c, $h, $s, $p, $q);
+
+  my $active = 0;
+
+  if( $type == 0x0C ) { $active = 0x80; }
+
+  ################ debug ################
+  if( $type == 0x0C ) { print "#######   === Primary W95 FAT32 (LBA) Partition:\n"; }
+  else                { print "#######   === Primary Linux Partition:\n";           }
+  ############# end of debug ############
+
+  #
+  # Calculate CHS Start Address (assume 1Mib offset):
+  #
+  $c = floor( $skip_size / $cylinder_size );
+  $p = $skip_size % $cylinder_size;
+  $h = floor( $p / $track_size );
+  $q = $p % $track_size;
+  $s = floor( $q / $sector_size ) + 1;
+
+  $part0 = $active; # is the partition should be marked as active
+  $part0 = $part0 | ( $h & 0x000000ff ) <<  8;
+  $part0 = $part0 | ( $s & 0x0000003f ) << 16;
+  $part0 = $part0 | ( ( $c & 0x00000030 ) >> 8 ) << 22;
+  $part0 = $part0 | ( $c & 0x000000ff ) << 24;
+
+  ################ debug ################
+  print "#######   CHS Start Address       = ($c/$h/$s);\n";
+  ############# end of debug ############
+
+  #
+  # Calculate CHS End Address (assume 1Mib offset):
+  #
+  $c = floor( ($disk_size - $sector_size) / $cylinder_size );
+  $p = ($disk_size - $sector_size) % $cylinder_size;
+  $h = floor( $p / $track_size );
+  $q = $p % $track_size;
+  $s = floor( $q / $sector_size ) + 1;
+
+  $part1 = $type; # Partition type [0x83 - Linux; 0xc - W95 FAT32 (LBA)]
+  $part1 = $part1 | ( $h & 0x000000ff ) <<  8;
+  $part1 = $part1 | ( $s & 0x0000003f ) << 16;
+  $part1 = $part1 | ( ( $c & 0x00000300 ) >> 8 ) << 22;
+  $part1 = $part1 | ( $c & 0x000000ff ) << 24;
+
+  ################ debug ################
+  print "#######   CHS End Address         = ($c/$h/$s);\n";
+  ############# end of debug ############
+
+  my $lba;
+  #
+  # Calculate LBA Start Address [assume 1048576 byte (2048 sectors) offset]:
+  #
+  $lba = floor( $skip_size / $sector_size );
+  $part2 = $lba;
+  ################ debug ################
+  print "#######   LBA Start Address       = $lba;\n";
+  ############# end of debug ############
+
+  #
+  # calculate LBA numbers  (1Mib offset):
+  #
+  $lba = floor( ($disk_size - $skip_size) / $sector_size );
+  $part3 = $lba;
+  ################ debug ################
+  print "#######   LBA sectors             = $lba;\n";
+  ############# end of debug ############
+
+  return ( $part0, $part1, $part2, $part3 );
+}
+
+#
+# Check if the boot-records and may be FAT32 partition are created by U-Boot:
+#
+my $fat32_size   = 0;
+my $records_size = 0;
+my $FAT32_file   = $products_dest_dir . "/" . $hardware . ".fat32fs";
+my $records_file = $products_dest_dir . "/" . $hardware . ".boot-records";
+if( -f $FAT32_file   ) { $fat32_size   = -s $FAT32_file;   }
+if( -f $records_file ) { $records_size = -s $records_file; }
+
+
 my $MBR_file = $target_build_dir . "/" . $hardware . ".SD.MBR";
 
 my $heads             =   4;
@@ -319,71 +417,43 @@ my $track_size        = $sector_size * $sectors_per_track;
 
 my $cylinder_size = $heads * $sectors_per_track * $sector_size;
 my $cylinders     = $size_in_bytes / $cylinder_size;
-my $disk_size     = $MiB + $size_in_bytes;
-
-my ($part0, $part1, $part2, $part3);
-
-my ($c, $h, $s, $p, $q);
-
-#
-# Calculate CHS Start Address (assume 1Mib offset):
-#
-$c = floor( $MiB / $cylinder_size );
-$p = $MiB % $cylinder_size;
-$h = floor( $p / $track_size );
-$q = $p % $track_size;
-$s = floor( $q / $sector_size ) + 1;
-
-$part0 =     0; # not active partition (MBR has no 32-bit digital signeture)
-$part0 = $part0 | ( $h & 0x000000ff ) <<  8;
-$part0 = $part0 | ( $s & 0x0000003f ) << 16;
-$part0 = $part0 | ( ( $c & 0x00000030 ) >> 8 ) << 22;
-$part0 = $part0 | ( $c & 0x000000ff ) << 24;
+my $skip_size     = $MiB;
+my $disk_size;
 
 ################ debug ################
 print "#######\n";
 print "####### Master Boot Record:\n";
 print "####### ------------------\n";
-print "#######   CHS Start Address       = ($c/$h/$s);\n";
 ############# end of debug ############
 
-#
-# Calculate CHS End Address (assume 1Mib offset):
-#
-$c = floor( ($disk_size - $sector_size) / $cylinder_size );
-$p = ($disk_size - $sector_size) % $cylinder_size;
-$h = floor( $p / $track_size );
-$q = $p % $track_size;
-$s = floor( $q / $sector_size ) + 1;
+my ($part0, $part1, $part2, $part3);
 
-$part1 =  0x83; # Linux partition
-$part1 = $part1 | ( $h & 0x000000ff ) <<  8;
-$part1 = $part1 | ( $s & 0x0000003f ) << 16;
-$part1 = $part1 | ( ( $c & 0x00000300 ) >> 8 ) << 22;
-$part1 = $part1 | ( $c & 0x000000ff ) << 24;
+if( $fat32_size > 0 )
+{
+  $disk_size = $skip_size + $fat32_size;
 
-################ debug ################
-print "#######   CHS End Address         = ($c/$h/$s);\n";
-############# end of debug ############
+  ($part0, $part1, $part2, $part3) =
+    partition_record( 0x0C,
+                      $sector_size,
+                      $track_size,
+                      $cylinder_size,
+                      $skip_size,
+                      $disk_size );
 
-my $lba;
-#
-# Calculate LBA Start Address [assume 1048576 byte (2048 sectors) offset]:
-#
-$lba = floor( $MiB / $sector_size );
-$part2 = $lba;
-################ debug ################
-print "#######   LBA Start Address       = $lba;\n";
-############# end of debug ############
+  $skip_size = $skip_size + $fat32_size;
+}
+else
+{
+  $disk_size = $skip_size + $size_in_bytes;
 
-#
-# calculate LBA numbers  (1Mib offset):
-#
-$lba = floor( ($disk_size - $MiB) / $sector_size );
-$part3 = $lba;
-################ debug ################
-print "#######   LBA sectors             = $lba;\n";
-############# end of debug ############
+  ($part0, $part1, $part2, $part3) =
+    partition_record( 0x83,
+                      $sector_size,
+                      $track_size,
+                      $cylinder_size,
+                      $skip_size,
+                      $disk_size );
+}
 
 my $zero = 0;
 my $sign = 0xaa55;
@@ -417,19 +487,62 @@ print MBR pack( 'L<', $part1 );
 print MBR pack( 'L<', $part2 );
 print MBR pack( 'L<', $part3 );
 
+if( $fat32_size > 0 )
+{
+  $disk_size = $skip_size + $size_in_bytes;
+
+  ($part0, $part1, $part2, $part3) =
+    partition_record( 0x83,
+                      $sector_size,
+                      $track_size,
+                      $cylinder_size,
+                      $skip_size,
+                      $disk_size );
+  #
+  # Second primary partition:
+  #
+  print MBR pack( 'L<', $part0 );
+  print MBR pack( 'L<', $part1 );
+  print MBR pack( 'L<', $part2 );
+  print MBR pack( 'L<', $part3 );
+
+}
+else
+{
+  #
+  # There is no Second Partition
+  #
+  for ( my $n = 0; $n < 4; ++$n )
+  {
+    print MBR pack( 'L<', $zero );
+  }
+}
+
 #
-# Three zero primary partitions:
+# Two zero primary partitions:
 #
-for ( my $n = 0; $n < 12; ++$n )
+for ( my $n = 0; $n < 8; ++$n )
 {
   print MBR pack( 'L<', $zero );
 }
+
 #
 # Boot Signature:
 #
 print MBR pack( 'S<', $sign );
 
 close( MBR );
+
+#
+# Write MBR into boot-records file:
+#
+if( $records_size > 0 )
+{
+  _kxLab::system( "dd if=" . $MBR_file .
+                  " of=" . $records_file .
+                  " bs=512 count=1 conv=notrunc" .
+                  " 1> /dev/null 2> /dev/null" );
+}
 #######
 ####### End of Simple MBR writing.
 #######

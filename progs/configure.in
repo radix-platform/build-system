@@ -64,8 +64,14 @@ AC_PATH_PROGS(AWK, gawk awk, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 AC_PATH_PROG(BISON, bison, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 
 AC_PATH_PROG(MKE4FS, mkfs.ext4 mke2fs, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
-
 AC_PATH_PROG(E4FSCK, fsck.ext4 e2fsck, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+
+AC_PATH_PROG(MKDOSFS, mkfs.fat mkdosfs, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+AC_PATH_PROG(DOSFSCK, fsck.fat dosfsck, no, /usr/local/sbin:/usr/sbin:/sbin:$PATH)
+
+AC_PATH_PROG(MCOPY, mcopy, no, /usr/local/bin:/usr/bin:/bin:$PATH)
+
+AC_PATH_PROG(DD, dd, no, /usr/local/bin:/usr/bin:/bin:$PATH)
 
 
 
