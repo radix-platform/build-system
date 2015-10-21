@@ -318,6 +318,7 @@ _kxLab::system( $E4FSCK .
 sub partition_record
 {
   my $type          = shift;
+  my $active        = shift;
   my $sector_size   = shift;
   my $track_size    = shift;
   my $cylinder_size = shift;
@@ -327,10 +328,6 @@ sub partition_record
   my ($part0, $part1, $part2, $part3);
 
   my ($c, $h, $s, $p, $q);
-
-  my $active = 0;
-
-  if( $type == 0x0C ) { $active = 0x80; }
 
   ################ debug ################
   if( $type == 0x0C ) { print "#######   === Primary W95 FAT32 (LBA) Partition:\n"; }
@@ -346,7 +343,7 @@ sub partition_record
   $q = $p % $track_size;
   $s = floor( $q / $sector_size ) + 1;
 
-  $part0 = $active; # is the partition should be marked as active
+  $part0 = $active; # if 0x80 then the partition is active
   $part0 = $part0 | ( $h & 0x000000ff ) <<  8;
   $part0 = $part0 | ( $s & 0x0000003f ) << 16;
   $part0 = $part0 | ( ( $c & 0x00000030 ) >> 8 ) << 22;
@@ -365,7 +362,7 @@ sub partition_record
   $q = $p % $track_size;
   $s = floor( $q / $sector_size ) + 1;
 
-  $part1 = $type; # Partition type [0x83 - Linux; 0xc - W95 FAT32 (LBA)]
+  $part1 = $type; # Partition type [0x83 - Linux; 0x0C - W95 FAT32 (LBA)]
   $part1 = $part1 | ( $h & 0x000000ff ) <<  8;
   $part1 = $part1 | ( $s & 0x0000003f ) << 16;
   $part1 = $part1 | ( ( $c & 0x00000300 ) >> 8 ) << 22;
@@ -428,12 +425,16 @@ print "####### ------------------\n";
 
 my ($part0, $part1, $part2, $part3);
 
+#
+# The first partition is always active
+#
 if( $fat32_size > 0 )
 {
   $disk_size = $skip_size + $fat32_size;
 
   ($part0, $part1, $part2, $part3) =
     partition_record( 0x0C,
+                      0x80,
                       $sector_size,
                       $track_size,
                       $cylinder_size,
@@ -448,6 +449,7 @@ else
 
   ($part0, $part1, $part2, $part3) =
     partition_record( 0x83,
+                      0x80,
                       $sector_size,
                       $track_size,
                       $cylinder_size,
@@ -493,6 +495,7 @@ if( $fat32_size > 0 )
 
   ($part0, $part1, $part2, $part3) =
     partition_record( 0x83,
+                      0x00,
                       $sector_size,
                       $track_size,
                       $cylinder_size,
