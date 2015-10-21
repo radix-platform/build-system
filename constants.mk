@@ -5,7 +5,7 @@ ifndef CONSTANTS_MK
 ####### Constants:
 #######
 
-SYSTEM_VERSION       = 1.0.9
+SYSTEM_VERSION       = 1.1.0
 
 #
 # Distribution:
