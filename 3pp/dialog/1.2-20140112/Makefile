@@ -9,7 +9,7 @@ SOURCE_REQUIRES = build-system/3pp/sources/packages/dialog
 # ======= __END_OF_REQUIRES__ =======
 
 
-tar_gz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/dialog/dialog_1.2-20140112.orig.tar.gz
+tar_gz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/dialog/dialog-1.2-20140112.tgz
 src_dir         = dialog-1.2-20140112
 build_dir       = $(TARGET_BUILD_DIR)/built
 
@@ -23,7 +23,10 @@ build_target    = $(TARGET_BUILD_DIR)/.built
 install_target  = $(TARGET_BUILD_DIR)/.installed
 
 environment     =
-extra_configure_switches = --without-shared
+extra_configure_switches  = --libdir=/usr/lib
+extra_configure_switches += --mandir=/usr/share/man
+extra_configure_switches += --without-shared
+extra_configure_switches += --with-ncoursesw
 
 BUILD_TARGETS = $(install_target)
 
