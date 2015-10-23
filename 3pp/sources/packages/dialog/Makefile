@@ -8,11 +8,13 @@ include ../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/a/dialog
 
 versions    = 1.2-20140112
+pkgname     = dialog
+suffix      = tgz
 
-tarballs    = $(addsuffix .orig.tar.gz, $(addprefix dialog_, $(versions)))
+tarballs    = $(addsuffix .$(suffix), $(addprefix $(pkgname)-, $(versions)))
 sha1s       = $(addsuffix .sha1sum, $(tarballs))
 
-patches    += $(CURDIR)/patches/dialog-1.2-20140112.patch
+patches     = $(CURDIR)/patches/dialog-1.2-20140112.patch
 
 .NOTPARALLEL: $(patches)
 

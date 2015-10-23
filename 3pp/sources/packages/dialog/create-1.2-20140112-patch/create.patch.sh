@@ -2,7 +2,7 @@
 
 VERSION=1.2-20140112
 
-tar --files-from=file.list -xzvf ../dialog_$VERSION.orig.tar.gz
+tar --files-from=file.list -xzvf ../dialog-$VERSION.tgz
 mv dialog-$VERSION dialog-$VERSION-orig
 
 cp -rf ./dialog-$VERSION-new ./dialog-$VERSION
