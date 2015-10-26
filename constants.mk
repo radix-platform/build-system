@@ -226,6 +226,11 @@ HARDWARE_FFRK3288            = ffrk3288
 FFRK3288_SPEC                = Firefly RK3288 \(Linux, GNU Libc based\)
 FFRK3288_USE_BUILT_GCC_LIBS  = yes
 
+
+HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),," )
+__USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
+
+
 #######
 ####### Hardware IDs:
 #######
