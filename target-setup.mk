@@ -174,7 +174,8 @@ ifeq ($(filter $(TOOLCHAIN),$(TOOLCHAIN_NOARCH) $(TOOLCHAIN_BUILD_MACHINE)),)
 HW_FLAGS           = -D__HARDWARE__=$(call hw_id,$(HARDWARE)) $(HW_DEFS)
 endif
 
-HW_SPEC            = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),," )
+HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),," )
+__USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
 
 
 ifeq ($(filter $(TOOLCHAIN), $(TOOLCHAIN_NOARCH) $(TOOLCHAIN_BUILD_MACHINE)),)
