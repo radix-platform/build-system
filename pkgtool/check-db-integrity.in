@@ -6,7 +6,7 @@ use File::Copy;
 use DirHandle;
 use POSIX qw(tmpnam);
 
-my $TMP = "/tmp";
+my $TMP = "/tmp/radix";
 
 my ( $target_root_path, $setup_db_path, $remove_deprecated_refs );
 my ( @pkglogs );

@@ -30,7 +30,7 @@ EXITSTATUS=0
 
 CWD=`pwd`
 
-TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+TMP=$(mktemp -d /tmp/radix/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
 
 

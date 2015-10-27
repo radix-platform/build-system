@@ -4,7 +4,7 @@ program=`basename $0`
 
 # EXIT STATUS 92 = Cannot create '/tmp/...' directory
 
-TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+TMP=$(mktemp -d /tmp/radix/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
 
 
