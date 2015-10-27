@@ -30,7 +30,15 @@ EXITSTATUS=0
 
 CWD=`pwd`
 
-TMP=$(mktemp -d /tmp/XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
+#
+# The system TMP directory can be changed by TMPDIR variable:
+# ----------------------------------------------------------
+#  - If TMPDIR is not set then following command creates /tmp/radix/pkgtool.XXXXXXXX directories;
+#  - if TMPDIR is defined then following command creates $TMPDIR/pkgtool.XXXXXXXX directories.
+#
+umask 022
+if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
+TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix pkgtool.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
 
 
