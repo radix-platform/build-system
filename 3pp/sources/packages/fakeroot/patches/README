@@ -1,0 +1,7 @@
+
+/* begin *
+
+   fakeroot-1.20.2-man.patch   - Skip national man pages to prevent error during installation.
+   fakeroot-1.20.2-xattr.patch - Fix the type of xattr functions to match the glibc headers.
+
+ * end */

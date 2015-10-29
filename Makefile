@@ -3,7 +3,7 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 
 include constants.mk
 
-REQUIRES  = build-system/3pp/fakeroot/0.18
+REQUIRES  = build-system/3pp/fakeroot/1.20.2
 REQUIRES += build-system/3pp/dialog/1.2-20140112
 REQUIRES += build-system/3pp/genext2fs/1.4.1
 REQUIRES += build-system/3pp/populatefs/1.0
@@ -20,6 +20,7 @@ BUILD_TARGETS = $(config_makefile)
 
 CLEANUP_FILES  = $(config_makefile)
 CLEANUP_FILES += $(CURDIR)/sbin
+CLEANUP_FILES += $(CURDIR)/usr
 
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-db-integrity
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-package
