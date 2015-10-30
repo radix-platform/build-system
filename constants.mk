@@ -124,7 +124,7 @@ PC32_USE_BUILT_GCC_LIBS      = yes
 ####### {x86|x86_64} Personal Computer:
 HARDWARE_PC64                = pc64
 ###                           |---HW-spec-handy-ruler-----------------------|
-PC64_SPEC                    = Intel x86_32 generic Linux machine
+PC64_SPEC                    = Intel x86_64 generic Linux machine
 PC64_USE_BUILT_GCC_LIBS      = yes
 
 ####### A1N newlib devices (cubieboard 1):
