@@ -1537,10 +1537,10 @@ endif
 #   to allow parallel installation the 'install_pkgs' script install packages from
 #   $(TARGET_BUILD_DIR)/$(PKG_GROUP) directory. In other words if ROOTFS_TARGETS equal to
 #
-#      ROOTFS_TARGETS = $(TARGET_BUILD_DIR)/$(PKG_GROUP)/$(pkg_basename).tgz
+#      ROOTFS_TARGETS = $(TARGET_BUILD_DIR)/$(PKG_GROUP)/$(pkg_basename).txz
 #
 #   then 'install_pkgs' going to $(TARGET_BUILD_DIR)/$(PKG_GROUP) directory and installs
-#   the $(pkg_basename).tgz package directly from this directory to keep temporary files
+#   the $(pkg_basename).txz package directly from this directory to keep temporary files
 #   separately from other HARDWAREs. In this case we need to use CWD environment variable
 #   to set the directory where the .$(HARDWARE).rootfs.* files will be collected by
 #   'install_pkgs' script (see the 'install_pkgs' source code).

@@ -46,7 +46,7 @@ sub cleanpath
 sub rootfs
 {
   my $dest_dir = cleanpath( shift );
-  my $file = basename( shift, ".tgz" );
+  my $file = basename( shift, ".txz" );
   print $tempfd "$dest_dir/var/log/$distro/packages/$file\n";
 }
 

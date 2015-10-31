@@ -1437,7 +1437,7 @@ pkg_description = $(call <span id="bs_var">desc-name</span>,$(pkg_archive))<br/>
 </p>
 
 <ol id="numbered_list" type="a">
-<li>переменная <span id="bs_var">pkg_arch_suffix</span>, определяющая расширение имени пакета. На данный момент, расширение равно <span id="mono">'</span><span id="mono_bold">tgz</span><span id="mono">'</span>;</li>
+<li>переменная <span id="bs_var">pkg_arch_suffix</span>, определяющая расширение имени пакета. На данный момент, расширение равно <span id="mono">'</span><span id="mono_bold">txz</span><span id="mono">'</span>;</li>
 <li>функция <span id="bs_var">sign-name</span>, заменяющая суффикс $(<span id="bs_var">pkg_arch_suffix</span>) на <span id="mono">'</span><span id="mono_bold">sha256</span><span id="mono">'</span>;</li>
 <li>функция <span id="bs_var">desc-name</span>, заменяющая суффикс $(<span id="bs_var">pkg_arch_suffix</span>) на <span id="mono">'</span><span id="mono_bold">txt</span><span id="mono">'</span>;</li>
 <li>функция <span id="bs_var">pkg-files</span>, формирующая полный список файлов, предназначенных для инсталляции в <span id="bs_var">PRODUCTS_DEST_DIR</span>.</li>
@@ -2389,7 +2389,7 @@ $ <span id="mono_bold">CACHE_DIR</span>=/opt/extra/ccache <span id="mono_bold">c
                        "distribution version: " + root.distro[1] + "<br/>" +
                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bug report url: " + root.distro[2] + "<br/>" +
                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package tarball: " + d.name + "-" +
-                          d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "tgz" + "<br/>" +
+                          d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "txz" + "<br/>" +
                        "&nbsp;&nbsp;&nbsp;uncompressed size: " + d.uncompressed_size + "<br/>" +
                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of files: " + d.total_files + "<br/>" +
                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;license: " + d.license)

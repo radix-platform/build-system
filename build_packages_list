@@ -27,7 +27,7 @@ use _kxLab;
 # global variables
 my ($topdir, $toolchain, $hardware, $build_system, $requires_file, $pkglist_file);
 my ( $distro_name, $distro_version, $url );
-my $tarball_suffix = "tgz";
+my $tarball_suffix = "txz";
 
 sub usage
 {

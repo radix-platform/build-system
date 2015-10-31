@@ -88,7 +88,7 @@ set_ref_counter() {
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
   oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
   if [ ! "$oldrefs" = "" ]; then
-    sed -e "$LINENUM_REF s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile 
+    sed -i "$LINENUM_REF s/$oldrefs/$refs/" $logfile
   fi
 }
 
@@ -96,32 +96,13 @@ inc_ref_counter() {
   logfile=$1
   pkgn=$2
   pkgv=$3
-  LINENUM_RFS="`cat $logfile | grep -n -e "REFERENCE COUNTER:" | cut -f 1 -d ':'`"
-  LINENUM_RQS="`cat $logfile | grep -n -e "REQUIRES:" | cut -f 1 -d ':'`"
-  if [ "$LINENUM_RFS" = "" ]; then
-#    echo "$program: WARNING: reference counter is not present in $logfile ."
-    return
-  fi
-  LINE="`sed -n "$LINENUM_RFS p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
-  if [ ! "$oldrefs" = "" ]; then
-    refs=$oldrefs
-    LINENUM_FOUND=`cat $logfile | grep -n -e "^$pkgn=$pkgv" | cut -f 1 -d ':'`
-    for LINENUM_TODEL in $LINENUM_FOUND ; do
-      if [ $LINENUM_TODEL -gt $LINENUM_RFS -a $LINENUM_TODEL -lt $LINENUM_RQS ]; then
-#        echo "$program: WARNING: reference is already counted in $logfile ."
-        return
-      fi
-    done
-    let refs+=1
-    sed -e "$LINENUM_RFS s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile
-    # add line: NOTE: should be uniq
-    sed '/^REFERENCE COUNTER:/ a\
-@__package__@
-' $logfile > log$$ && mv log$$ $logfile
-    let LINENUM_RFS+=1
-    sed -e "$LINENUM_RFS s/@__package__@/$pkgn=$pkgv/" $logfile > log$$ && mv log$$ $logfile
-  fi
+
+  #
+  # Insert who requires this package and increment the counter in one time:
+  #
+  sed -i -re 's/(^REFERENCE COUNTER: )([0-9]+)/echo "\1$((\2+1))"/ge' -e "/^REFERENCE COUNTER:/ a\
+$pkgn=$pkgv
+" $logfile
 }
 
 dec_ref_counter() {
@@ -141,21 +122,26 @@ dec_ref_counter() {
     if [ ! "$refs" = "0" ]; then
       # remove all of lines '$pkgn=$pkgv' between 'REFERENCE COUNTER:' and 'REQUIRES:' lines
       LINENUM_FOUND=`cat $logfile | grep -n -e "^$pkgn=$pkgv" | cut -f 1 -d ':'`
-      DEL_LINES=
-      for LINENUM_TODEL in $LINENUM_FOUND ; do
-        if [ $LINENUM_TODEL -gt $LINENUM_RFS -a $LINENUM_TODEL -lt $LINENUM_RQS ]; then
-          let refs-=1
-          if [ "$DEL_LINES" = "" ]; then
-            DEL_LINES=$LINENUM_TODEL # first line to delete
+      DEL_LINES=""
+      if [ ! "$LINENUM_FOUND" = "" ] ; then
+        for LINENUM_TODEL in $LINENUM_FOUND ; do
+          if [ $LINENUM_TODEL -gt $LINENUM_RFS -a $LINENUM_TODEL -lt $LINENUM_RQS ]; then
+            let refs-=1
+            if [ "$DEL_LINES" = "" ]; then
+              DEL_LINES=$LINENUM_TODEL # first line to delete
+            fi
           fi
+        done
+        if [ $refs -lt 0 ]; then
+          refs=0
         fi
-      done
-      if [ $refs -lt 0 ]; then
-        refs=0
+        DEL_LINES=$DEL_LINES,$LINENUM_TODEL # add the last line to delete
+        sed -i "$DEL_LINES d" $logfile
+        sed -i "$LINENUM_RFS s/$oldrefs/$refs/" $logfile
+        # if we need decrement only then we can use:
+        #sed -i -re 's/(^REFERENCE COUNTER: )([0-9]+)/if [ "\2" -ne "0" ] ; then echo "\1$((\2-1))" ; else echo "\10" ; fi/e' \
+        #        -e "$DEL_LINES d" $logfile
       fi
-      DEL_LINES=$DEL_LINES,$LINENUM_TODEL # add the last line to delete
-      sed "$DEL_LINES d" $logfile > log$$ && mv log$$ $logfile
-      sed -e "$LINENUM_RFS s/$oldrefs/$refs/" $logfile > log$$ && mv log$$ $logfile
     fi
   fi
 }

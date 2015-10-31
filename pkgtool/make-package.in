@@ -124,7 +124,7 @@ usage() {
 
 Usage: $program [options] DESTDIR
 
-Makes a "*.tgz" package containing the contents of the current and 
+Makes a "*.txz" package containing the contents of the current and 
 all subdirectories. If symbolic links exist, they will be removed
 and an '.RESTORELINKS' script will be made to recreate them later.
 
@@ -152,15 +152,13 @@ show_version() {
 
 remove_size_info() {
   infile="./.PKGINFO"
-  tmpfile=`mktemp $TMP/info.XXXXXX`
-  cat "$infile" | sed "/uncompressed_size/d" > $tmpfile && mv $tmpfile $infile
-  cat "$infile" | sed "/total_files/d" > $tmpfile && mv $tmpfile $infile
-  rm -f $tmpfile
+  sed -i "/uncompressed_size/d" $infile
+  sed -i "/total_files/d" $infile
 }
 
 remove_backslash_info() {
   infile="./.PKGINFO"
-  sed '/^short_description=/ s/[\]\(.\)/\1/g' -i $infile
+  sed -i '/^short_description=/ s/[\]\(.\)/\1/g' $infile
 }
 
 
@@ -280,7 +278,7 @@ fi
 
 echo
 echo "Package maker, version $VERSION."
-PACKAGE_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.tgz"
+PACKAGE_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.txz"
 PACKAGE_TEXT="$pkgname-$pkgver-$arch-$distroname-$distrover.txt"
 SHA_SUM_NAME="$pkgname-$pkgver-$arch-$distroname-$distrover.sha256"
 if [ "$TARGET_DIR_NAME" = "" ]; then
@@ -300,7 +298,7 @@ if [ ! "$TARGET_DIR_NAME" = "." ]; then
   fi
 fi
 PACKAGE_NAME="`basename $PACKAGE_NAME`"
-TAR_NAME="`basename $PACKAGE_NAME .tgz`"
+TAR_NAME="`basename $PACKAGE_NAME .txz`"
 echo
 echo -n "Search for symbolic links: "
 # Get rid of possible pre-existing trouble:
@@ -379,11 +377,11 @@ done
 
 
 echo
-echo "Gzipping $TAR_NAME.tar..."
-gzip -9 $TAR_NAME.tar
+echo "Compress $TAR_NAME.tar..."
+xz -9 $TAR_NAME.tar
 echo
-echo "Renaming $TAR_NAME.tar.gz to $PACKAGE_NAME..."
-mv $TAR_NAME.tar.gz $PACKAGE_NAME
+echo "Renaming $TAR_NAME.tar.xz to $PACKAGE_NAME..."
+mv $TAR_NAME.tar.xz $PACKAGE_NAME
 
 text_description $PACKAGE_TEXT
 sha256sum -b $PACKAGE_NAME > $SHA_SUM_NAME

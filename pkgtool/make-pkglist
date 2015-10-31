@@ -7,7 +7,7 @@ program=`basename $0`
 
 #  1 = tar returned error code
 #  2 = failed read package info
-#  3 = does not end in .tgz
+#  3 = does not end in .txz
 #  4 = not a file
 # 11 = broken .PKGINFO
 # 14 = broken declaration of user pkglist
@@ -44,7 +44,7 @@ EOF
 }
 
 package_info() {
-  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/pkginfo$$  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/pkginfo$$  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package info from $1"
     EXITSTATUS=1
@@ -120,7 +120,7 @@ if [ "$PRIORITY" = "" ]; then
   PRIORITY="RECOMMENDED"
 fi
 
-probe=`find $CWD -name "*.tgz" > /dev/null 2>&1`
+probe=`find $CWD -name "*.txz" > /dev/null 2>&1`
 if [ ! "$?" = "0" ]; then
   usage
   echo "WARNING: There are not package tarballs in current directory."
@@ -144,7 +144,7 @@ fi
 #                 used to complete common check dialog for installing group  of packages;
 #   description - short description for showing in check list dialog box if this file is
 #                 used to complete common check dialog for installing  group of packages;
-#   tarball     - should end in '.tgz';
+#   tarball     - should end in '.txz';
 #   procedure   - installation procedure {install | update}:
 #                  * 'install' - if package requires normal installation,
 #                  * 'update'  - if already installed package should be updated by this
@@ -161,7 +161,7 @@ EOF
 ################################################################
 # Main loop:
 #
-for pkgtarball in `find $CWD -name "*.tgz"` ; do
+for pkgtarball in `find $CWD -name "*.txz"` ; do
 
   pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
 

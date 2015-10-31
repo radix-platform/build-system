@@ -30,7 +30,7 @@ my ($topdir, $toolchain, $hardware, $flavour);
 my ($target_build_dir, $requires_file);
 my ($html_tree_file, $js_tree_file, $js_min_tree_file, $pkglist_file);
 my ($distro_name, $distro_version, $url);
-my $tarball_suffix = "tgz";
+my $tarball_suffix = "txz";
 
 my %sub_trees;
 my %tree;
@@ -442,7 +442,7 @@ sub fill_package_info
 
     (undef, $tempname) = File::Temp::tempfile( $fname, OPEN => 0, UNLINK => $cleanup );
 
-    _kxLab::system( "zcat $tarball_file | tar -xvf - \".PKGINFO\" -O  1> $tempname  2> /dev/null" );
+    _kxLab::system( "xzcat $tarball_file | tar -xvf - \".PKGINFO\" -O  1> $tempname  2> /dev/null" );
 
     $pkg{'uncompressed_size'} = get_pkg_info( $tempname, "uncompressed_size" );
     $pkg{'total_files'}       = get_pkg_info( $tempname, "total_files" );
@@ -451,7 +451,7 @@ sub fill_package_info
 
     (undef, $tempname) = File::Temp::tempfile( $fname, OPEN => 0, UNLINK => $cleanup );
 
-    _kxLab::system( "zcat $tarball_file | tar -xvf - \".DESCRIPTION\" -O  1> $tempname  2> /dev/null" );
+    _kxLab::system( "xzcat $tarball_file | tar -xvf - \".DESCRIPTION\" -O  1> $tempname  2> /dev/null" );
     $pkg{ 'description' } = get_pkg_description( $tempname );
 
     unlink $tempname;

@@ -113,10 +113,7 @@ sub read_devices
   my %devs;
 
   $args = "--numeric-owner -" . $arch . "tvf " . $tarball;
-  #
-  # We read the head of Makefile until '__END_OF_REQUIRES__' keyword.
-  # The 'build-system/constants.mk' should be included before requires.
-  #
+
   my $shell_output = <<`SHELL`;
 tar $args
 exit 0
@@ -184,7 +181,7 @@ sub get_tarballs_list
                            $system_version .  "-" .
                            $toolchain      .  "-" .
                            $distro_name    .  "-" .
-                           $distro_version . ".tgz";
+                           $distro_version . ".txz";
     if( -f $init_dev_package )
     {
       push @tarballs, $init_dev_package;
@@ -211,7 +208,7 @@ sub get_tarballs_list
 #
 # Parse the command line options
 #
-$arch = 'z';
+$arch = 'J';
 if( ! GetOptions( 'a=s' => \$arch,
                   'arch=s' => \$arch,
                   'p=s' => \$products_base_dir,
@@ -232,7 +229,7 @@ $flavour   = shift;
 
 if( $arch eq '' )
 {
-  $arch = 'z';
+  $arch = 'J';
 }
 
 

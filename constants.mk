@@ -5,7 +5,7 @@ ifndef CONSTANTS_MK
 ####### Constants:
 #######
 
-SYSTEM_VERSION       = 1.1.2
+SYSTEM_VERSION       = 1.1.3
 
 #
 # Distribution:
@@ -48,7 +48,7 @@ TOOLCHAINS_BASE_PATH = /opt/toolchain
 #  - package description.
 # extensions of these files are depend on pkgtool.
 
-pkg_arch_suffix = tgz
+pkg_arch_suffix = txz
 pkg_sign_suffix = sha256
 pkg_desc_suffix = txt
 

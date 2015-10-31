@@ -8,7 +8,7 @@ program=`basename $0`
 
 #  1 = tar returned error code
 #  2 = failed read package info
-#  3 = does not end in .tgz
+#  3 = does not end in .txz
 #  4 = not a file
 # 11 = broken .PKGINFO
 # 12 = broken .DESCRIPTION
@@ -41,8 +41,8 @@ usage() {
 
 Usage: $program [options] package_tarball[s]
 
-$program is used to update a *.tgz package like this:
-   $program /packagesdir/pkgtool-0.0.1-x86_64-glibc-radix-1.0.tgz
+$program is used to update a *.txz package like this:
+   $program /packagesdir/pkgtool-0.0.1-x86_64-glibc-radix-1.0.txz
 
 options:
    --root /dest    - install someplace else, like /dest;
@@ -63,7 +63,7 @@ EOF
 }
 
 package_info() {
-  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/pkginfo$$  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/pkginfo$$  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package info from $1"
     EXITSTATUS=1
@@ -88,7 +88,7 @@ package_info() {
 
 package_description() {
   # do not forget to remove $TMP/description$$ after using.
-  zcat $1 | $TAR -xvf - ".DESCRIPTION" -O  1> $TMP/description$$  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".DESCRIPTION" -O  1> $TMP/description$$  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package description from $1"
     EXITSTATUS=1
@@ -170,7 +170,7 @@ set_references() {
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
   oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
   if [ ! "$oldrefs" = "" ]; then
-    sed -e "$LINENUM_REF s/$oldrefs/$refs/" $logfile > $TMP/log$$ && mv $TMP/log$$ $logfile
+    sed -i "$LINENUM_REF s/$oldrefs/$refs/" $logfile
   fi
 
   sed -i "/^REFERENCE COUNTER:/r $TMP/refsfile$$" $logfile
@@ -388,19 +388,19 @@ remove_installed_files_on_error() {
 # Main loop:
 #
 for pkgtarball in $* ; do
-  # If someone left off the '.tgz', try to figure that out:
-  if [ ! -r "$pkgtarball" -a -r "$pkgtarball.tgz" ]; then
-    pkgtarball=$pkgtarball.tgz
+  # If someone left off the '.txz', try to figure that out:
+  if [ ! -r "$pkgtarball" -a -r "$pkgtarball.txz" ]; then
+    pkgtarball=$pkgtarball.txz
   fi
 
-  tarball_noext_name="`basename $pkgtarball .tgz`"
+  tarball_noext_name="`basename $pkgtarball .txz`"
   tarball_src_dir="`dirname $pkgtarball`"
 
-  # Reject package if it does not end in '.tgz':
-  if [ ! -r "$tarball_src_dir/$tarball_noext_name.tgz" ]; then
+  # Reject package if it does not end in '.txz':
+  if [ ! -r "$tarball_src_dir/$tarball_noext_name.txz" ]; then
     EXITSTATUS=3
     if [ "$MODE" = "console" ]; then
-      echo "ERROR: Cannot install $pkgtarball: tarball does not end in .tgz"
+      echo "ERROR: Cannot install $pkgtarball: tarball does not end in .txz"
     fi
     continue;
   fi
@@ -593,7 +593,7 @@ EOF
 .REQUIRES
 .RESTORELINKS
 EOF
-  zcat $pkgtarball | $TAR -C $TMP --files-from=$TMP/pkg.service.files$$ -xf - > /dev/null 2>&1
+  xzcat $pkgtarball | $TAR -C $TMP --files-from=$TMP/pkg.service.files$$ -xf - > /dev/null 2>&1
   ( cd $DEST
     if [ -x $TMP/.INSTALL ]; then
       $TMP/.INSTALL pre_update $oldpkgver $pkgver > /dev/null 2>&1
@@ -611,7 +611,7 @@ EOF
     break
   fi
   # unpack archive excluding service files:
-  zcat $pkgtarball | $TAR -C $DEST --exclude-from=$TMP/pkg.service.files$$ -xpf -  > /dev/null 2>&1
+  xzcat $pkgtarball | $TAR -C $DEST --exclude-from=$TMP/pkg.service.files$$ -xpf -  > /dev/null 2>&1
   if [ ! "$?" = "0" ]; then
     echo "ERROR: $TAR has returned error code."
     echo "ERROR: $TAR has returned error code." >> $LOG_FILE

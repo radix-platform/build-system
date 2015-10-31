@@ -84,7 +84,7 @@ else
   PKGLIST=$CWD/.pkglist
 fi
 
-probe=`find $CWD -name "*.tgz" > /dev/null 2>&1`
+probe=`find $CWD -name "*.txz" > /dev/null 2>&1`
 if [ ! "$?" = "0" ]; then
   usage
   echo "WARNING: There are not package tarballs in current directory."
@@ -118,9 +118,9 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
     # version    - is used to avoid errors related equal substring in packagenames
     # packagedir - is used to recognize same packages in different directories
     if [ ! -z "$pdir" -a "$pdir" != "." ] ; then
-      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.tgz"`
+      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.txz"`
     else
-      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.tgz"`
+      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.txz"`
     fi
     pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
@@ -243,9 +243,9 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
     # version    - is used to avoid errors related equal substring in packagenames
     # packagedir - is used to recognize same packages in different directories
     if [ ! -z "$pdir" -a "$pdir" != "." ] ; then
-      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.tgz"`
+      pkgtarball=`find $CWD/$pdir -name "$pnam-$pver-*.txz"`
     else
-      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.tgz"`
+      pkgtarball=`find $CWD -name "$pdir/$pnam-$pver-*.txz"`
     fi
     pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then

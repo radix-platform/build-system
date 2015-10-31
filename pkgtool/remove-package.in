@@ -39,9 +39,9 @@ usage() {
 
 Usage: $program [options] { package_tarball[s] | pkglogfile[s] }
 
-$program is used to remove a *.tgz package like this:
-   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
-   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+$program is used to remove a *.txz package like this:
+   $program /packagesdir/_kxLibc-1.0.4-x86_64-glibc-radix-1.0.txz
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-glibc-radix-1.0
 
 options:
    --root /dest - install someplace else, like /dest;
@@ -62,7 +62,7 @@ get_ref_counter() {
 }
 
 tarball_pkginfo() {
-  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package pkginfo from $1"
     EXITSTATUS=1
@@ -258,7 +258,7 @@ for PKGFILE in $* ; do
   fi
 
   pkgfile_name="`basename $PKGFILE`"
-  pkgfile_noext_name="`basename $PKGFILE .tgz`"
+  pkgfile_noext_name="`basename $PKGFILE .txz`"
   pkgfile_src_dir="`dirname $PKGFILE`"
 
   if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then

@@ -41,8 +41,8 @@ usage() {
 Usage: $program [options] { package_tarball | pkglogfile }
 
 $program is used to determine how the package is installed:
-   $program /packagesdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz
-   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+   $program /packagesdir/_kxLibc-1.0.4-x86_64-glibc-radix-1.0.txz
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-glibc-radix-1.0
 
 returns:
    30 - Package is installed correctly;
@@ -73,7 +73,7 @@ get_ref_counter() {
 }
 
 tarball_pkginfo() {
-  zcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".PKGINFO" -O  1> $TMP/.PKGINFO  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package info from $1"
     EXITSTATUS=1
@@ -228,7 +228,7 @@ if [ ! -f $PKGFILE ]; then
 fi
 
 pkgfile_name="`basename $PKGFILE`"
-pkgfile_noext_name="`basename $PKGFILE .tgz`"
+pkgfile_noext_name="`basename $PKGFILE .txz`"
 pkgfile_src_dir="`dirname $PKGFILE`"
 
 if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then
@@ -273,7 +273,7 @@ rm -f $TMP/.PKGINFO
 if [ ! -f $PKG_DB_PATH/$pkgname-$pkgver-$arch-$distroname-$distrover ]; then
   if [ ! "$tarball" = "" ]; then
     # try to create new logfile from pkg tarball in the current directory.
-    zcat $tarball | $TAR -C $TMP -xf - .PKGINFO .INSTALL .FILELIST .REQUIRES .DESCRIPTION .RESTORELINKS  2> /dev/null
+    xzcat $tarball | $TAR -C $TMP -xf - .PKGINFO .INSTALL .FILELIST .REQUIRES .DESCRIPTION .RESTORELINKS  2> /dev/null
     # do not check ret code because not all of .* files should be present in tarball
     if [ -f "$TMP/.PKGINFO" ]; then
       pkglog $TMP/.PKGINFO $TMP > /dev/null 2>&1

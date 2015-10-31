@@ -28,8 +28,8 @@ usage() {
 Usage: $program [options] {package_tarball | instll_log_file}
 
 $program is used to determine which packages are required for this package:
-   $program /pkgsdir/_kxLibc-1.0.4-x86_64-slamd64-12.2.tgz  1>humanreadable 2>formatted
-   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-slamd64-12.2
+   $program /pkgsdir/_kxLibc-1.0.4-x86_64-glibc-radix-1.0.txz  1>humanreadable 2>formatted
+   $program /SETUP_DB_PATH/packages/_kxLibc-1.0.4-x86_64-glibc-radix-1.0
 
 options:
    --root /dest - root path to finding packaged database
@@ -53,7 +53,7 @@ EOF
 
 
 tarball_requires() {
-  zcat $1 | $TAR -xvf - ".REQUIRES" -O  1> $TMP/.REQUIRES  2> /dev/null
+  xzcat $1 | $TAR -xvf - ".REQUIRES" -O  1> $TMP/.REQUIRES  2> /dev/null
   if [ ! "$?" = "0" ]; then
     echo "ERROR: Cannot extract package requires from $1"
     EXITSTATUS=1
@@ -208,7 +208,7 @@ if [ ! -f $PKGFILE ]; then
 fi
 
 pkgfile_name="`basename $PKGFILE`"
-pkgfile_noext_name="`basename $PKGFILE .tgz`"
+pkgfile_noext_name="`basename $PKGFILE .txz`"
 pkgfile_src_dir="`dirname $PKGFILE`"
 
 if [ "$pkgfile_name" = "$pkgfile_noext_name" ]; then
