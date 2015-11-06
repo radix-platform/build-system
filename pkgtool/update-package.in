@@ -522,7 +522,8 @@ for pkgtarball in $* ; do
 
   # Check how the package is installed:
   # ==================================
-  logfile=`find $SETUP_DB_PATH/packages -type f -name "$pkgname-*-$arch-$distroname-$distrover"`
+  logfile=`find $SETUP_DB_PATH/packages -type f -name "$pkgname-[0-9]*-$arch-$distroname-$distrover"`
+  # ================ NOTE that version always starts from some ^======^ digit
   logfile=`basename $logfile`
 
   # get version of installed package, set full path to logfile
