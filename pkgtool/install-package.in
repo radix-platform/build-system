@@ -438,7 +438,7 @@ for pkgtarball in $* ; do
   rm -f $TMP/description$$
 
   echo " Uncompressed Size: $uncompressed_size" >> $TMP/msg$$
-  echo "   Compressed Sise: $compressed_size"   >> $TMP/msg$$
+  echo "   Compressed Size: $compressed_size"   >> $TMP/msg$$
 
   # Emit information to the console:
   if [ "$MODE" = "console" -a ! "$PRIORITY" = "SKIP" ]; then
