@@ -536,16 +536,6 @@ print MBR pack( 'S<', $sign );
 
 close( MBR );
 
-#
-# Write MBR into boot-records file:
-#
-if( $records_size > 0 )
-{
-  _kxLab::system( "dd if=" . $MBR_file .
-                  " of=" . $records_file .
-                  " bs=512 count=1 conv=notrunc" .
-                  " 1> /dev/null 2> /dev/null" );
-}
 #######
 ####### End of Simple MBR writing.
 #######

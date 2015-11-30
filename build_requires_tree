@@ -13,7 +13,7 @@ use File::Temp;
 use _kxLab;
 
 #
-# Generate .$(HARDWARE)_requires.{json,html,pkglist} file for current directory
+# Generate .$(HARDWARE).{json,html} file for current directory
 #
 # usage:
 #   $0 topdir toolchain hardware
@@ -28,7 +28,7 @@ use _kxLab;
 my ($build_system);
 my ($topdir, $toolchain, $hardware, $flavour);
 my ($target_build_dir, $requires_file);
-my ($html_tree_file, $js_tree_file, $js_min_tree_file, $pkglist_file);
+my ($html_tree_file, $js_tree_file, $js_min_tree_file);
 my ($distro_name, $distro_version, $url);
 my $tarball_suffix = "txz";
 
@@ -594,13 +594,11 @@ if( $flavour eq "" )
 {
   $html_tree_file = $target_build_dir . "/" . $hardware . ".html";
   $js_tree_file   = $target_build_dir . "/" . $hardware . ".json";
-  $pkglist_file   = $target_build_dir . "/" . $hardware . ".pkglist";
 }
 else
 {
   $html_tree_file = $target_build_dir . "/" . $hardware . "-" . $flavour . ".html";
   $js_tree_file   = $target_build_dir . "/" . $hardware . "-" . $flavour . ".json";
-  $pkglist_file   = $target_build_dir . "/" . $hardware . "-" . $flavour . ".pkglist";
 }
 
 my $jsmin = $ENV{JSMIN};
@@ -616,8 +614,6 @@ open(REQUIRES_FILE, "< $requires_file") or
 # open the output files
 open(JS_TREE_FILE, "> $js_tree_file") or
   _kxLab::error( "$0: Could not open $js_tree_file file: $!" );
-open(PKGLIST_FILE, "> $pkglist_file") or
-  _kxLab::error( "$0: Could not open $pkglist_file file: $!" );
 
 
 my $depth    = 2;
@@ -847,47 +843,18 @@ _kxLab::system( $call_string );
 
 
 #################################################################
-# Building Required Packages List:
+# Count the number of packages [see: build_packages_list script]:
 #
 sub compare_order
 {
   $sequence{$a} <=> $sequence{$b};
 }
 
-print PKGLIST_FILE "#\n";
-print PKGLIST_FILE "# file format:\n";
-print PKGLIST_FILE "# ===========\n";
-print PKGLIST_FILE "#\n";
-print PKGLIST_FILE "# Each line contains six fields separated by colon symbol ':' like following.\n";
-print PKGLIST_FILE "#\n";
-print PKGLIST_FILE "# pkgname:version:description:tarball:procedure:priority\n";
-print PKGLIST_FILE "#\n";
-print PKGLIST_FILE "# where:\n";
-print PKGLIST_FILE "#\n";
-print PKGLIST_FILE "#   pkgname     - should be the same as the value of pkgname  in the '.DESCRIPTION' file;\n";
-print PKGLIST_FILE "#   version     - package version for showing in check list  dialog box  if this file is\n";
-print PKGLIST_FILE "#                 used to complete common check dialog for installing group  of packages;\n";
-print PKGLIST_FILE "#   description - short description for showing in check list dialog box if this file is\n";
-print PKGLIST_FILE "#                 used to complete common check dialog for installing  group of packages;\n";
-print PKGLIST_FILE "#   tarball     - should end in '." . $tarball_suffix . "';\n";
-print PKGLIST_FILE "#   procedure   - installation procedure {install | update}:\n";
-print PKGLIST_FILE "#                  * 'install' - if package requires normal installation,\n";
-print PKGLIST_FILE "#                  * 'update'  - if already installed package should be updated by this\n";
-print PKGLIST_FILE "#                                package archive;\n";
-print PKGLIST_FILE "#   priority    - { REQUIRED|RECOMMENDED|OPTIONAL|SKIP }\n";
-print PKGLIST_FILE "#                  synonims:\n";
-print PKGLIST_FILE "#                    { REQUIRED    | required    | REQ | req }\n";
-print PKGLIST_FILE "#                    { RECOMMENDED | recommended | REC | rec }\n";
-print PKGLIST_FILE "#                    { OPTIONAL    | optional    | OPT | opt }\n";
-print PKGLIST_FILE "#                    { SKIP        | skip        | SKP | skp }\n";
-print PKGLIST_FILE "#\n";
-
-
 my $packages_done = 0;
 
 sub print_result
 {
-  my $out_string = sprintf( "####### Required Packages Tree and Install List (done: %4d packages)\n", $packages_done );
+  my $out_string = sprintf( "####### Required Packages Tree (done: %4d packages)\n", $packages_done );
 
   print $out_string;
 }
@@ -901,32 +868,9 @@ foreach my $dir (sort compare_order( (keys %sequence) ))
   if( $dir ne "all" )
   {
     $package = $sub_trees{$dir};
-    #
-    # Currently gcc-runtime has not ROOTFS_TARGET and not all packages requires GCC.
-    # We will not add GCC in this procedure forcibly. But developers have to care about
-    # competing packages GCC and gcc-runtime.
-    #
+
     if( $package->{'install'} ne "no" )
     {
-      if( $package->{'flavour'} eq "" )
-      {
-        print PKGLIST_FILE $package->{'name'}              . ":" .
-                           $package->{'version'}           . ":" .
-                           $package->{'short_description'} . ":" .
-                           $package->{'group'}             . "/" .
-                           $package->{'tarball'}           . ":" .
-                           $package->{'install'}           . ":REQUIRED\n";
-      }
-      else
-      {
-        print PKGLIST_FILE $package->{'name'}              . ":" .
-                           $package->{'version'}           . ":" .
-                           $package->{'short_description'} . ":" .
-                           $package->{'group'}             . "/" .
-                           $package->{'flavour'}           . "/" .
-                           $package->{'tarball'}           . ":" .
-                           $package->{'install'}           .  ":REQUIRED\n";
-      }
       ++$packages_done;
     }
   }
@@ -934,36 +878,16 @@ foreach my $dir (sort compare_order( (keys %sequence) ))
 
 if( $tree{'install'} ne "no" )
 {
-  if( $tree{'flavour'} eq "" )
-  {
-    print PKGLIST_FILE $tree{'name'}              . ":" .
-                       $tree{'version'}           . ":" .
-                       $tree{'short_description'} . ":" .
-                       $tree{'group'}             . "/" .
-                       $tree{'tarball'}           . ":" .
-                       $tree{'install'}           . ":REQUIRED\n";
-  }
-  else
-  {
-    print PKGLIST_FILE $tree{'name'}              . ":" .
-                       $tree{'version'}           . ":" .
-                       $tree{'short_description'} . ":" .
-                       $tree{'group'}             . "/" .
-                       $tree{'flavour'}           . "/" .
-                       $tree{'tarball'}           . ":" .
-                       $tree{'install'}           .  ":REQUIRED\n";
-  }
   ++$packages_done;
 }
 
 print_result();
 print "#######\n";
 #
-# End of Building Required Packages List.
+# End of Counting the number of packages.
 #################################################################
 
 # close input files
 close REQUIRES_FILE;
 # close output files
 close JS_TREE_FILE;
-close PKGLIST_FILE;

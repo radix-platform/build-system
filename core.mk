@@ -572,8 +572,11 @@ help:
 	@echo ""
 	@echo -e "   requires_tree      - create HTML file to show the requires tree for current"
 	@echo -e "                        directory. Note that this goal depends on goal all;"
+	@echo -e "   packages_list      - create HW.pkglist file which contains the list of packages"
+	@echo -e "                        in install order. Note that this goal depends on goal all;"
 	@echo -e "   devices_table      - create Devices Table for rootfs image creation procedure;"
 	@echo -e "   ext4fs_image       - create Ext4 Root FS for target Boot Image;"
+	@echo -e "   products_release   - install files into products directory for release;"
 	@echo ""
 	@echo -e "   global_clean       - clean up whole sourses tree excluding downloaded"
 	@echo -e "                        source tarballs;"
@@ -938,11 +941,17 @@ local_rootfs_clean: $(__targets)
 requires_tree: GOAL = requires_tree
 requires_tree: $(__targets)
 
+packages_list: GOAL = packages_list
+packages_list: $(__targets)
+
 devices_table: GOAL = devices_table
 devices_table: $(__targets)
 
 ext4fs_image:  GOAL = ext4fs_image
 ext4fs_image:  $(__targets)
+
+products_release:  GOAL = products_release
+products_release:  $(__targets)
 
 
 .target_%: TOOLCHAIN = $(shell echo $(word 2, $(subst _, , $@)) | sed -e 's/x86-64/x86_64/g')
@@ -1272,9 +1281,9 @@ endif
 #######
 
 #
-# $(HARDWARE).pkglist - is a main target of `make requires_tree' procedure:
+# $(HARDWARE).html - is a main target of `make requires_tree' procedure:
 #
-requires_tree: $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist
+requires_tree: $(TARGET_BUILD_DIR)/$(HARDWARE).html
 
 #
 # Requires Tree perform only if goal 'all' is done and all packages installed
@@ -1285,7 +1294,7 @@ requires_tree: $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist
 #   during Makefile works. For normal work all tested files should be
 #   created before the Makefile starting my make command.
 #
-$(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist:
+$(TARGET_BUILD_DIR)/$(HARDWARE).html:
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
@@ -1304,15 +1313,6 @@ else
 	@echo -e "####### Start of building Requires Tree in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
 	@echo -e "#######"
 	@JSMIN=$(JSMIN) $(BUILDSYSTEM)/build_requires_tree $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
-	@mkdir -p $(PRODUCTS_DEST_DIR)
-	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).html     \
-	       $(TARGET_BUILD_DIR)/$(HARDWARE).min.json \
-	       $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist  \
-	       $(PRODUCTS_DEST_DIR)
-	@( cd $(PRODUCTS_DEST_DIR) ; \
-	   ln -sf $(HARDWARE).pkglist .pkglist ; \
-	 )
-	@touch $@
 	@echo -e "#######"
 	@echo -e "####### End of building Requires Tree in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
 	@echo -e "#######"
@@ -1330,12 +1330,65 @@ endif
 
 ################################################################
 #######
+####### Build PACKAGES list:
+#######
+
+#
+# $(HARDWARE).pkglist - is a main target of `make packages_list' procedure:
+#
+packages_list: $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist
+
+#
+# Packages List perform only if goal 'all' is done and all packages installed
+# into root filesystem or into products directory.
+#
+# NOTE:
+#   GNU Make `wildcard' function doesn't work with files which created
+#   during Makefile works. For normal work all tested files should be
+#   created before the Makefile starting my make command.
+#
+$(TARGET_BUILD_DIR)/$(HARDWARE).pkglist:
+ifneq ($(shell pwd),$(BUILDSYSTEM))
+ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+	@echo -e "#######"
+	@echo -e "####### Packages List creation in the top of '`basename $(CURDIR)`' directory is not supported."
+	@echo -e "#######"
+else
+ifeq ($(wildcard $(TARGET_BUILD_DIR)/.requires),)
+	@echo -e "   (nothing to be done)."
+	@echo -e "#######"
+	@echo -e "####### Before creating a dependency tree all goals have to be made."
+	@echo -e "#######"
+else
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Start of building Packages List in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
+	@echo -e "#######"
+	@$(BUILDSYSTEM)/build_packages_list $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR)
+	@echo -e "#######"
+	@echo -e "####### End of building Packages List in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
+	@echo -e "#######"
+	@echo -e "################################################################"
+endif
+endif
+endif
+endif
+
+#######
+####### End of Build PACKAGES list.
+#######
+################################################################
+
+
+################################################################
+#######
 ####### Build Devices Table:
 #######
 
 devices_table: $(TARGET_BUILD_DIR)/.DEVTABLE
 
-$(TARGET_BUILD_DIR)/.DEVTABLE: $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist
+$(TARGET_BUILD_DIR)/.DEVTABLE: $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
@@ -1370,9 +1423,9 @@ endif
 ####### Build ext4 Root FS image:
 #######
 
-ext4fs_image: $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
+ext4fs_image: $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs
 
-$(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs: $(TARGET_BUILD_DIR)/.DEVTABLE
+$(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs: $(TARGET_BUILD_DIR)/.DEVTABLE
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
@@ -1393,9 +1446,6 @@ else
 	   MKEE4FS=$(MKE4FS) E4FSCK=$(E4FSCK) POPULATEFS=$(POPULATEFS) \
 	      $(BUILDSYSTEM)/build_ext4fs $$sizeoption $(TOP_BUILD_DIR_ABS) $(TOOLCHAIN) $(HARDWARE) $(FLAVOUR) ; \
 	 )
-	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).SD.MBR $(PRODUCTS_DEST_DIR)/$(HARDWARE).SD.MBR
-	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
-	@$(E4FSCK) -fy $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
 	@echo -e "#######"
 	@echo -e "####### End of building Ext4 Root FS Image in '`echo $(CURDIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
 	@echo -e "#######"
@@ -1406,6 +1456,74 @@ endif
 
 #######
 ####### End of Build ext4 Root FS image.
+#######
+################################################################
+
+
+################################################################
+#######
+####### Install $(HARDWARE).{pkglist,ext4fs,SD.MBR} into products directory:
+#######
+
+products_release: $(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist \
+                  $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
+
+$(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs: $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs
+ifneq ($(shell pwd),$(BUILDSYSTEM))
+ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+	@echo -e "#######"
+	@echo -e "####### Installation of Ext4 Root FS Image from the top of '`basename $(CURDIR)`' directory is not supported."
+	@echo -e "#######"
+else
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Installing the Ext4 Root FS Image into '`echo $(PRODUCTS_DEST_DIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
+	@echo -e "#######"
+	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).SD.MBR $(PRODUCTS_DEST_DIR)/$(HARDWARE).SD.MBR
+	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).ext4fs $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
+	@$(E4FSCK) -fy $(PRODUCTS_DEST_DIR)/$(HARDWARE).ext4fs
+	@if [ -s $(PRODUCTS_DEST_DIR)/$(HARDWARE).boot-records ] ; then \
+	  $(DD) if=$(TARGET_BUILD_DIR)/$(HARDWARE).SD.MBR \
+	        of=$(PRODUCTS_DEST_DIR)/$(HARDWARE).boot-records \
+	        bs=512 count=1 conv=notrunc 1> /dev/null 2> /dev/null ; \
+	 fi
+	@echo -e "#######"
+	@echo -e "####### End of installing Ext4 Root FS Image into '`echo $(PRODUCTS_DEST_DIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
+	@echo -e "#######"
+	@echo -e "################################################################"
+endif
+endif
+endif
+
+$(PRODUCTS_DEST_DIR)/$(HARDWARE).pkglist: $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist
+ifneq ($(shell pwd),$(BUILDSYSTEM))
+ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
+ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))
+	@echo -e "#######"
+	@echo -e "####### Installation of Packages List from the top of '`basename $(CURDIR)`' directory is not supported."
+	@echo -e "#######"
+else
+	@echo -e "################################################################"
+	@echo -e "#######"
+	@echo -e "####### Installing the Packages List into '`echo $(PRODUCTS_DEST_DIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory..."
+	@echo -e "#######"
+	@mkdir -p $(PRODUCTS_DEST_DIR)
+	@cp -a $(TARGET_BUILD_DIR)/$(HARDWARE).pkglist  \
+	       $(PRODUCTS_DEST_DIR)
+	@( cd $(PRODUCTS_DEST_DIR) ; \
+	   ln -sf $(HARDWARE).pkglist .pkglist ; \
+	 )
+	@echo -e "#######"
+	@echo -e "####### Packages List has been installed into '`echo $(PRODUCTS_DEST_DIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."
+	@echo -e "#######"
+	@echo -e "################################################################"
+endif
+endif
+endif
+
+#######
+####### End of Install $(HARDWARE).{pkglist,ext4fs,SD.MBR}.
 #######
 ################################################################
 

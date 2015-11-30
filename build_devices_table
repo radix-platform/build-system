@@ -265,7 +265,7 @@ _kxLab::system( "mkdir -p $target_build_dir" );
 #
 # The HW.pkglist shoul be installed into PRODUCTS_DEST_DIR.
 #
-$pkglist_file = $products_dest_dir . "/" . $hardware . ".pkglist";
+$pkglist_file = $target_build_dir . "/" . $hardware . ".pkglist";
 $devices_file = $target_build_dir . "/" . ".DEVTABLE";
 
 _kxLab::error( "build_devices_list: $topdir is not a directory" ) if( ! -d $topdir );
