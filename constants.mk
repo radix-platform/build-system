@@ -128,16 +128,16 @@ PC64_SPEC                    = Intel x86_64 generic Linux machine
 PC64_USE_BUILT_GCC_LIBS      = yes
 
 ####### x86 micro Linux:
-HARDWARE_MX32                = mx32
+HARDWARE_PC32M               = pc32m
 ###                           |---HW-spec-handy-ruler-----------------------|
-MX32_SPEC                    = x86_32 micro Linux
-MX32_USE_BUILT_GCC_LIBS      = no
+PC32M_SPEC                   = x86_32 micro Linux
+PC32M_USE_BUILT_GCC_LIBS     = no
 
 ####### x86_64 micro Linux:
-HARDWARE_MX64                = mx64
+HARDWARE_PC64M               = pc64m
 ###                           |---HW-spec-handy-ruler-----------------------|
-MX64_SPEC                    = x86_64 micro Linux
-MX64_USE_BUILT_GCC_LIBS      = no
+PC64M_SPEC                   = x86_64 micro Linux
+PC64M_USE_BUILT_GCC_LIBS     = no
 
 
 ####### A1N newlib devices (cubieboard 1):
@@ -249,8 +249,8 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
 #######
         PC32_ID_STD = 01
         PC64_ID_STD = 02
-        MX32_ID_STD = 04
-        MX64_ID_STD = 08
+       PC32M_ID_STD = 04
+       PC64M_ID_STD = 08
         CB1N_ID_STD = 10
         CB1X_ID_STD = 11
         CB2N_ID_STD = 20
@@ -333,7 +333,7 @@ I686_GLIBC_DEST_SYSROOT      = yes
 
 I686_GLIBC_HAS_CHRPATH       = yes
 
-I686_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC32) $(HARDWARE_MX32)
+I686_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC32) $(HARDWARE_PC32M)
 
 
 
@@ -354,7 +354,7 @@ X86_64_GLIBC_DEST_SYSROOT    = yes
 
 X86_64_GLIBC_HAS_CHRPATH     = yes
 
-X86_64_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC64) $(HARDWARE_MX64)
+X86_64_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC64) $(HARDWARE_PC64M)
 
 
 
