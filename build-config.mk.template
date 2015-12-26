@@ -9,10 +9,10 @@ ENABLE_PC32       = true
 ENABLE_PC64       = true
 
 # TARGET: i486-radix-linux-gnu:
-ENABLE_MX32       = true
+ENABLE_PC32M      = true
 
 # TARGET: x86_64-radix-linux-gnu:
-ENABLE_MX64       = true
+ENABLE_PC64M      = true
 
 # TARGET: arm-a1x-eabi:
 ENABLE_CB1N       = true
