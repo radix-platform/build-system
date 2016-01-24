@@ -100,128 +100,96 @@ HARDWARE_NOARCH     = none
 ####### Host Build:
 HARDWARE_BUILD      = build
 
-#
-# NOTE:
-# ====
-#   $(HARDWARE)_USE_BUILT_GCC_LIBS - defines that the system is based on GCC Runtime Libraries
-#                                    which built in the platform instead of Libraries which
-#                                    are taken from TOOLCHAIN.
-#
-#   These variables give their values to the global variable named as __USE_BUILT_GCC_LIBS__
-#   and defined in the target-setup.mk file. Variable __USE_BUILT_GCC_LIBS__ can be used in
-#   user's Makefile to deside do we need to wait gcc built or we can to set dependencies from
-#   GNU Libc which based on GCC Runtime Libs taken from toolchain.
-#
-#   [see: app/inputattach/1.4.7/Makefile, for example].
-#
 
 ####### x86 Personal Computer:
 HARDWARE_PC32                = pc32
 ###                           |---HW-spec-handy-ruler-----------------------|
 PC32_SPEC                    = Intel x86_32 generic Linux machine
-PC32_USE_BUILT_GCC_LIBS      = yes
 
 ####### {x86|x86_64} Personal Computer:
 HARDWARE_PC64                = pc64
 ###                           |---HW-spec-handy-ruler-----------------------|
 PC64_SPEC                    = Intel x86_64 generic Linux machine
-PC64_USE_BUILT_GCC_LIBS      = yes
 
 ####### x86 micro Linux:
 HARDWARE_PC32M               = pc32m
 ###                           |---HW-spec-handy-ruler-----------------------|
 PC32M_SPEC                   = x86_32 micro Linux
-PC32M_USE_BUILT_GCC_LIBS     = no
 
 ####### x86_64 micro Linux:
 HARDWARE_PC64M               = pc64m
 ###                           |---HW-spec-handy-ruler-----------------------|
 PC64M_SPEC                   = x86_64 micro Linux
-PC64M_USE_BUILT_GCC_LIBS     = no
 
 
 ####### A1N newlib devices (cubieboard 1):
 HARDWARE_CB1N                = cb1n
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB1N_SPEC                    = Cubieboard A10 \(Newlib based\)
-CB1N_USE_BUILT_GCC_LIBS      = no
 
 ####### A1X devices (cubieboard 1 glibc):
 HARDWARE_CB1X                = cb1x
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB1X_SPEC                    = Cubieboard A10 \(Linux, GNU Libc based\)
-CB1X_USE_BUILT_GCC_LIBS      = yes
 
 ####### A2N newlib devices (cubieboard 2):
 HARDWARE_CB2N                = cb2n
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB2N_SPEC                    = Cubieboard A20 \(Newlib based\)
-CB2N_USE_BUILT_GCC_LIBS      = no
 
 ####### A2X devices (cubieboard 2 glibc):
 HARDWARE_CB2X                = cb2x
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB2X_SPEC                    = Cubieboard A20 \(Linux, GNU Libc based\)
-CB2X_USE_BUILT_GCC_LIBS      = yes
 
 ####### A3N newlib devices (cubieboard 3):
 HARDWARE_CB3N                = cb3n
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB3N_SPEC                    = Cubietrack A20 \(Newlib based\)
-CB3N_USE_BUILT_GCC_LIBS      = no
 
 ####### A3X devices (cubieboard 3 glibc):
 HARDWARE_CB3X                = cb3x
 ###                           |---HW-spec-handy-ruler-----------------------|
 CB3X_SPEC                    = Cubietrack A20 \(Linux, GNU Libc based\)
-CB3X_USE_BUILT_GCC_LIBS      = yes
 
 ####### AT91SAM7S devices:
 HARDWARE_AT91S               = at91s
 ###                           |---HW-spec-handy-ruler-----------------------|
 AT91S_SPEC                   = Atmel at91sam7s \(Newlib based\)
-AT91S_USE_BUILT_GCC_LIBS     = no
 
 ####### DM644X newlib devices:
 HARDWARE_VIP1830N            = vip1830n
 ###                           |---HW-spec-handy-ruler-----------------------|
 VIP1830N_SPEC                = Texas dm644x \(Newlib based\)
-VIP1830N_USE_BUILT_GCC_LIBS  = no
 
 ####### DM644X devices:
 HARDWARE_VIP1830             = vip1830
 ###                           |---HW-spec-handy-ruler-----------------------|
 VIP1830_SPEC                 = Texas dm644x \(Linux, GNU Libc based\)
-VIP1830_USE_BUILT_GCC_LIBS   = yes
 
 ####### LPC17XX devices:
 HARDWARE_L17UC               = l17uc
 ###                           |---HW-spec-handy-ruler-----------------------|
 L17UC_SPEC                   = NXP lpc17xx \(uCLibc based\)
-L17UC_USE_BUILT_GCC_LIBS     = no
 
 ####### OMAP35X devices:
 HARDWARE_BEAGLE              = beagle
 ###                           |---HW-spec-handy-ruler-----------------------|
 BEAGLE_SPEC                  = Beagleboard OMAP3 \(Linux, GNU Libc based\)
-BEAGLE_USE_BUILT_GCC_LIBS    = yes
 
 ####### OMAP543X devices:
 HARDWARE_OMAP5UEVM           = omap5uevm
 ###                           |---HW-spec-handy-ruler-----------------------|
 OMAP5UEVM_SPEC               = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
-OMAP5UEVM_USE_BUILT_GCC_LIBS = yes
 
 HARDWARE_DRA7XXEVM           = dra7xxevm
 ###                           |---HW-spec-handy-ruler-----------------------|
 DRA7XXEVM_SPEC               = Texas DRA7xx EVM \(Linux, GNU Libc based\)
-DRA7XXEVM_USE_BUILT_GCC_LIBS = yes
 
 ####### BCM74X devices:
 HARDWARE_B74                 = b74
 ###                           |---HW-spec-handy-ruler-----------------------|
 B74_SPEC                     = Broadcom bcm74XX \(Linux, GNU Libc based\)
-B74_USE_BUILT_GCC_LIBS       = yes
 
 ####### JZ47XX devices:
 ####### --------------
@@ -229,7 +197,6 @@ B74_USE_BUILT_GCC_LIBS       = yes
 HARDWARE_CI20                = ci20
 ###                           |---HW-spec-handy-ruler-----------------------|
 CI20_SPEC                    = MIPS Creator CI20 \(Linux, GNU Libc based\)
-CI20_USE_BUILT_GCC_LIBS      = yes
 
 ####### MIPS Warrior P-class P5600 devices:
 ####### ----------------------------------
@@ -237,7 +204,6 @@ CI20_USE_BUILT_GCC_LIBS      = yes
 HARDWARE_BT1                 = bt1
 ###                           |---HW-spec-handy-ruler-----------------------|
 BT1_SPEC                     = MIPS Baikal T1 \(Linux, GNU Libc based\)
-BT1_USE_BUILT_GCC_LIBS       = yes
 
 ####### RK328X devices:
 ####### --------------
@@ -245,11 +211,9 @@ BT1_USE_BUILT_GCC_LIBS       = yes
 HARDWARE_FFRK3288            = ffrk3288
 ###                           |---HW-spec-handy-ruler-----------------------|
 FFRK3288_SPEC                = Firefly RK3288 \(Linux, GNU Libc based\)
-FFRK3288_USE_BUILT_GCC_LIBS  = yes
 
 
-HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),," )
-__USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
+HW_SPEC = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
 
 
 #######
