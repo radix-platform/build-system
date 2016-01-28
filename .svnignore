@@ -2,6 +2,7 @@
 # local config & object files
 build-config.mk
 sbin/
+usr/
 progs/autom4te.cache/
 progs/.config
 progs/config.log
@@ -13,7 +14,9 @@ pkgtool/check-db-integrity
 pkgtool/check-package
 pkgtool/check-requires
 pkgtool/install-package
+pkgtool/make-package
 pkgtool/remove-package
+pkgtool/update-package
 
 # Target build dirs
 .build-machine/
