@@ -2,6 +2,7 @@
 # local config & object files
 build-config.mk
 sbin/
+tmp/
 usr/
 progs/autom4te.cache/
 progs/.config

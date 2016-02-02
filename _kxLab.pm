@@ -27,6 +27,16 @@ sub distro_name
   return $name;
 }
 
+sub build_system_tmpdir
+{
+  return $path . "/tmp";
+}
+
+sub build_system_path
+{
+  return $path;
+}
+
 sub error
 {
   my $message = shift;

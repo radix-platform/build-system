@@ -20,6 +20,7 @@ BUILD_TARGETS = $(config_makefile)
 
 CLEANUP_FILES  = $(config_makefile)
 CLEANUP_FILES += $(CURDIR)/sbin
+CLEANUP_FILES += $(CURDIR)/tmp
 CLEANUP_FILES += $(CURDIR)/usr
 
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-db-integrity
@@ -54,5 +55,6 @@ $(config_makefile): $(config_makefile).template
 	   chmod 0755 remove-package     ; \
 	   chmod 0755 update-package     ; \
 	 )
+	@mkdir -p $(CURDIR)/tmp
 	@echo "Creating $(config_makefile) ..."
 	@cp $(config_makefile).template $@

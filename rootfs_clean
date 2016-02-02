@@ -7,6 +7,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use File::Basename;
+use Fcntl ':flock';
 use _kxLab;
 
 my $distro = _kxLab::distro_name();
@@ -99,5 +100,21 @@ while( <F> )
   $rootfs_dir = $pkg_dir;
   $rootfs_dir =~ s!/var/log/$distro/packages$!!;
 
+  #####################
+  # LOCK procedure:
+  #
+  my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
+  open( my $lock_fh, '+>', $lock_fname ) or
+    _kxLab::error( "$0: Could not open $lock_fname file: $!" );
+  flock( $lock_fh, LOCK_EX ) or
+    _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
+
   _kxLab::system( "cd $pkg_dir && $removepkg --skip-refs --root $rootfs_dir $pkg_name" );
+
+  flock( $lock_fh, LOCK_UN ) or
+    _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
+  close( $lock_fh );
+  #
+  # UN LOCK procedure.
+  #####################
 }
