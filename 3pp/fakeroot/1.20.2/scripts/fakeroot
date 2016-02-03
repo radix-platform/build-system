@@ -6,6 +6,6 @@ prgpath=$(cd $(dirname $program) ; pwd -P)
 shell=$1 ; shift ; option=$1 ; shift
 
 $prgpath/../usr/bin/_fakeroot-sysv --lib $prgpath/../usr/lib/libfakeroot-0.so \
-                                   --faked $prgpath/../usr/bin/_faked-sysv -- $shell $option -c "$*"
+                                   --faked $prgpath/../usr/bin/_faked-sysv -- $shell $option "$*"
 
 

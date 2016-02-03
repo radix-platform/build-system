@@ -1,0 +1,13 @@
+#!/bin/sh
+
+program=$0
+pseudo_prefix=$(cd $(dirname $program)/.. ; pwd -P)/usr
+
+shell=$1 ; shift ; option=$1 ; shift
+
+enable_op_logging=
+if [ "$ENABLE_PSEUDO_LOGGING" == "yes" ] ; then
+  enable_op_logging=-l
+fi
+
+${pseudo_prefix}/bin/pseudo -P ${pseudo_prefix} ${enable_op_logging} $shell $option "$*"

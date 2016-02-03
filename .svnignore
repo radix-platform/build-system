@@ -28,8 +28,6 @@ pkgtool/update-package
 # src & hw requires
 .src_requires
 .src_requires_depend
-.build_requires
-.build_requires_depend
 
 # Tarballs
 *.gz
