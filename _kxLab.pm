@@ -29,7 +29,7 @@ sub distro_name
 
 sub build_system_tmpdir
 {
-  return $path . "/tmp";
+  return $path . "/var/tmp";
 }
 
 sub build_system_path

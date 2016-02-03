@@ -2,8 +2,8 @@
 # local config & object files
 build-config.mk
 sbin/
-tmp/
 usr/
+var/
 progs/autom4te.cache/
 progs/.config
 progs/config.log
@@ -15,7 +15,9 @@ pkgtool/check-db-integrity
 pkgtool/check-package
 pkgtool/check-requires
 pkgtool/install-package
+pkgtool/make-package
 pkgtool/remove-package
+pkgtool/update-package
 
 # Target build dirs
 .build-machine/
@@ -26,8 +28,6 @@ pkgtool/remove-package
 # src & hw requires
 .src_requires
 .src_requires_depend
-.build_requires
-.build_requires_depend
 
 # Tarballs
 *.gz
