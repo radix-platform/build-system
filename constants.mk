@@ -183,16 +183,16 @@ AT91S_SPEC                   = Atmel at91sam7s \(Newlib based\)
 AT91S_USE_BUILT_GCC_LIBS     = no
 
 ####### DM644X newlib devices:
-HARDWARE_VIP1830N            = vip1830n
+HARDWARE_DM64N               = dm64n
 ###                           |---HW-spec-handy-ruler-----------------------|
-VIP1830N_SPEC                = Texas dm644x \(Newlib based\)
-VIP1830N_USE_BUILT_GCC_LIBS  = no
+DM64N_EM_SPEC                = Texas dm644x \(Newlib based\)
+DM64N_EM_USE_BUILT_GCC_LIBS  = no
 
 ####### DM644X devices:
-HARDWARE_VIP1830             = vip1830
+HARDWARE_DM64X               = dm64x
 ###                           |---HW-spec-handy-ruler-----------------------|
-VIP1830_SPEC                 = Texas dm644x \(Linux, GNU Libc based\)
-VIP1830_USE_BUILT_GCC_LIBS   = yes
+DM64X_SPEC                   = Texas dm644x \(Linux, GNU Libc based\)
+DM64X_USE_BUILT_GCC_LIBS     = yes
 
 ####### LPC17XX devices:
 HARDWARE_L17UC               = l17uc
@@ -258,8 +258,8 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
         CB3N_ID_STD = 30
         CB3X_ID_STD = 31
        AT91S_ID_STD = 40
-    VIP1830N_ID_STD = 50
-     VIP1830_ID_STD = 51
+       DM64N_ID_STD = 50
+       DM64X_ID_STD = 51
        L17UC_ID_STD = 60
       BEAGLE_ID_STD = 71
    OMAP5UEVM_ID_STD = 81
@@ -484,7 +484,7 @@ DM644X_NEWLIB_TARBALL        = $(TOOLCHAINS_FTP_BASE)/$(DM644X_NEWLIB_VERSION)/$
 
 DM644X_NEWLIB_ARCH_DEFS      = -D__TMS320DM644X__=1
 
-DM644X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_VIP1830N)
+DM644X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_DM64N)
 
 
 
@@ -506,7 +506,7 @@ DM644X_GLIBC_DEST_SYSROOT    = yes
 
 DM644X_GLIBC_HAS_CHRPATH     = yes
 
-DM644X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_VIP1830)
+DM644X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_DM64X)
 
 
 
