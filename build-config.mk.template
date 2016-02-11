@@ -37,20 +37,12 @@ ENABLE_AT91S      = true
 # TARGET: arm-dm644x-elf-newlib:
 ENABLE_DM64N      = true
 
-# TARGET: arm-dm644x-linux-gnueabi:
-ENABLE_DM64X      = true
-
+# TARGET: arm-lpc17xx-uclinuxeabi:
 ENABLE_L17UC      = true
-
-# TARGET: arm-omap35x-linux-gnueabihf:
-ENABLE_BEAGLE     = true
 
 # TARGETS: arm-omap543x-linux-gnueabihf:
 ENABLE_OMAP5UEVM  = true
 ENABLE_DRA7XXEVM  = true
-
-# TARGETS: mipsel-bcm74x-linux-gnu:
-ENABLE_B74        = true
 
 # TARGETS: mipsel-jz47xx-linux-gnu:
 ENABLE_CI20       = true
