@@ -35,10 +35,10 @@ ENABLE_FFRK3288   = true
 ENABLE_AT91S      = true
 
 # TARGET: arm-dm644x-elf-newlib:
-ENABLE_VIP1830N   = true
+ENABLE_DM64N      = true
 
 # TARGET: arm-dm644x-linux-gnueabi:
-ENABLE_VIP1830    = true
+ENABLE_DM64X      = true
 
 ENABLE_L17UC      = true
 

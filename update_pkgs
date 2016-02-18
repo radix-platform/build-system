@@ -8,6 +8,7 @@ use warnings FATAL => 'all';
 
 use File::Basename;
 use File::Temp;
+use Fcntl ':flock';
 use _kxLab;
 
 my $distro = _kxLab::distro_name();
@@ -138,7 +139,26 @@ else
 
 ($tempfd, $tempname) = File::Temp::tempfile( $fname, UNLINK => $cleanup );
 
+
+#####################
+# LOCK procedure:
+#
+my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
+open( my $lock_fh, '+>', $lock_fname ) or
+  _kxLab::error( "$0: Could not open $lock_fname file: $!" );
+flock( $lock_fh, LOCK_EX ) or
+  _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
+
+
 update( $updatepkg, $rootfs_dest_dir, $verbose, \@targets );
+
+
+flock( $lock_fh, LOCK_UN ) or
+  _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
+close( $lock_fh );
+#
+# UN LOCK procedure.
+#####################
 
 # reverse file line by line:
 _kxLab::system( "tac $tempname >> $dest_fname" );

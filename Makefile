@@ -8,6 +8,7 @@ REQUIRES += build-system/3pp/dialog/1.2-20140112
 REQUIRES += build-system/3pp/genext2fs/1.4.1
 REQUIRES += build-system/3pp/populatefs/1.0
 REQUIRES += build-system/3pp/jsmin/0.0.1
+REQUIRES += build-system/3pp/pseudo/1.7.4
 REQUIRES += build-system/progs
 
 
@@ -21,6 +22,7 @@ BUILD_TARGETS = $(config_makefile)
 CLEANUP_FILES  = $(config_makefile)
 CLEANUP_FILES += $(CURDIR)/sbin
 CLEANUP_FILES += $(CURDIR)/usr
+CLEANUP_FILES += $(CURDIR)/var
 
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-db-integrity
 CLEANUP_FILES += $(CURDIR)/pkgtool/check-package
@@ -54,5 +56,6 @@ $(config_makefile): $(config_makefile).template
 	   chmod 0755 remove-package     ; \
 	   chmod 0755 update-package     ; \
 	 )
+	@mkdir -p $(CURDIR)/var/{tmp,pseudo}
 	@echo "Creating $(config_makefile) ..."
 	@cp $(config_makefile).template $@
