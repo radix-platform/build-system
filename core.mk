@@ -662,9 +662,8 @@ APPLY_OPT_PATCHES = $(quiet)$(foreach patch,$(OPT_PATCHES),\
 # Functions:
 # =========
 #
-# Install package content into the current
-# development environment:
-# --------------------------------------------------------------
+# Install package content into the current development environment:
+# ----------------------------------------------------------------
 #
 # NOTE:
 #     - When we pass ARGS through STDIN [using '--' as end of options] we splits ARGS
@@ -687,10 +686,42 @@ install-into-devenv = \
 # usage:
 #   $(call install-into-devenv,$(PKGDIR))
 #   where PKGDIR - is a directory where package installed from sources.
-# --------------------------------------------------------------
+# ----------------------------------------------------------------
 #
+# Pull and Push variables into Perl Storable Hash saved in the
+# $(BUILDSYSTEM)/var/tmp directory. These functions also prints
+# echo to stdout stream:
+# ----------------------------------------------------------------
+push-env = $(shell $(BUILDSYSTEM)/transmitting_hash \
+	     --set --hardware=$(HARDWARE) --flavour=$(FLAVOUR) \
+	     --pool-name=$(strip $1) --name=$(strip $2) --value=$(strip $3))
+
+pull-env = $(shell $(BUILDSYSTEM)/transmitting_hash \
+	     --get --hardware=$(HARDWARE) --flavour=$(FLAVOUR) \
+	     --pool-name=$(strip $1) --name=$(strip $2) --value=$(strip $3))
+
+push-env-vo = $(shell $(BUILDSYSTEM)/transmitting_hash \
+	     --set --value-only --hardware=$(HARDWARE) --flavour=$(FLAVOUR) \
+	     --pool-name=$(strip $1) --name=$(strip $2) --value=$(strip $3))
+
+pull-env-vo = $(shell $(BUILDSYSTEM)/transmitting_hash \
+	     --get --value-only --hardware=$(HARDWARE) --flavour=$(FLAVOUR) \
+	     --pool-name=$(strip $1) --name=$(strip $2) --value=$(strip $3))
 #
-# End of unctios.
+# usage:
+# -----
+#   environment  = $(call push-env, perl, HOME, \'/home/kx\')
+#   environment += $(call push-env, perl, DIR, \'$(CURDIR)\')
+#   environment += $(call push-env, perl, BASH, \'/bin/bash\')
+#   environment += --set $(call push-env, perl, archlib, \'/usr/lib$(LIBSUFFIX)/perl5/$(ARCHNAME)\')
+#
+#   environment  = HOME=$(call pull-env-vo, perl, HOME, \'/home/olga\')
+#   environment += DIR=$(call pull-env-vo, perl, DIR, \'$(CURDIR)\')
+#   environment += BASH=$(call pull-env-vo, perl, BASH, \'/bin/sh\')
+#   environment += --set archlib=$(call pull-env-vo, perl, archlib, \'/usr/lib$(LIBSUFFIX)/perl5/$(ARCHNAME)\')
+# ----------------------------------------------------------------
+#
+# End of Functions.
 ################################################################
 
 
