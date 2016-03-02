@@ -323,16 +323,15 @@ endif
 MAKEFLAGS += --output-sync=target
 
 
-
-CLEANUP_FILES +=  $(addprefix ., $(TOOLCHAIN))
-
-# temporaty collections:
-#CLEANUP_FILES +=  .*.dist.*
-#CLEANUP_FILES +=  .*.rootfs.*
-
-#
-# do not clean .*_requires* files to save time when Makefile has not been changed.
-#
+#######
+####### Global Cleanup List may be start here with += assign symbol:
+#######
+#######   CLEANUP_FILES += ...
+#######
+####### IMPORTANT NOTE:
+####### ==============
+#######    Do not add directories such as .$(TOOLCHAIN), $(TARGET_BUILD_DIR), $(HARDWARE), etc.
+#######
 
 
 
@@ -1201,10 +1200,19 @@ endif
 ####### Clean:
 #######
 
+#
+# CLEANUP_FILES can be placed outside $(TARGET_BUILD_DIR) directory,
+# the '.$(TOOLCHAIN)' directory can be removed if it is empty  ONLY.
+#
+
 local_clean: .local_clean
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifneq ($(wildcard .$(TOOLCHAIN)),)
 	@rm -rf $(CLEANUP_FILES)
+ifneq ($(wildcard $(TARGET_BUILD_DIR)),)
+	@rm -rf $(TARGET_BUILD_DIR)
+endif
+	@if [ "`find .$(TOOLCHAIN) -maxdepth 0 -empty`" ] ; then rm -rf .$(TOOLCHAIN) ; fi
 endif
 endif
 
