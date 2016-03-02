@@ -1,0 +1,172 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Basename;
+use File::Temp;
+use File::Path qw(make_path remove_tree);
+use Storable qw(lock_store lock_nstore lock_retrieve);
+use _kxLab;
+
+
+my $program = basename( $0 );
+
+my ($hardware, $flavour, $poolname, $operation, $name, $value);
+my $value_only = 'no';
+
+sub usage
+{
+  print <<EOF;
+
+Usage: $program [options]
+Options:
+   {--get | --set}                  - type of operation;
+   --hardware=HARDWARE              - where HARDWARE ia a current HARDWARE name;
+   --flavour=FLAVOUR                - where FLAVOUR ia a current FLAVOUR name;
+   --pool-name=NAME                 - where NAME is the variables pool name;
+   --name=NAME                      - where NAME is a variable name;
+   --value=string                   - where 'string' is a value of variable;
+   --value-only                     - if this option is used then $program
+                                      prints out only value of required vatiable,
+                                      if this option is not used then $program
+                                      prints out the pair 'NAME=VALUE' without
+                                      spaces around of equal ('=') symbol.
+
+EOF
+  exit;
+}
+
+# args:
+#  - environment pool name ( perl,for example );
+#  - hardware name ( ci20, for example );
+#  - flavour name ( m512, for example );
+#  - variable;
+#  - value;
+sub save_env
+{
+  my $fname = shift;
+  my $name  = shift;
+  my $value = shift;
+
+  my $tabref;
+
+  if( -s $fname and defined( Storable::file_magic( $fname ) ) )
+  {
+    $tabref = lock_retrieve( $fname );
+    if( ! defined $tabref )
+    {
+      $tabref = 0;
+    }
+  }
+  $tabref->{ $name } = $value;
+  lock_store( \%$tabref, $fname );
+}
+
+sub get_env
+{
+  my $fname = shift;
+  my $name  = shift;
+
+  my $value = "";
+  my $tabref;
+
+  if( -s $fname and defined( Storable::file_magic( $fname ) ) )
+  {
+    $tabref = lock_retrieve( $fname );
+  }
+  if( defined $tabref )
+  {
+    my $val = $tabref->{ $name };
+    if( defined $val ) { $value = $val; }
+  }
+  return $value;
+}
+
+
+foreach ( @ARGV )
+{
+  if( /--hardware=(\S*)/ )
+  {
+    $hardware = $1;
+  }
+  elsif( /--flavour=(\S*)/ )
+  {
+    $flavour = $1;
+  }
+  elsif( /--pool-name=(\S*)/ )
+  {
+    $poolname = $1;
+  }
+  elsif( /--name=(\S*)/ )
+  {
+    $name = $1;
+  }
+  elsif( /--value=(\S*)/ )
+  {
+    $value = $1;
+  }
+  elsif( /--set/ )
+  {
+    $operation = 'set';
+  }
+  elsif( /--get/ )
+  {
+    $operation = 'get';
+  }
+  elsif( /--value-only/ )
+  {
+    $value_only = 'yes';
+  }
+  elsif( /--help/ )
+  {
+    usage;
+  }
+  else
+  {
+    usage;
+  }
+}
+
+if( ! defined $hardware  or $hardware  eq "" ) { usage; }
+if( ! defined $poolname  or $poolname  eq "" ) { usage; }
+if( ! defined $operation or $operation eq "" ) { usage; }
+if( ! defined $name      or $name      eq "" ) { usage; }
+if( $operation eq 'set' )
+{
+  if( ! defined $value   or $value     eq "" ) { usage; }
+}
+
+my $hash_fname;
+if( defined $flavour and $flavour ne "" )
+{
+  $hash_fname = _kxLab::build_system_tmpdir() . "/" . "." .
+                 $hardware . "." . $flavour . "." . $poolname . ".transmitting-hash";
+}
+else
+{
+  $hash_fname = _kxLab::build_system_tmpdir() . "/" . "." .
+                 $hardware . "." . $poolname . ".transmitting-hash";
+}
+
+if( $operation eq 'set' )
+{
+  save_env( $hash_fname, $name, $value );
+}
+else
+{
+  my $val = get_env( $hash_fname, $name );
+  if( defined $val and $val ne "" )
+  {
+    $value = $val;
+  }
+}
+
+#
+# ECHO according to '--value-only' option:
+#
+if( $value_only eq 'yes' ) { print $value ; }
+else                       { print $name . "=" . $value ; }
