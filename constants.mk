@@ -188,11 +188,31 @@ HARDWARE_DM64N               = dm64n
 DM64N_EM_SPEC                = Texas dm644x \(Newlib based\)
 DM64N_EM_USE_BUILT_GCC_LIBS  = no
 
+####### DM644X devices:
+HARDWARE_DM64X               = dm64x
+###                           |---HW-spec-handy-ruler-----------------------|
+DM64X_SPEC                   = Texas dm644x \(Linux, GNU Libc based\)
+DM64X_USE_BUILT_GCC_LIBS     = yes
+
 ####### LPC17XX devices:
 HARDWARE_L17UC               = l17uc
 ###                           |---HW-spec-handy-ruler-----------------------|
 L17UC_SPEC                   = NXP lpc17xx \(uCLibc based\)
 L17UC_USE_BUILT_GCC_LIBS     = no
+
+####### OMAP35X devices:
+HARDWARE_BEAGLE              = beagle
+###                           |---HW-spec-handy-ruler-----------------------|
+BEAGLE_SPEC                  = BeagleBoard OMAP3 \(Linux, GNU Libc based\)
+BEAGLE_USE_BUILT_GCC_LIBS    = yes
+
+####### i.MX6 devices:
+####### -------------
+####### Nitrogen6X [https://boundarydevices.com/product/nitrogen6x-board-imx6-arm-cortex-a9-sbc]:
+HARDWARE_NIT6Q               = nit6q
+###                           |---HW-spec-handy-ruler-----------------------|
+NIT6Q_SPEC                   = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
+NIT6Q_USE_BUILT_GCC_LIBS     = yes
 
 ####### OMAP543X devices:
 HARDWARE_OMAP5UEVM           = omap5uevm
@@ -204,6 +224,12 @@ HARDWARE_DRA7XXEVM           = dra7xxevm
 ###                           |---HW-spec-handy-ruler-----------------------|
 DRA7XXEVM_SPEC               = Texas DRA7xx EVM \(Linux, GNU Libc based\)
 DRA7XXEVM_USE_BUILT_GCC_LIBS = yes
+
+####### BCM74X devices:
+HARDWARE_B74                 = b74
+###                           |---HW-spec-handy-ruler-----------------------|
+B74_SPEC                     = Broadcom bcm74XX \(Linux, GNU Libc based\)
+B74_USE_BUILT_GCC_LIBS       = yes
 
 ####### JZ47XX devices:
 ####### --------------
@@ -249,12 +275,16 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
         CB3X_ID_STD = 31
        AT91S_ID_STD = 40
        DM64N_ID_STD = 50
+       DM64X_ID_STD = 51
        L17UC_ID_STD = 60
-   OMAP5UEVM_ID_STD = 81
-   DRA7XXEVM_ID_STD = 82
-        CI20_ID_STD = A1
-         BT1_ID_STD = A2
-    FFRK3288_ID_STD = B1
+      BEAGLE_ID_STD = 71
+       NIT6Q_ID_STD = 81
+   OMAP5UEVM_ID_STD = 91
+   DRA7XXEVM_ID_STD = 92
+         B74_ID_STD = A1
+        CI20_ID_STD = B1
+         BT1_ID_STD = B2
+    FFRK3288_ID_STD = C1
 
 
 
@@ -476,6 +506,28 @@ DM644X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_DM64N)
 
 
 
+# ======= DM644X-GLIBC =======================================================
+
+TOOLCHAIN_DM644X_GLIBC       = dm644x-glibc
+
+DM644X_GLIBC_ARCH            = arm-dm644x-linux-gnueabi
+DM644X_GLIBC_VERSION         = 1.1.0
+DM644X_GLIBC_DIR             = arm-DM644X-linux-glibc
+DM644X_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(DM644X_GLIBC_DIR)
+DM644X_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(DM644X_GLIBC_VERSION)/$(DM644X_GLIBC_DIR)-$(DM644X_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+DM644X_GLIBC_ARCH_DEFS       = -D__DM644X_GLIBC__=1
+DM644X_GLIBC_ARCH_FLAGS      = -march=armv5te -mtune=arm926ej-s -mabi=aapcs-linux -fomit-frame-pointer
+
+DM644X_GLIBC_SYSROOT         = sys-root
+DM644X_GLIBC_DEST_SYSROOT    = yes
+
+DM644X_GLIBC_HAS_CHRPATH     = yes
+
+DM644X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_DM64X)
+
+
+
 # ======= LPC17XX-UCLIBC =====================================================
 
 TOOLCHAIN_LPC17XX_UCLIBC     = lpc17xx-uclibc
@@ -491,6 +543,50 @@ LPC17XX_UCLIBC_ARCH_DEFS     = -D__LPC17XX__=1
 LPC17XX_UCLIBC_SYSROOT       = sys-root
 
 LPC17XX_UCLIBC_HARDWARE_VARIANTS := $(HARDWARE_L17UC)
+
+
+
+# ======= OMAP35X-GLIBC ======================================================
+
+TOOLCHAIN_OMAP35X_GLIBC      = omap35x-glibc
+
+OMAP35X_GLIBC_ARCH           = arm-omap35x-linux-gnueabihf
+OMAP35X_GLIBC_VERSION        = 1.1.0
+OMAP35X_GLIBC_DIR            = arm-OMAP35X-linux-glibc
+OMAP35X_GLIBC_PATH           = $(TOOLCHAINS_BASE_PATH)/$(OMAP35X_GLIBC_DIR)
+OMAP35X_GLIBC_TARBALL        = $(TOOLCHAINS_FTP_BASE)/$(OMAP35X_GLIBC_VERSION)/$(OMAP35X_GLIBC_DIR)-$(OMAP35X_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+OMAP35X_GLIBC_ARCH_DEFS      = -D__OMAP35X_GLIBC__=1
+OMAP35X_GLIBC_ARCH_FLAGS     = -march=armv7-a -mtune=cortex-a8 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -fomit-frame-pointer
+
+OMAP35X_GLIBC_SYSROOT        = sys-root
+OMAP35X_GLIBC_DEST_SYSROOT   = yes
+
+OMAP35X_GLIBC_HAS_CHRPATH    = yes
+
+OMAP35X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_BEAGLE)
+
+
+
+# ======= IMX6-GLIBC ======================================================
+
+TOOLCHAIN_IMX6_GLIBC         = imx6-glibc
+
+IMX6_GLIBC_ARCH              = arm-imx6-linux-gnueabihf
+IMX6_GLIBC_VERSION           = 1.1.0
+IMX6_GLIBC_DIR               = arm-IMX6-linux-glibc
+IMX6_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(IMX6_GLIBC_DIR)
+IMX6_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(IMX6_GLIBC_VERSION)/$(IMX6_GLIBC_DIR)-$(IMX6_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+IMX6_GLIBC_ARCH_DEFS         = -D__IMX6_GLIBC__=1
+IMX6_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a9 -mfloat-abi=hard -mfpu=vfpv3 -mabi=aapcs-linux -fomit-frame-pointer
+
+IMX6_GLIBC_SYSROOT           = sys-root
+IMX6_GLIBC_DEST_SYSROOT      = yes
+
+IMX6_GLIBC_HAS_CHRPATH       = yes
+
+IMX6_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_NIT6Q)
 
 
 
@@ -513,6 +609,27 @@ OMAP543X_GLIBC_DEST_SYSROOT  = yes
 OMAP543X_GLIBC_HAS_CHRPATH   = yes
 
 OMAP543X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_OMAP5UEVM) $(HARDWARE_DRA7XXEVM)
+
+
+
+# ======= BCM74X-GLIBC =======================================================
+
+TOOLCHAIN_BCM74X_GLIBC       = bcm74x-glibc
+
+BCM74X_GLIBC_ARCH            = mipsel-bcm74x-linux-gnu
+BCM74X_GLIBC_VERSION         = 1.1.0
+BCM74X_GLIBC_DIR             = mipsel-BCM74X-linux-glibc
+BCM74X_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(BCM74X_GLIBC_DIR)
+BCM74X_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(BCM74X_GLIBC_VERSION)/$(BCM74X_GLIBC_DIR)-$(BCM74X_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+BCM74X_GLIBC_ARCH_DEFS       = -D__BCM74X_GLIBC__=1
+
+BCM74X_GLIBC_SYSROOT         = sys-root
+BCM74X_GLIBC_DEST_SYSROOT    = yes
+
+BCM74X_GLIBC_HAS_CHRPATH     = yes
+
+BCM74X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_B74)
 
 
 
