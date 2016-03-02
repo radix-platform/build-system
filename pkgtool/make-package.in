@@ -387,17 +387,17 @@ text_description $PACKAGE_TEXT
 sha256sum -b $PACKAGE_NAME > $SHA_SUM_NAME
 
 if [ ! "$TARGET_DIR_NAME" = "." ]; then
-  # ./errmsg$$ - is a unique temporary file
-  mkdir -p "$TARGET_DIR_NAME" 2> ./errmsg$$
+  # $TMP/errmsg$$ - is a unique temporary file
+  mkdir -p "$TARGET_DIR_NAME" 2> $TMP/errmsg$$
   if [ "$?" = "1" ]; then
     echo
     echo "ERROR: `cat ./errmsg$$`"
     echo "Find package in the current directory."
     echo
-    rm -f ./errmsg$$
+    rm -f $TMP/errmsg$$
     exit 1
   fi
-  rm -f ./errmsg$$
+  rm -f $TMP/errmsg$$
   echo
   echo "Moving $PACKAGE_NAME to $TARGET_DIR_NAME directory..."
   mv $PACKAGE_NAME $TARGET_DIR_NAME
