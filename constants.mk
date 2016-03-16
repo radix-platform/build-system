@@ -5,7 +5,7 @@ ifndef CONSTANTS_MK
 ####### Constants:
 #######
 
-SYSTEM_VERSION       = 1.1.6
+SYSTEM_VERSION       = 1.1.7
 
 #
 # Distribution:
@@ -185,8 +185,8 @@ AT91S_USE_BUILT_GCC_LIBS     = no
 ####### DM644X newlib devices:
 HARDWARE_DM64N               = dm64n
 ###                           |---HW-spec-handy-ruler-----------------------|
-DM64N_EM_SPEC                = Texas dm644x \(Newlib based\)
-DM64N_EM_USE_BUILT_GCC_LIBS  = no
+DM64N_SPEC                   = Texas dm644x \(Newlib based\)
+DM64N_USE_BUILT_GCC_LIBS     = no
 
 ####### DM644X devices:
 HARDWARE_DM64X               = dm64x
