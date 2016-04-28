@@ -5,7 +5,7 @@ include ../../../../build-system/constants.mk
 
 SOURCE_REQUIRES = build-system/3pp/sources/packages/pseudo
 
-REQUIRES        = build-system/3pp/sqlite/3.10.2.0
+REQUIRES        = build-system/3pp/sqlite/3.12.2.0
 
 # ======= __END_OF_REQUIRES__ =======
 
