@@ -1,5 +1,4 @@
 
-
 The fundamental principle of the build system
 =============================================
 
@@ -75,6 +74,9 @@ to our build script without additional calculations.
 
 The described mechanism is directly derived from the GNU Make documentation.
 
----------------------------------------------
-http://radix.pro/build-system/
+
+References
+----------
 http://www.gnu.org/software/make/manual/
+http://radix.pro/build-system/
+
