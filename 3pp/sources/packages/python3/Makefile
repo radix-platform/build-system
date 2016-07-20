@@ -5,12 +5,12 @@ COMPONENT_TARGETS = $(HARDWARE_NOARCH)
 include ../../../../../build-system/constants.mk
 
 
-url         = $(DOWNLOAD_SERVER)/sources/packages/b/sqlite/2016
+url         = $(DOWNLOAD_SERVER)/sources/packages/d/python3
 
 
-versions    = 3.12.2.0
-pkgname     = sqlite
-suffix      = tar.gz
+versions    = 3.5.1
+pkgname     = Python
+suffix      = tar.xz
 
 tarballs    = $(addsuffix .$(suffix), $(addprefix $(pkgname)-, $(versions)))
 sha1s       = $(addsuffix .sha1sum, $(tarballs))

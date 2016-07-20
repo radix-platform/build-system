@@ -8,7 +8,7 @@ SOURCE_REQUIRES = build-system/3pp/sources/packages/sqlite
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 3.10.2.0
+version         = 3.12.2.0
 tar_gz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/sqlite/sqlite-$(version).tar.gz
 src_dir         = sqlite-$(version)
 build_dir       = $(TARGET_BUILD_DIR)/built
