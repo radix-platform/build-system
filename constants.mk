@@ -260,8 +260,13 @@ FFRK3288_USE_BUILT_GCC_LIBS  = yes
 ####### Amlogic S805 meson8b m201:
 HARDWARE_M201                = m201
 ###                           |---HW-spec-handy-ruler-----------------------|
-M201_SPEC                    = Amlogic S805 \(Linux, GNU Libc based\)
+M201_SPEC                    = IP1565 M201 S805 \(Linux, GNU Libc based\)
 M201_USE_BUILT_GCC_LIBS      = yes
+
+HARDWARE_MXQ                 = mxq
+###                           |---HW-spec-handy-ruler-----------------------|
+MXQ_SPEC                     = MXQ NEXBOX S805 \(Linux, GNU Libc based\)
+MXQ_USE_BUILT_GCC_LIBS       = yes
 
 
 HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
@@ -294,6 +299,7 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
          BT1_ID_STD = B2
     FFRK3288_ID_STD = C1
         M201_ID_STD = C2
+         MXQ_ID_STD = C4
 
 
 
@@ -501,7 +507,7 @@ S805_GLIBC_DEST_SYSROOT      = yes
 
 S805_GLIBC_HAS_CHRPATH       = yes
 
-S805_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_M201)
+S805_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_M201) $(HARDWARE_MXQ)
 
 
 

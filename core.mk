@@ -1525,7 +1525,7 @@ else
 	@if [ -s $(PRODUCTS_DEST_DIR)/$(HARDWARE).boot-records ] ; then \
 	  $(DD) if=$(TARGET_BUILD_DIR)/$(HARDWARE).SD.MBR \
 	        of=$(PRODUCTS_DEST_DIR)/$(HARDWARE).boot-records \
-	        bs=512 count=1 conv=notrunc 1> /dev/null 2> /dev/null ; \
+	        bs=1 skip=446 seek=446 count=66 conv=notrunc 1> /dev/null 2> /dev/null ; \
 	 fi
 	@echo -e "#######"
 	@echo -e "####### End of installing Ext4 Root FS Image into '`echo $(PRODUCTS_DEST_DIR) | sed 's,$(TOP_BUILD_DIR_ABS)/,,'`' directory."

@@ -33,6 +33,7 @@ ENABLE_FFRK3288   = true
 
 # TARGET: arm-s805-linux-gnueabihf:
 ENABLE_M201       = true
+ENABLE_MXQ        = true
 
 # TARGET: arm-at91sam7s-elf-newlib:
 ENABLE_AT91S      = true
