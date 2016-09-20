@@ -169,7 +169,7 @@ sub install
 
     if( -d $target )
     {
-      if ( dir_is_empty( $target ) )
+      if( dir_is_empty( $target ) )
       {
         _kxLab::system( "mkdir -p \"$install_dir/$path/$file\"" );
         dist( "$install_dir/$path/$file" );
