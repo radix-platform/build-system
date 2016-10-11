@@ -653,9 +653,17 @@ UNPACK_SRC_ARCHIVE = \
 APPLY_PATCHES = $(quiet)$(foreach patch,$(PATCHES),\
 	$(BUILDSYSTEM)/apply_patches $(patch) $(SRC_DIR_BASE) &&) true
 
-# Apply patches in PATCHES on SRC_DIR_BASE:
+# Apply patches in PATCHES on BASE of directory defined as argument:
+apply-patches = $(quiet)$(foreach patch,$(PATCHES),\
+	$(BUILDSYSTEM)/apply_patches $(patch) $(dir $1) &&) true
+
+# Apply patches in OPT_PATCHES on SRC_DIR_BASE:
 APPLY_OPT_PATCHES = $(quiet)$(foreach patch,$(OPT_PATCHES),\
 	$(BUILDSYSTEM)/apply_patches $(patch) $(SRC_DIR_BASE) &&) true
+
+# Apply patches in OPT_PATCHES on BASE of directory defined as argument:
+apply-opt-patches = $(quiet)$(foreach patch,$(OPT_PATCHES),\
+	$(BUILDSYSTEM)/apply_patches $(patch) $(dir $1) &&) true
 
 
 ################################################################
