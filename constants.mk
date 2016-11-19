@@ -5,7 +5,7 @@ ifndef CONSTANTS_MK
 ####### Constants:
 #######
 
-SYSTEM_VERSION       = 1.2.0
+SYSTEM_VERSION       = 1.2.1
 
 #
 # Distribution:
@@ -255,6 +255,19 @@ HARDWARE_FFRK3288            = ffrk3288
 FFRK3288_SPEC                = Firefly RK3288 \(Linux, GNU Libc based\)
 FFRK3288_USE_BUILT_GCC_LIBS  = yes
 
+####### S805 devices:
+####### ------------
+####### Amlogic S805 meson8b m201:
+HARDWARE_M201                = m201
+###                           |---HW-spec-handy-ruler-----------------------|
+M201_SPEC                    = IP1565 M201 S805 \(Linux, GNU Libc based\)
+M201_USE_BUILT_GCC_LIBS      = yes
+
+HARDWARE_MXQ                 = mxq
+###                           |---HW-spec-handy-ruler-----------------------|
+MXQ_SPEC                     = MXQ NEXBOX S805 \(Linux, GNU Libc based\)
+MXQ_USE_BUILT_GCC_LIBS       = yes
+
 
 HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
 __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
@@ -285,6 +298,8 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
         CI20_ID_STD = B1
          BT1_ID_STD = B2
     FFRK3288_ID_STD = C1
+        M201_ID_STD = C2
+         MXQ_ID_STD = C4
 
 
 
@@ -471,6 +486,28 @@ RK328X_GLIBC_DEST_SYSROOT    = yes
 RK328X_GLIBC_HAS_CHRPATH     = yes
 
 RK328X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_FFRK3288)
+
+
+
+# ======= S805-GLIBC =========================================================
+
+TOOLCHAIN_S805_GLIBC         = s805-glibc
+
+S805_GLIBC_ARCH              = arm-s805-linux-gnueabihf
+S805_GLIBC_VERSION           = 1.1.1
+S805_GLIBC_DIR               = arm-S805-linux-glibc
+S805_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(S805_GLIBC_DIR)
+S805_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(S805_GLIBC_VERSION)/$(S805_GLIBC_DIR)-$(S805_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+S805_GLIBC_ARCH_DEFS         = -D__AMLOGIC_S805_GLIBC__=1
+S805_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a5 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -fomit-frame-pointer
+
+S805_GLIBC_SYSROOT           = sys-root
+S805_GLIBC_DEST_SYSROOT      = yes
+
+S805_GLIBC_HAS_CHRPATH       = yes
+
+S805_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_M201) $(HARDWARE_MXQ)
 
 
 
