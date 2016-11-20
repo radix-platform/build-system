@@ -31,24 +31,15 @@ ENABLE_CB3X       = true
 # TARGET: arm-rk328x-linux-gnueabihf:
 ENABLE_FFRK3288   = true
 
-# TARGET: arm-s805-linux-gnueabihf:
+# TARGET: arm-s8xx-linux-gnueabihf:
 ENABLE_M201       = true
-ENABLE_MXQ        = true
+ENABLE_MXV        = true
 
 # TARGET: arm-at91sam7s-elf-newlib:
 ENABLE_AT91S      = true
 
-# TARGET: arm-dm644x-elf-newlib:
-ENABLE_DM64N      = true
-
-# TARGET: arm-dm644x-linux-gnueabi:
-ENABLE_DM64X      = false
-
 # TARGET: arm-lpc17xx-uclinuxeabi:
 ENABLE_L17UC      = true
-
-# TARGET: arm-omap35x-linux-gnueabihf:
-ENABLE_BEAGLE     = false
 
 # TARGET: arm-imx6-linux-gnueabihf:
 ENABLE_NIT6Q      = true
@@ -56,9 +47,6 @@ ENABLE_NIT6Q      = true
 # TARGETS: arm-omap543x-linux-gnueabihf:
 ENABLE_OMAP5UEVM  = true
 ENABLE_DRA7XXEVM  = true
-
-# TARGETS: mipsel-bcm74x-linux-gnu:
-ENABLE_B74        = false
 
 # TARGETS: mipsel-jz47xx-linux-gnu:
 ENABLE_CI20       = true
