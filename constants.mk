@@ -256,17 +256,32 @@ HARDWARE_P201                = p201
 P201_SPEC                    = Amlogic P201 S905 \(Linux, GNU Libc based\)
 P201_USE_BUILT_GCC_LIBS      = yes
 
+HARDWARE_A95X                = a95x
+###                           |---HW-spec-handy-ruler-----------------------|
+A95X_SPEC                    = NEXBOX A95X S905 \(Linux, GNU Libc based\)
+A95X_USE_BUILT_GCC_LIBS      = yes
+
 ####### Amlogic S905X meson-gxl p212:
 HARDWARE_P212                = p212
 ###                           |---HW-spec-handy-ruler-----------------------|
 P212_SPEC                    = Amlogic P212 S905X \(Linux, GNU Libc based\)
 P212_USE_BUILT_GCC_LIBS      = yes
 
-####### Amlogic S912 meson-gxm q200:
+HARDWARE_KHADAS              = khadas
+###                           |---HW-spec-handy-ruler-----------------------|
+KHADAS_SPEC                  = Khadas Vim S905X \(Linux, GNU Libc based\)
+KHADAS_USE_BUILT_GCC_LIBS    = yes
+
+####### Amlogic S912 meson-gxm q201:
 HARDWARE_Q201                = q201
 ###                           |---HW-spec-handy-ruler-----------------------|
 Q201_SPEC                    = Amlogic Q201 S912 \(Linux, GNU Libc based\)
 Q201_USE_BUILT_GCC_LIBS      = yes
+
+HARDWARE_ENY_X2              = eny-x2
+###                           |---HW-spec-handy-ruler-----------------------|
+ENY_X2_SPEC                  = Enybox X2 S912 \(Linux, GNU Libc based\)
+ENY_X2_USE_BUILT_GCC_LIBS    = yes
 
 
 
@@ -298,8 +313,11 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
         M201_ID_STD = C1
          MXV_ID_STD = C2
         P201_ID_STD = D1
+        A95X_ID_STD = D2
         P212_ID_STD = E1
+      KHADAS_ID_STD = E2
         Q201_ID_STD = F1
+      ENY_X2_ID_STD = F2
 
 
 
@@ -529,7 +547,9 @@ S9XX_GLIBC_DEST_SYSROOT      = yes
 
 S9XX_GLIBC_HAS_CHRPATH       = yes
 
-S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_P212) $(HARDWARE_Q201)
+S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_A95X)   \
+                                $(HARDWARE_P212) $(HARDWARE_KHADAS) \
+                                $(HARDWARE_Q201) $(HARDWARE_ENY_X2)
 
 
 
