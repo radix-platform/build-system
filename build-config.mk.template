@@ -35,6 +35,11 @@ ENABLE_FFRK3288   = true
 ENABLE_M201       = true
 ENABLE_MXV        = true
 
+# TARGET: aarch64-s9xx-linux-gnu:
+ENABLE_P201       = true
+ENABLE_P212       = true
+ENABLE_Q201       = true
+
 # TARGET: arm-at91sam7s-elf-newlib:
 ENABLE_AT91S      = true
 

@@ -231,18 +231,43 @@ HARDWARE_FFRK3288            = ffrk3288
 FFRK3288_SPEC                = Firefly RK3288 \(Linux, GNU Libc based\)
 FFRK3288_USE_BUILT_GCC_LIBS  = yes
 
-####### S805 devices:
+
+####### S8XX devices:
 ####### ------------
+
 ####### Amlogic S805 meson8b m201:
 HARDWARE_M201                = m201
 ###                           |---HW-spec-handy-ruler-----------------------|
-M201_SPEC                    = IP1565 M201 S805 \(Linux, GNU Libc based\)
+M201_SPEC                    = Amlogic M201 S805 \(Linux, GNU Libc based\)
 M201_USE_BUILT_GCC_LIBS      = yes
 
 HARDWARE_MXV                 = mxv
 ###                           |---HW-spec-handy-ruler-----------------------|
 MXV_SPEC                     = MXV OTT Box S805 \(Linux, GNU Libc based\)
 MXV_USE_BUILT_GCC_LIBS       = yes
+
+
+####### S9XX devices:
+####### ------------
+
+####### Amlogic S905 meson-gxbb p201:
+HARDWARE_P201                = p201
+###                           |---HW-spec-handy-ruler-----------------------|
+P201_SPEC                    = Amlogic P201 S905 \(Linux, GNU Libc based\)
+P201_USE_BUILT_GCC_LIBS      = yes
+
+####### Amlogic S905X meson-gxl p212:
+HARDWARE_P212                = p212
+###                           |---HW-spec-handy-ruler-----------------------|
+P212_SPEC                    = Amlogic P212 S905X \(Linux, GNU Libc based\)
+P212_USE_BUILT_GCC_LIBS      = yes
+
+####### Amlogic S912 meson-gxm q200:
+HARDWARE_Q201                = q201
+###                           |---HW-spec-handy-ruler-----------------------|
+Q201_SPEC                    = Amlogic Q201 S912 \(Linux, GNU Libc based\)
+Q201_USE_BUILT_GCC_LIBS      = yes
+
 
 
 HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
@@ -272,6 +297,9 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
     FFRK3288_ID_STD = B1
         M201_ID_STD = C1
          MXV_ID_STD = C2
+        P201_ID_STD = D1
+        P212_ID_STD = E1
+        Q201_ID_STD = F1
 
 
 
@@ -480,6 +508,28 @@ S8XX_GLIBC_DEST_SYSROOT      = yes
 S8XX_GLIBC_HAS_CHRPATH       = yes
 
 S8XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_M201) $(HARDWARE_MXV)
+
+
+
+# ======= S9XX-GLIBC =========================================================
+
+TOOLCHAIN_S9XX_GLIBC         = s9xx-glibc
+
+S9XX_GLIBC_ARCH              = aarch64-s9xx-linux-gnu
+S9XX_GLIBC_VERSION           = 1.1.2
+S9XX_GLIBC_DIR               = aarch64-S9XX-linux-glibc
+S9XX_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(S9XX_GLIBC_DIR)
+S9XX_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(S9XX_GLIBC_VERSION)/$(S9XX_GLIBC_DIR)-$(S9XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+S9XX_GLIBC_ARCH_DEFS         = -D__AMLOGIC_S9XX_GLIBC__=1
+S9XX_GLIBC_ARCH_FLAGS        = -march=armv8-a -mcpu=cortex-a53 -mabi=lp64 -fomit-frame-pointer
+
+S9XX_GLIBC_SYSROOT           = sys-root
+S9XX_GLIBC_DEST_SYSROOT      = yes
+
+S9XX_GLIBC_HAS_CHRPATH       = yes
+
+S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_P212) $(HARDWARE_Q201)
 
 
 
