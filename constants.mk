@@ -116,172 +116,172 @@ HARDWARE_BUILD      = build
 #
 
 ####### x86 Personal Computer:
-HARDWARE_PC32                = pc32
-###                           |---HW-spec-handy-ruler-----------------------|
-PC32_SPEC                    = Intel x86_32 generic Linux machine
-PC32_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_PC32                  = pc32
+###                             |---HW-spec-handy-ruler-----------------------|
+PC32_SPEC                      = Intel x86_32 generic Linux machine
+PC32_USE_BUILT_GCC_LIBS        = yes
 
 ####### {x86|x86_64} Personal Computer:
-HARDWARE_PC64                = pc64
-###                           |---HW-spec-handy-ruler-----------------------|
-PC64_SPEC                    = Intel x86_64 generic Linux machine
-PC64_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_PC64                  = pc64
+###                             |---HW-spec-handy-ruler-----------------------|
+PC64_SPEC                      = Intel x86_64 generic Linux machine
+PC64_USE_BUILT_GCC_LIBS        = yes
 
 ####### x86 micro Linux:
-HARDWARE_PC32M               = pc32m
-###                           |---HW-spec-handy-ruler-----------------------|
-PC32M_SPEC                   = x86_32 micro Linux
-PC32M_USE_BUILT_GCC_LIBS     = no
+HARDWARE_PC32M                 = pc32m
+###                             |---HW-spec-handy-ruler-----------------------|
+PC32M_SPEC                     = x86_32 micro Linux
+PC32M_USE_BUILT_GCC_LIBS       = no
 
 ####### x86_64 micro Linux:
-HARDWARE_PC64M               = pc64m
-###                           |---HW-spec-handy-ruler-----------------------|
-PC64M_SPEC                   = x86_64 micro Linux
-PC64M_USE_BUILT_GCC_LIBS     = no
+HARDWARE_PC64M                 = pc64m
+###                             |---HW-spec-handy-ruler-----------------------|
+PC64M_SPEC                     = x86_64 micro Linux
+PC64M_USE_BUILT_GCC_LIBS       = no
 
 
 ####### A1N newlib devices (cubieboard 1):
-HARDWARE_CB1N                = cb1n
-###                           |---HW-spec-handy-ruler-----------------------|
-CB1N_SPEC                    = Cubieboard A10 \(Newlib based\)
-CB1N_USE_BUILT_GCC_LIBS      = no
+HARDWARE_CB1N                  = cb1n
+###                             |---HW-spec-handy-ruler-----------------------|
+CB1N_SPEC                      = Cubieboard A10 \(Newlib based\)
+CB1N_USE_BUILT_GCC_LIBS        = no
 
 ####### A1X devices (cubieboard 1 glibc):
-HARDWARE_CB1X                = cb1x
-###                           |---HW-spec-handy-ruler-----------------------|
-CB1X_SPEC                    = Cubieboard A10 \(Linux, GNU Libc based\)
-CB1X_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_CB1X                  = cb1x
+###                             |---HW-spec-handy-ruler-----------------------|
+CB1X_SPEC                      = Cubieboard A10 \(Linux, GNU Libc based\)
+CB1X_USE_BUILT_GCC_LIBS        = yes
 
 ####### A2N newlib devices (cubieboard 2):
-HARDWARE_CB2N                = cb2n
-###                           |---HW-spec-handy-ruler-----------------------|
-CB2N_SPEC                    = Cubieboard A20 \(Newlib based\)
-CB2N_USE_BUILT_GCC_LIBS      = no
+HARDWARE_CB2N                  = cb2n
+###                             |---HW-spec-handy-ruler-----------------------|
+CB2N_SPEC                      = Cubieboard A20 \(Newlib based\)
+CB2N_USE_BUILT_GCC_LIBS        = no
 
 ####### A2X devices (cubieboard 2 glibc):
-HARDWARE_CB2X                = cb2x
-###                           |---HW-spec-handy-ruler-----------------------|
-CB2X_SPEC                    = Cubieboard A20 \(Linux, GNU Libc based\)
-CB2X_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_CB2X                  = cb2x
+###                             |---HW-spec-handy-ruler-----------------------|
+CB2X_SPEC                      = Cubieboard A20 \(Linux, GNU Libc based\)
+CB2X_USE_BUILT_GCC_LIBS        = yes
 
 ####### A3N newlib devices (cubieboard 3):
-HARDWARE_CB3N                = cb3n
-###                           |---HW-spec-handy-ruler-----------------------|
-CB3N_SPEC                    = Cubietrack A20 \(Newlib based\)
-CB3N_USE_BUILT_GCC_LIBS      = no
+HARDWARE_CB3N                  = cb3n
+###                             |---HW-spec-handy-ruler-----------------------|
+CB3N_SPEC                      = Cubietrack A20 \(Newlib based\)
+CB3N_USE_BUILT_GCC_LIBS        = no
 
 ####### A3X devices (cubieboard 3 glibc):
-HARDWARE_CB3X                = cb3x
-###                           |---HW-spec-handy-ruler-----------------------|
-CB3X_SPEC                    = Cubietrack A20 \(Linux, GNU Libc based\)
-CB3X_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_CB3X                  = cb3x
+###                             |---HW-spec-handy-ruler-----------------------|
+CB3X_SPEC                      = Cubietrack A20 \(Linux, GNU Libc based\)
+CB3X_USE_BUILT_GCC_LIBS        = yes
 
 ####### AT91SAM7S devices:
-HARDWARE_AT91S               = at91s
-###                           |---HW-spec-handy-ruler-----------------------|
-AT91S_SPEC                   = Atmel at91sam7s \(Newlib based\)
-AT91S_USE_BUILT_GCC_LIBS     = no
+HARDWARE_AT91S                 = at91s
+###                             |---HW-spec-handy-ruler-----------------------|
+AT91S_SPEC                     = Atmel at91sam7s \(Newlib based\)
+AT91S_USE_BUILT_GCC_LIBS       = no
 
 ####### LPC17XX devices:
-HARDWARE_L17UC               = l17uc
-###                           |---HW-spec-handy-ruler-----------------------|
-L17UC_SPEC                   = NXP lpc17xx \(uCLibc based\)
-L17UC_USE_BUILT_GCC_LIBS     = no
+HARDWARE_L17UC                 = l17uc
+###                             |---HW-spec-handy-ruler-----------------------|
+L17UC_SPEC                     = NXP lpc17xx \(uCLibc based\)
+L17UC_USE_BUILT_GCC_LIBS       = no
 
 ####### i.MX6 devices:
 ####### -------------
 ####### Nitrogen6X [https://boundarydevices.com/product/nitrogen6x-board-imx6-arm-cortex-a9-sbc]:
-HARDWARE_NIT6Q               = nit6q
-###                           |---HW-spec-handy-ruler-----------------------|
-NIT6Q_SPEC                   = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
-NIT6Q_USE_BUILT_GCC_LIBS     = yes
+HARDWARE_NIT6Q                 = nit6q
+###                             |---HW-spec-handy-ruler-----------------------|
+NIT6Q_SPEC                     = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
+NIT6Q_USE_BUILT_GCC_LIBS       = yes
 
 ####### OMAP543X devices:
-HARDWARE_OMAP5UEVM           = omap5uevm
-###                           |---HW-spec-handy-ruler-----------------------|
-OMAP5UEVM_SPEC               = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
-OMAP5UEVM_USE_BUILT_GCC_LIBS = yes
+HARDWARE_OMAP5UEVM             = omap5uevm
+###                             |---HW-spec-handy-ruler-----------------------|
+OMAP5UEVM_SPEC                 = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
+OMAP5UEVM_USE_BUILT_GCC_LIBS   = yes
 
-HARDWARE_DRA7XXEVM           = dra7xxevm
-###                           |---HW-spec-handy-ruler-----------------------|
-DRA7XXEVM_SPEC               = Texas DRA7xx EVM \(Linux, GNU Libc based\)
-DRA7XXEVM_USE_BUILT_GCC_LIBS = yes
+HARDWARE_DRA7XXEVM             = dra7xxevm
+###                             |---HW-spec-handy-ruler-----------------------|
+DRA7XXEVM_SPEC                 = Texas DRA7xx EVM \(Linux, GNU Libc based\)
+DRA7XXEVM_USE_BUILT_GCC_LIBS   = yes
 
 ####### JZ47XX devices:
 ####### --------------
 ####### MIPS Creator CI20 [http://www.elinux.org/MIPS_Creator_CI20]:
-HARDWARE_CI20                = ci20
-###                           |---HW-spec-handy-ruler-----------------------|
-CI20_SPEC                    = MIPS Creator CI20 \(Linux, GNU Libc based\)
-CI20_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_CI20                  = ci20
+###                             |---HW-spec-handy-ruler-----------------------|
+CI20_SPEC                      = MIPS Creator CI20 \(Linux, GNU Libc based\)
+CI20_USE_BUILT_GCC_LIBS        = yes
 
 ####### MIPS Warrior P-class P5600 devices:
 ####### ----------------------------------
 ####### Baikal T1 based boards [http://baikalelectronics.com/products/168]:
-HARDWARE_BT1                 = bt1
-###                           |---HW-spec-handy-ruler-----------------------|
-BT1_SPEC                     = MIPS Baikal T1 \(Linux, GNU Libc based\)
-BT1_USE_BUILT_GCC_LIBS       = yes
+HARDWARE_BT1                   = bt1
+###                             |---HW-spec-handy-ruler-----------------------|
+BT1_SPEC                       = MIPS Baikal T1 \(Linux, GNU Libc based\)
+BT1_USE_BUILT_GCC_LIBS         = yes
 
 ####### RK328X devices:
 ####### --------------
 ####### Firefly-RK3288 [http://en.t-firefly.com/en/firenow/firefly_rk3288]:
-HARDWARE_FFRK3288            = ffrk3288
-###                           |---HW-spec-handy-ruler-----------------------|
-FFRK3288_SPEC                = Firefly RK3288 \(Linux, GNU Libc based\)
-FFRK3288_USE_BUILT_GCC_LIBS  = yes
+HARDWARE_FFRK3288              = ffrk3288
+###                             |---HW-spec-handy-ruler-----------------------|
+FFRK3288_SPEC                  = Firefly RK3288 \(Linux, GNU Libc based\)
+FFRK3288_USE_BUILT_GCC_LIBS    = yes
 
 
 ####### S8XX devices:
 ####### ------------
 
 ####### Amlogic S805 meson8b m201:
-HARDWARE_M201                = m201
-###                           |---HW-spec-handy-ruler-----------------------|
-M201_SPEC                    = Amlogic M201 S805 \(Linux, GNU Libc based\)
-M201_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_M201                  = m201
+###                             |---HW-spec-handy-ruler-----------------------|
+M201_SPEC                      = Amlogic M201 S805 \(Linux, GNU Libc based\)
+M201_USE_BUILT_GCC_LIBS        = yes
 
-HARDWARE_MXV                 = mxv
-###                           |---HW-spec-handy-ruler-----------------------|
-MXV_SPEC                     = MXV OTT Box S805 \(Linux, GNU Libc based\)
-MXV_USE_BUILT_GCC_LIBS       = yes
+HARDWARE_MXV                   = mxv
+###                             |---HW-spec-handy-ruler-----------------------|
+MXV_SPEC                       = MXV OTT Box S805 \(Linux, GNU Libc based\)
+MXV_USE_BUILT_GCC_LIBS         = yes
 
 
 ####### S9XX devices:
 ####### ------------
 
 ####### Amlogic S905 meson-gxbb p201:
-HARDWARE_P201                = p201
-###                           |---HW-spec-handy-ruler-----------------------|
-P201_SPEC                    = Amlogic P201 S905 \(Linux, GNU Libc based\)
-P201_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_P201                  = p201
+###                             |---HW-spec-handy-ruler-----------------------|
+P201_SPEC                      = Amlogic P201 S905 \(Linux, GNU Libc based\)
+P201_USE_BUILT_GCC_LIBS        = yes
 
-HARDWARE_A95X                = a95x
-###                           |---HW-spec-handy-ruler-----------------------|
-A95X_SPEC                    = NEXBOX A95X S905 \(Linux, GNU Libc based\)
-A95X_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_NEXBOX_A95X           = nexbox-a95x
+###                             |---HW-spec-handy-ruler-----------------------|
+NEXBOX_A95X_SPEC               = NEXBOX A95X S905 \(Linux, GNU Libc based\)
+NEXBOX_A95X_USE_BUILT_GCC_LIBS = yes
 
 ####### Amlogic S905X meson-gxl p212:
-HARDWARE_P212                = p212
-###                           |---HW-spec-handy-ruler-----------------------|
-P212_SPEC                    = Amlogic P212 S905X \(Linux, GNU Libc based\)
-P212_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_P212                  = p212
+###                             |---HW-spec-handy-ruler-----------------------|
+P212_SPEC                      = Amlogic P212 S905X \(Linux, GNU Libc based\)
+P212_USE_BUILT_GCC_LIBS        = yes
 
-HARDWARE_KHADAS              = khadas
-###                           |---HW-spec-handy-ruler-----------------------|
-KHADAS_SPEC                  = Khadas Vim S905X \(Linux, GNU Libc based\)
-KHADAS_USE_BUILT_GCC_LIBS    = yes
+HARDWARE_KHADAS_VIM            = khadas-vim
+###                             |---HW-spec-handy-ruler-----------------------|
+KHADAS_VIM_SPEC                = Khadas Vim S905X \(Linux, GNU Libc based\)
+KHADAS_VIM_USE_BUILT_GCC_LIBS  = yes
 
 ####### Amlogic S912 meson-gxm q201:
-HARDWARE_Q201                = q201
-###                           |---HW-spec-handy-ruler-----------------------|
-Q201_SPEC                    = Amlogic Q201 S912 \(Linux, GNU Libc based\)
-Q201_USE_BUILT_GCC_LIBS      = yes
+HARDWARE_Q201                  = q201
+###                             |---HW-spec-handy-ruler-----------------------|
+Q201_SPEC                      = Amlogic Q201 S912 \(Linux, GNU Libc based\)
+Q201_USE_BUILT_GCC_LIBS        = yes
 
-HARDWARE_ENY_X2              = eny-x2
-###                           |---HW-spec-handy-ruler-----------------------|
-ENY_X2_SPEC                  = Enybox X2 S912 \(Linux, GNU Libc based\)
-ENY_X2_USE_BUILT_GCC_LIBS    = yes
+HARDWARE_ENYBOX_X2             = enybox-x2
+###                             |---HW-spec-handy-ruler-----------------------|
+ENYBOX_X2_SPEC                 = Enybox X2 S912 \(Linux, GNU Libc based\)
+ENYBOX_X2_USE_BUILT_GCC_LIBS   = yes
 
 
 
@@ -313,11 +313,11 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
         M201_ID_STD = C1
          MXV_ID_STD = C2
         P201_ID_STD = D1
-        A95X_ID_STD = D2
+ NEXBOX_A95X_ID_STD = D2
         P212_ID_STD = E1
-      KHADAS_ID_STD = E2
+  KHADAS_VIM_ID_STD = E2
         Q201_ID_STD = F1
-      ENY_X2_ID_STD = F2
+   ENYBOX_X2_ID_STD = F2
 
 
 
@@ -547,9 +547,9 @@ S9XX_GLIBC_DEST_SYSROOT      = yes
 
 S9XX_GLIBC_HAS_CHRPATH       = yes
 
-S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_A95X)   \
-                                $(HARDWARE_P212) $(HARDWARE_KHADAS) \
-                                $(HARDWARE_Q201) $(HARDWARE_ENY_X2)
+S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_NEXBOX_A95X) \
+                                $(HARDWARE_P212) $(HARDWARE_KHADAS_VIM)  \
+                                $(HARDWARE_Q201) $(HARDWARE_ENYBOX_X2)
 
 
 

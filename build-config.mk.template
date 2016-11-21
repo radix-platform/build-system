@@ -3,61 +3,61 @@
 #
 
 # TARGET: i486-radix-linux-gnu:
-ENABLE_PC32       = true
+ENABLE_PC32        = true
 
 # TARGET: x86_64-radix-linux-gnu:
-ENABLE_PC64       = true
+ENABLE_PC64        = true
 
 # TARGET: i486-radix-linux-gnu:
-ENABLE_PC32M      = true
+ENABLE_PC32M       = true
 
 # TARGET: x86_64-radix-linux-gnu:
-ENABLE_PC64M      = true
+ENABLE_PC64M       = true
 
 # TARGET: arm-a1x-eabi:
-ENABLE_CB1N       = true
+ENABLE_CB1N        = true
 
 # TARGET: arm-a2x-eabi:
-ENABLE_CB2N       = true
-ENABLE_CB3N       = true
+ENABLE_CB2N        = true
+ENABLE_CB3N        = true
 
 # TARGET: arm-a1x-linux-gnueabihf:
-ENABLE_CB1X       = true
+ENABLE_CB1X        = true
 
 # TARGET: arm-a2x-linux-gnueabihf:
-ENABLE_CB2X       = true
-ENABLE_CB3X       = true
+ENABLE_CB2X        = true
+ENABLE_CB3X        = true
 
 # TARGET: arm-rk328x-linux-gnueabihf:
-ENABLE_FFRK3288   = true
+ENABLE_FFRK3288    = true
 
 # TARGET: arm-s8xx-linux-gnueabihf:
-ENABLE_M201       = true
-ENABLE_MXV        = true
+ENABLE_M201        = true
+ENABLE_MXV         = true
 
 # TARGET: aarch64-s9xx-linux-gnu:
-ENABLE_P201       = false
-ENABLE_A95X       = true
-ENABLE_P212       = false
-ENABLE_KHADAS     = true
-ENABLE_Q201       = false
-ENABLE_ENY_X2     = true
+ENABLE_P201        = false
+ENABLE_NEXBOX_A95X = true
+ENABLE_P212        = false
+ENABLE_KHADAS_VIM  = true
+ENABLE_Q201        = false
+ENABLE_ENYBOX_X2   = true
 
 # TARGET: arm-at91sam7s-elf-newlib:
-ENABLE_AT91S      = true
+ENABLE_AT91S       = true
 
 # TARGET: arm-lpc17xx-uclinuxeabi:
-ENABLE_L17UC      = true
+ENABLE_L17UC       = true
 
 # TARGET: arm-imx6-linux-gnueabihf:
-ENABLE_NIT6Q      = true
+ENABLE_NIT6Q       = true
 
 # TARGETS: arm-omap543x-linux-gnueabihf:
-ENABLE_OMAP5UEVM  = true
-ENABLE_DRA7XXEVM  = true
+ENABLE_OMAP5UEVM   = true
+ENABLE_DRA7XXEVM   = true
 
 # TARGETS: mipsel-jz47xx-linux-gnu:
-ENABLE_CI20       = true
+ENABLE_CI20        = true
 
 # TARGETS: mipsel-p5600-linux-gnu:
-ENABLE_BT1        = true
+ENABLE_BT1         = true
