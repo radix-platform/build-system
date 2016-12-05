@@ -320,7 +320,6 @@ MAKEFLAGS += -j1
 .NOTPARALLEL:
 endif
 
-MAKEFLAGS += --output-sync=target
 
 
 #######
