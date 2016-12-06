@@ -152,8 +152,8 @@ show_version() {
 
 remove_size_info() {
   infile="./.PKGINFO"
-  sed -i "/uncompressed_size/d" $infile
-  sed -i "/total_files/d" $infile
+  sed -i '/uncompressed_size/d' $infile
+  sed -i '/total_files/d' $infile
 }
 
 remove_backslash_info() {
