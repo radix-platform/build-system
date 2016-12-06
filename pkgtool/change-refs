@@ -190,10 +190,10 @@ else
 fi
 
 # read lines:
-LINENUMS=`sed -n "$=" $TMP/.REQUIRES | tr '\n' '\0'`
+LINENUMS=`sed -n "$=" $TMP/.REQUIRES`
 LINENUM_REQ=1
 while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES | tr '\n' '\0'`"
+  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES`"
   let LINENUM_REQ+=1
   pnam=`echo "$LINE" | cut -f 1 -d '='`
   pver=`echo "$LINE" | cut -f 2 -d '='`
