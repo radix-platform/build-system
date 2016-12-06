@@ -89,7 +89,7 @@ package_info() {
     exit $EXITSTATUS
   fi
   rm -f $TMP/pkginfo$$
-  compressed_size=$(du -s -h "$1" | sed 's/[:\t:].*$//' | tr '\n' '\0')
+  compressed_size=$(du -s -h "$1" | sed 's/[:\t:].*$//')
 }
 
 package_description() {

@@ -346,7 +346,7 @@ not_installed=0
 
 if [ -f $TMP/links$$ -a -s $TMP/links$$ ]; then
   link_counter=0
-  line_counter=`sed -n "$=" $TMP/links$$ | tr '\n' '\0'`
+  line_counter=`sed -n "$=" $TMP/links$$`
   check_links < $TMP/links$$
   if [ ! "$link_counter" = "0" ] ; then
     if [ $link_counter -lt $line_counter ] ; then
@@ -365,7 +365,7 @@ rm -f $TMP/links$$
 
 if [ -f $TMP/files$$ -a -s $TMP/files$$ ]; then
   file_counter=0
-  line_counter=`sed -n "$=" $TMP/files$$ | tr '\n' '\0'`
+  line_counter=`sed -n "$=" $TMP/files$$`
   check_files < $TMP/files$$
   if [ ! "$file_counter" = "0" ] ; then
     if [ $file_counter -lt $line_counter ] ; then
