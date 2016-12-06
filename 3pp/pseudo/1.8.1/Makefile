@@ -23,7 +23,7 @@ PATCHES = PATCHES
 build_target    = $(TARGET_BUILD_DIR)/.built
 install_target  = $(TARGET_BUILD_DIR)/.installed
 
-pseudo_wrapper    = $(CURDIR)/scripts/pseudo
+pseudo_wrapper    = $(CURDIR)/scripts/pseudo.pl
 pseudolog_wrapper = $(CURDIR)/scripts/pseudolog
 
 environment     =
