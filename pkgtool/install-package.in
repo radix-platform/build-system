@@ -143,7 +143,7 @@ pkglist_get_priority() {
     return 1
   fi
   LINE="`sed -n "$LINENUM p" $listfile`"
-  ret="`echo "$LINE" | cut -f 6 -d ':' | tr '\n' '\0'`"
+  ret="`echo "$LINE" | cut -f 6 -d ':'`"
   if   [ "$ret" = "required"    -o "$ret" = "req" -o "$ret" = "REQUIRED"    -o "$ret" = "REQ" ]; then
     ret="REQUIRED"
   elif [ "$ret" = "recommended" -o "$ret" = "rec" -o "$ret" = "RECOMMENDED" -o "$ret" = "REC" ]; then

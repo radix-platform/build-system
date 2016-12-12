@@ -83,7 +83,7 @@ package_info() {
     exit $EXITSTATUS
   fi
   rm -f $TMP/pkginfo$$
-  compressed_size=$(du -s -h "$1" | sed 's/[:\t:].*$//' | tr '\n' '\0')
+  compressed_size=$(du -s -h "$1" | sed 's/[:\t:].*$//')
 }
 
 package_description() {
@@ -137,7 +137,7 @@ pkglist_get_priority() {
     return 1
   fi
   LINE="`sed -n "$LINENUM p" $listfile`"
-  ret="`echo "$LINE" | cut -f 6 -d ':' | tr '\n' '\0'`"
+  ret="`echo "$LINE" | cut -f 6 -d ':'`"
   if   [ "$ret" = "required"    -o "$ret" = "req" -o "$ret" = "REQUIRED"    -o "$ret" = "REQ" ]; then
     ret="REQUIRED"
   elif [ "$ret" = "recommended" -o "$ret" = "rec" -o "$ret" = "RECOMMENDED" -o "$ret" = "REC" ]; then
@@ -168,7 +168,7 @@ set_references() {
     return
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
   if [ ! "$oldrefs" = "" ]; then
     sed -i "$LINENUM_REF s/$oldrefs/$refs/" $logfile
   fi

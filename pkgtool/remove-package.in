@@ -58,7 +58,7 @@ get_ref_counter() {
     refcounter=
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
 }
 
 tarball_pkginfo() {

@@ -74,7 +74,7 @@ get_ref_counter() {
     refcounter=
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
 }
 
 set_ref_counter() {
@@ -86,7 +86,7 @@ set_ref_counter() {
     return
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
   if [ ! "$oldrefs" = "" ]; then
     sed -i "$LINENUM_REF s/$oldrefs/$refs/" $logfile
   fi
@@ -116,7 +116,7 @@ dec_ref_counter() {
     return
   fi
   LINE="`sed -n "$LINENUM_RFS p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
   if [ ! "$oldrefs" = "" ]; then
     refs=$oldrefs
     if [ ! "$refs" = "0" ]; then
