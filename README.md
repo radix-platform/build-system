@@ -205,5 +205,5 @@ on the [Community](#user-content-community) sites.
 
 ## Copyright and license
 
-Code and documentation copyright 2009-2016 Andrey V. Kosteltsev.
+Code and documentation copyright 2009-2017 Andrey V. Kosteltsev.
 Code and documentation released under [the **Radix.pro** License](LICENSE).
