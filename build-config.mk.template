@@ -38,6 +38,7 @@ ENABLE_MXV         = true
 # TARGET: aarch64-s9xx-linux-gnu:
 ENABLE_P201        = false
 ENABLE_NEXBOX_A95X = true
+ENABLE_ODROID_C2   = true
 ENABLE_P212        = false
 ENABLE_KHADAS_VIM  = true
 ENABLE_Q201        = false

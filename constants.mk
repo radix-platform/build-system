@@ -261,6 +261,11 @@ HARDWARE_NEXBOX_A95X           = nexbox-a95x
 NEXBOX_A95X_SPEC               = NEXBOX A95X S905 \(Linux, GNU Libc based\)
 NEXBOX_A95X_USE_BUILT_GCC_LIBS = yes
 
+HARDWARE_ODROID_C2             = odroid-c2
+###                             |---HW-spec-handy-ruler-----------------------|
+ODROID_C2_SPEC                 = ODROID C2 S905 \(Linux, GNU Libc based\)
+ODROID_C2_USE_BUILT_GCC_LIBS   = yes
+
 ####### Amlogic S905X meson-gxl p212:
 HARDWARE_P212                  = p212
 ###                             |---HW-spec-handy-ruler-----------------------|
@@ -314,6 +319,7 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
          MXV_ID_STD = C2
         P201_ID_STD = D1
  NEXBOX_A95X_ID_STD = D2
+   ODROID_C2_ID_STD = D4
         P212_ID_STD = E1
   KHADAS_VIM_ID_STD = E2
         Q201_ID_STD = F1
@@ -548,6 +554,7 @@ S9XX_GLIBC_DEST_SYSROOT      = yes
 S9XX_GLIBC_HAS_CHRPATH       = yes
 
 S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_NEXBOX_A95X) \
+                                                 $(HARDWARE_ODROID_C2)   \
                                 $(HARDWARE_P212) $(HARDWARE_KHADAS_VIM)  \
                                 $(HARDWARE_Q201) $(HARDWARE_ENYBOX_X2)
 
