@@ -26,7 +26,7 @@ environment     =
 extra_configure_switches  = --libdir=/usr/lib
 extra_configure_switches += --mandir=/usr/share/man
 extra_configure_switches += --without-shared
-extra_configure_switches += --with-ncoursesw
+extra_configure_switches += --with-ncursesw
 
 BUILD_TARGETS = $(install_target)
 
