@@ -25,7 +25,7 @@ export DIALOGRC
 : ${DIALOG_ITEM_HELP=4}
 : ${DIALOG_ESC=255}
 
-umask 022
+umask 002
 if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
 TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix build-system.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
