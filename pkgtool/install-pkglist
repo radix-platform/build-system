@@ -159,7 +159,7 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
 done
 
 # remove last '\' symbol
-cat $TMP/pkglst$$ | sed -e "$ s/[:\\:]//" > $TMP/pkglist$$
+cat $TMP/pkglst$$ | sed -e "$ s/[\\]//" > $TMP/pkglist$$
 
 $DIALOG --file $TMP/pkglist$$ 2> $TMP/setofpkgs$$
 if [ $? = 1 -o $? = 255 ]; then
