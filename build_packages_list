@@ -439,12 +439,14 @@ if( %deps )
 {
   my @dep_keys = keys %deps;
 
+  my $count = scalar( keys %deps );
+
   foreach my $dir ( @treedirs )
   {
     if( ! grep { $_ eq $dir } @dep_keys )
     {
       my $key = $dir;
-      $sequence{$key} = $order;
+      $sequence{$key} = ++$order;
       @treedirs = grep { $_ ne $key } @treedirs;
 
       # Split dir^flavour:
@@ -464,11 +466,11 @@ if( %deps )
       # Insert into sub_trees:
       my %pkg = fill_package_info( $d, $topdir . "/" . $d . "/Makefile", $f );
       $sub_trees{$dir} = \%pkg;
+
+      delete $deps{$dir};
     }
   }
 
-
-  my $count = $#dep_keys;
 
   for( my $i = 0; $i < $count; ++$i )
   {
