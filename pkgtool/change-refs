@@ -4,7 +4,7 @@ program=`basename $0`
 
 # EXIT STATUS 92 = Cannot create '/tmp/...' directory
 
-umask 022
+umask 002
 if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
 TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix pkgtool.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
@@ -74,7 +74,7 @@ get_ref_counter() {
     refcounter=
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  refcounter="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
 }
 
 set_ref_counter() {
@@ -86,7 +86,7 @@ set_ref_counter() {
     return
   fi
   LINE="`sed -n "$LINENUM_REF p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
   if [ ! "$oldrefs" = "" ]; then
     sed -i "$LINENUM_REF s/$oldrefs/$refs/" $logfile
   fi
@@ -116,7 +116,7 @@ dec_ref_counter() {
     return
   fi
   LINE="`sed -n "$LINENUM_RFS p" $logfile`"
-  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //' | tr '\n' '\0'`"
+  oldrefs="`echo "$LINE" | sed -e 's/^REFERENCE COUNTER: //'`"
   if [ ! "$oldrefs" = "" ]; then
     refs=$oldrefs
     if [ ! "$refs" = "0" ]; then
@@ -190,10 +190,10 @@ else
 fi
 
 # read lines:
-LINENUMS=`sed -n "$=" $TMP/.REQUIRES | tr '\n' '\0'`
+LINENUMS=`sed -n "$=" $TMP/.REQUIRES`
 LINENUM_REQ=1
 while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES | tr '\n' '\0'`"
+  LINE="`sed -n "$LINENUM_REQ p" $TMP/.REQUIRES`"
   let LINENUM_REQ+=1
   pnam=`echo "$LINE" | cut -f 1 -d '='`
   pver=`echo "$LINE" | cut -f 2 -d '='`

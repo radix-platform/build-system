@@ -15,7 +15,7 @@ EXITSTATUS=0
 
 CWD=`pwd`
 
-umask 022
+umask 002
 if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
 TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix pkgtool.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
@@ -105,10 +105,10 @@ Press ENTER when you are done." \\
 EOF
 
 # read lines from '$PKGLIST' file in original order:
-LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
+LINENUMS=`sed -n "$=" $PKGLIST`
 LINENUM_REQ=1
 while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-  LINE="`sed -n "$LINENUM_REQ p" $PKGLIST | tr '\n' '\0'`"
+  LINE="`sed -n "$LINENUM_REQ p" $PKGLIST`"
   let LINENUM_REQ+=1
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`
@@ -125,7 +125,7 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
     pkgtarball=`echo $pkgtarball | sed s,$CWD/,,`
     if [ ! -z "$pnam" -a -f $pkgtarball ]; then
       desc="`echo $LINE | cut -f 3 -d ':'`"
-      prio="`echo $LINE | cut -f 6 -d ':' | tr '\n' '\0'`"
+      prio="`echo $LINE | cut -f 6 -d ':'`"
       if   [ "$prio" = "required"    -o "$prio" = "req" -o "$prio" = "REQUIRED"    -o "$prio" = "REQ" ]; then
         ret="REQUIRED"
       elif [ "$prio" = "recommended" -o "$prio" = "rec" -o "$prio" = "RECOMMENDED" -o "$prio" = "REC" ]; then
@@ -159,16 +159,16 @@ while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
 done
 
 # remove last '\' symbol
-cat $TMP/pkglst$$ | sed -e "$ s/[:\\:]//" > $TMP/pkglist$$
+cat $TMP/pkglst$$ | sed -e "$ s/[\\]//" > $TMP/pkglist$$
 
 $DIALOG --file $TMP/pkglist$$ 2> $TMP/setofpkgs$$
 if [ $? = 1 -o $? = 255 ]; then
   > $TMP/newpkglist$$
   # read lines from '$PKGLIST' file in original order:
-  LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
+  LINENUMS=`sed -n "$=" $PKGLIST`
   LINENUM_REQ=1
   while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST | tr '\n' '\0'`"
+    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST"
     let LINENUM_REQ+=1
     if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
       pnam="`echo "$LINE" | cut -f 1 -d ':'`"
@@ -183,10 +183,10 @@ if [ $? = 1 -o $? = 255 ]; then
 else
   > $TMP/newpkglist$$
   # read lines from '$PKGLIST' file in original order:
-  LINENUMS=`sed -n "$=" $PKGLIST | tr '\n' '\0'`
+  LINENUMS=`sed -n "$=" $PKGLIST`
   LINENUM_REQ=1
   while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST | tr '\n' '\0'`"
+    LINE="`sed -n "$LINENUM_REQ p" $PKGLIST`"
     let LINENUM_REQ+=1
     if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
       pnam="`echo "$LINE" | cut -f 1 -d ':'`"
@@ -230,10 +230,10 @@ fi
 
 # tarballs from '$PKGLIST' file in original order:
 PKGS=
-LINENUMS=`sed -n "$=" $TMP/newpkglist$$ | tr '\n' '\0'`
+LINENUMS=`sed -n "$=" $TMP/newpkglist$$`
 LINENUM_REQ=1
 while [ "$LINENUM_REQ" -le "$LINENUMS" ]; do
-  LINE="`sed -n "$LINENUM_REQ p" $TMP/newpkglist$$ | tr '\n' '\0'`"
+  LINE="`sed -n "$LINENUM_REQ p" $TMP/newpkglist$$`"
   let LINENUM_REQ+=1
   if [ ! -z "$LINE" -a -z "`echo $LINE | grep -n -e '^#' | cut -f 1 -d ':'`" ]; then
     pnam=`echo "$LINE" | cut -f 1 -d ':'`

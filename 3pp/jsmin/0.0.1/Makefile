@@ -42,7 +42,7 @@ $(build_target): $(src_done)
 	@touch $@
 
 $(install_target): $(build_target)
-	@echo -e "\n======= Installing FAKEROOT binary =======\n"
+	@echo -e "\n======= Installing JSMIN binary =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \
 	  cp -a $(build_dir)/src/jsmin     $(BUILDSYSTEM)/sbin && \
 	  echo "JSMIN := $(BUILDSYSTEM)/sbin/jsmin" >> $(BUILDSYSTEM)/sbin/.config

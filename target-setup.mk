@@ -418,8 +418,10 @@ BUILD_ENVIRONMENT += LDFLAGS="$(LDFLAGS)"
 #  PKG_CONFIG_PATH - directories to add to pkg-config's search path
 #
 PKG_CONFIG_PATH    = $(TARGET_DEST_DIR)/usr/lib$(LIBSUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+PKG_CONFIG_LIBDIR  = $(TARGET_DEST_DIR)/usr/lib$(LIBSUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 
 BUILD_ENVIRONMENT += PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)"
+BUILD_ENVIRONMENT += PKG_CONFIG_LIBDIR="$(PKG_CONFIG_LIBDIR)"
 
 #######
 ####### Development environment.
@@ -447,19 +449,20 @@ endif
 ifeq ($(HARDWARE),$(HARDWARE_PC64))
 ifeq ($(CREATE_X86_32_PACKAGE),true)
 
-CC              += -m32
-CXX             += -m32
+CC               += -m32
+CXX              += -m32
 
 ifeq ($(USE_TARGET_DEST_DIR_SYSROOT),yes)
-LDFLAGS          = -L$(TARGET_DEST_DIR)/lib$(MULTILIB_X86_32_SUFFIX)
-LDFLAGS         += -L$(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)
+LDFLAGS           = -L$(TARGET_DEST_DIR)/lib$(MULTILIB_X86_32_SUFFIX)
+LDFLAGS          += -L$(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)
 endif
 
-PKG_CONFIG_PATH  = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+PKG_CONFIG_PATH   = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 
-ARCH_FLAGS       = -m32 -march=i486 -mtune=i686
+ARCH_FLAGS        = -m32 -march=i486 -mtune=i686
 
-TARGET32         = $(shell echo $(TARGET) | sed 's/x86_64/i486/')
+TARGET32          = $(shell echo $(TARGET) | sed 's/x86_64/i486/')
 
 endif
 endif

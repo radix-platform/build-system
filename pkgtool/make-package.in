@@ -6,7 +6,7 @@ program=`basename $0`
 
 # 92 = Cannot create '/tmp/...' directory
 
-umask 022
+umask 002
 if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
 TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix pkgtool.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
 trap "rm -rf $TMP" EXIT
@@ -152,8 +152,8 @@ show_version() {
 
 remove_size_info() {
   infile="./.PKGINFO"
-  sed -i "/uncompressed_size/d" $infile
-  sed -i "/total_files/d" $infile
+  sed -i '/uncompressed_size/d' $infile
+  sed -i '/total_files/d' $infile
 }
 
 remove_backslash_info() {
