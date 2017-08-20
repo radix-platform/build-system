@@ -8,7 +8,7 @@ include ../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/d/python3
 
 
-versions    = 3.5.1
+versions    = 3.6.2
 pkgname     = Python
 suffix      = tar.xz
 

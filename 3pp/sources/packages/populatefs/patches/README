@@ -1,10 +1,6 @@
 
 /* begin *
 
-   populatefs-1.0-squash.patch         - Original populatefs owerrides uid:gid defined by devices table.
-                                         This is an issue. This patch changes this behaviour according
-                                         to normal genext2fs tool.
-   populatefs-1.0-notrunc-rfiles.patch - Not truncate existed files it new owner and permissions are
-                                         defined in the device table.
+   populatefs-1.1-version.patch - Set version according to the latest snapshot of source code.
 
  * end */
