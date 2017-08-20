@@ -8,7 +8,7 @@ include ../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/a/pseudo
 
 
-versions    = 1.8.1
+versions    = 1.8.2
 pkgname     = pseudo
 suffix      = tar.xz
 

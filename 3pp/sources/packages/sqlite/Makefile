@@ -5,10 +5,10 @@ COMPONENT_TARGETS = $(HARDWARE_NOARCH)
 include ../../../../../build-system/constants.mk
 
 
-url         = $(DOWNLOAD_SERVER)/sources/packages/b/sqlite/2016
+url         = $(DOWNLOAD_SERVER)/sources/packages/b/sqlite/2017
 
 
-versions    = 3.12.2.0
+versions    = 3.20.0.0
 pkgname     = sqlite
 suffix      = tar.gz
 
