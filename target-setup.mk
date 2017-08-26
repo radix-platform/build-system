@@ -446,7 +446,7 @@ ifeq ($(TOOLCHAIN),$(TOOLCHAIN_X86_64_GLIBC))
 MULTILIB_X86_32_SUFFIX ?= 32
 endif
 
-ifeq ($(HARDWARE),$(HARDWARE_PC64))
+ifneq ($(filter $(HARDWARE),$(HARDWARE_PC64)),)
 ifeq ($(CREATE_X86_32_PACKAGE),true)
 
 CC               += -m32
@@ -463,6 +463,79 @@ PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfi
 ARCH_FLAGS        = -m32 -march=i686 -mtune=i686
 
 TARGET32          = $(shell echo $(TARGET) | sed 's/x86_64/i686/')
+
+endif
+endif
+
+
+#######
+####### sparc32:
+#######
+
+####### Multilib directory suffixes for TARGETs:
+
+ifeq ($(TOOLCHAIN),$(TOOLCHAIN_R1000_GLIBC))
+MULTILIB_SPARC32_SUFFIX ?= 32
+endif
+
+ifneq ($(filter $(HARDWARE),$(HARDWARE_MBC4_PC)),)
+ifeq ($(CREATE_SPARC32_PACKAGE),true)
+
+CC               += -m32
+CXX              += -m32
+
+ifeq ($(USE_TARGET_DEST_DIR_SYSROOT),yes)
+LDFLAGS           = -L$(TARGET_DEST_DIR)/lib$(MULTILIB_SPARC32_SUFFIX)
+LDFLAGS          += -L$(TARGET_DEST_DIR)/usr/lib$(MULTILIB_SPARC32_SUFFIX)
+endif
+
+PKG_CONFIG_PATH   = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_SPARC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_SPARC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+
+ARCH_FLAGS        = -m32 -mtune=ultrasparc3 -mv8plus -mptr32 -mhard-float -mlong-double-128 -mglibc
+
+TARGET32          = $(shell echo $(TARGET) | sed 's/sparc64/sparc/')
+
+endif
+endif
+
+
+#######
+####### powerpc32:
+#######
+
+####### Multilib directory suffixes for TARGETs:
+
+ifneq ($(filter $(TOOLCHAIN),$(TOOLCHAIN_POWER8_GLIBC) \
+                             $(TOOLCHAIN_POWER9_GLIBC)),)
+MULTILIB_PPC32_SUFFIX ?= 32
+endif
+
+ifneq ($(filter $(HARDWARE),$(HARDWARE_S824L)  \
+                            $(HARDWARE_VESNIN) \
+                            $(HARDWARE_TL2WK2) \
+                            $(HARDWARE_TL2SV2)),)
+ifeq ($(CREATE_PPC32_PACKAGE),true)
+
+CC               += -m32
+CXX              += -m32
+
+ifeq ($(USE_TARGET_DEST_DIR_SYSROOT),yes)
+LDFLAGS           = -L$(TARGET_DEST_DIR)/lib$(MULTILIB_PPC32_SUFFIX)
+LDFLAGS          += -L$(TARGET_DEST_DIR)/usr/lib$(MULTILIB_PPC32_SUFFIX)
+endif
+
+PKG_CONFIG_PATH   = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_PPC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_PPC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
+
+ifeq ($(TOOLCHAIN),$(TOOLCHAIN_POWER8_GLIBC))
+ARCH_FLAGS        = -m32 -mcpu=power8 -mlong-double-128
+endif
+ifeq ($(TOOLCHAIN),$(TOOLCHAIN_POWER9_GLIBC))
+ARCH_FLAGS        = -m32 -mcpu=power9 -mlong-double-128
+endif
+
+TARGET32          = $(shell echo $(TARGET) | sed 's/ppc64/ppc/')
 
 endif
 endif

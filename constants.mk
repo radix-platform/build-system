@@ -140,6 +140,9 @@ PC64M_SPEC                     = x86_64 micro Linux
 PC64M_USE_BUILT_GCC_LIBS       = no
 
 
+####### Allwinner devices:
+####### -----------------
+
 ####### A1N newlib devices (cubieboard 1):
 HARDWARE_CB1N                  = cb1n
 ###                             |---HW-spec-handy-ruler-----------------------|
@@ -176,6 +179,10 @@ HARDWARE_CB3X                  = cb3x
 CB3X_SPEC                      = Cubietrack A20 \(Linux, GNU Libc based\)
 CB3X_USE_BUILT_GCC_LIBS        = yes
 
+
+####### Microcontrollers:
+####### ----------------
+
 ####### AT91SAM7S devices:
 HARDWARE_AT91S                 = at91s
 ###                             |---HW-spec-handy-ruler-----------------------|
@@ -188,15 +195,20 @@ HARDWARE_L17UC                 = l17uc
 L17UC_SPEC                     = NXP lpc17xx \(uCLibc based\)
 L17UC_USE_BUILT_GCC_LIBS       = no
 
+
 ####### i.MX6 devices:
 ####### -------------
+
 ####### Nitrogen6X [https://boundarydevices.com/product/nitrogen6x-board-imx6-arm-cortex-a9-sbc]:
 HARDWARE_NIT6Q                 = nit6q
 ###                             |---HW-spec-handy-ruler-----------------------|
 NIT6Q_SPEC                     = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
 NIT6Q_USE_BUILT_GCC_LIBS       = yes
 
+
 ####### OMAP543X devices:
+####### ----------------
+
 HARDWARE_OMAP5UEVM             = omap5uevm
 ###                             |---HW-spec-handy-ruler-----------------------|
 OMAP5UEVM_SPEC                 = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
@@ -207,29 +219,41 @@ HARDWARE_DRA7XXEVM             = dra7xxevm
 DRA7XXEVM_SPEC                 = Texas DRA7xx EVM \(Linux, GNU Libc based\)
 DRA7XXEVM_USE_BUILT_GCC_LIBS   = yes
 
+
 ####### JZ47XX devices:
 ####### --------------
+
 ####### MIPS Creator CI20 [http://www.elinux.org/MIPS_Creator_CI20]:
 HARDWARE_CI20                  = ci20
 ###                             |---HW-spec-handy-ruler-----------------------|
 CI20_SPEC                      = MIPS Creator CI20 \(Linux, GNU Libc based\)
 CI20_USE_BUILT_GCC_LIBS        = yes
 
+
 ####### MIPS Warrior P-class P5600 devices:
 ####### ----------------------------------
+
 ####### Baikal T1 based boards [http://baikalelectronics.com/products/168]:
 HARDWARE_BT1                   = bt1
 ###                             |---HW-spec-handy-ruler-----------------------|
 BT1_SPEC                       = MIPS Baikal T1 \(Linux, GNU Libc based\)
 BT1_USE_BUILT_GCC_LIBS         = yes
 
+
 ####### RK328X devices:
 ####### --------------
+
 ####### Firefly-RK3288 [http://en.t-firefly.com/en/firenow/firefly_rk3288]:
 HARDWARE_FFRK3288              = ffrk3288
 ###                             |---HW-spec-handy-ruler-----------------------|
 FFRK3288_SPEC                  = Firefly RK3288 \(Linux, GNU Libc based\)
 FFRK3288_USE_BUILT_GCC_LIBS    = yes
+
+####### Poin2 RK3288 Chromebook [https://poin2.com/chromebook11]:
+HARDWARE_POIN2                 = poin2
+###                             |---HW-spec-handy-ruler-----------------------|
+POIN2_SPEC                     = Poin2 RK3288 \(Linux, GNU Libc based\)
+POIN2_USE_BUILT_GCC_LIBS       = yes
 
 
 ####### S8XX devices:
@@ -289,6 +313,72 @@ ENYBOX_X2_SPEC                 = Enybox X2 S912 \(Linux, GNU Libc based\)
 ENYBOX_X2_USE_BUILT_GCC_LIBS   = yes
 
 
+####### MCST devices:
+####### ------------
+
+####### MBC4-PC [http://20.mcst.ru/MCST_R1000]:
+HARDWARE_MBC4_PC               = mbc4-pc
+###                             |---HW-spec-handy-ruler-----------------------|
+MBC4_PC_SPEC                   = MCST MBC4-PC R1000 \(Linux, GNU Libc based\)
+MBC4_PC_USE_BUILT_GCC_LIBS     = yes
+
+
+####### OpenPOWER (POWER8) devices:
+####### --------------------------
+
+####### IBM Power S824L Server (Most Significant Bit/Byte) [https://www-03.ibm.com/systems/power/hardware/s824l]:
+HARDWARE_S824L                 = s824l
+###                             |---HW-spec-handy-ruler-----------------------|
+S824L_SPEC                     = IBM Power S824L \(Linux, GNU Libc based\)
+S824L_USE_BUILT_GCC_LIBS       = yes
+
+####### IBM Power S824L Server (Least Significant Bit/Byte):
+HARDWARE_S824L_LSB             = s824l-lsb
+###                             |---HW-spec-handy-ruler-----------------------|
+S824L_LSB_SPEC                 = IBM Power S824L LSB \(Linux, GNU Libc based\)
+S824L_LSB_USE_BUILT_GCC_LIBS   = yes
+
+####### VESNIN Server (Most Significant Bit/Byte) [http://yadro.com/products/vesnin]:
+HARDWARE_VESNIN                = vesnin
+###                             |---HW-spec-handy-ruler-----------------------|
+VESNIN_SPEC                    = Vesnin Server \(Linux, GNU Libc based\)
+VESNIN_USE_BUILT_GCC_LIBS      = yes
+
+####### VESNIN Server (Least Significant Bit/Byte):
+HARDWARE_VESNIN_LSB            = vesnin-lsb
+###                             |---HW-spec-handy-ruler-----------------------|
+VESNIN_LSB_SPEC                = Vesnin Server LSB \(Linux, GNU Libc based\)
+VESNIN_LSB_USE_BUILT_GCC_LIBS  = yes
+
+
+####### RAPTOR devices (POWER9) [https://www.raptorcs.com]:
+####### --------------------------------------------------
+
+####### Talos II Secure Workstation [https://www.raptorcs.com/content/TL2WK2/intro.html]:
+HARDWARE_TL2WK2                = tl2wk2
+###                             |---HW-spec-handy-ruler-----------------------|
+TL2WK2_SPEC                    = Talos II PC \(Linux, GNU Libc based\)
+TL2WK2_USE_BUILT_GCC_LIBS      = yes
+
+####### Talos II Secure Workstation (Least Significant Bit/Byte):
+HARDWARE_TL2WK2_LSB            = tl2wk2-lsb
+###                             |---HW-spec-handy-ruler-----------------------|
+TL2WK2_LSB_SPEC                = Talos II PC LSB \(Linux, GNU Libc based\)
+TL2WK2_LSB_USE_BUILT_GCC_LIBS  = yes
+
+####### Talos II Rack Mount Development Platform [https://www.raptorcs.com/content/TL2SV2/intro.html]:
+HARDWARE_TL2SV2                = tl2sv2
+###                             |---HW-spec-handy-ruler-----------------------|
+TL2SV2_SPEC                    = Talos II Server \(Linux, GNU Libc based\)
+TL2SV2_USE_BUILT_GCC_LIBS      = yes
+
+####### Talos II Rack Mount Development Platform (Least Significant Bit/Byte):
+HARDWARE_TL2SV2_LSB            = tl2sv2-lsb
+###                             |---HW-spec-handy-ruler-----------------------|
+TL2SV2_LSB_SPEC                = Talos II Server LSB \(Linux, GNU Libc based\)
+TL2SV2_LSB_USE_BUILT_GCC_LIBS  = yes
+
+
 
 HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
 __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
@@ -297,33 +387,43 @@ __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
 #######
 ####### Hardware IDs:
 #######
-        PC32_ID_STD = 01
-        PC64_ID_STD = 02
-       PC32M_ID_STD = 04
-       PC64M_ID_STD = 08
-        CB1N_ID_STD = 10
-        CB1X_ID_STD = 11
-        CB2N_ID_STD = 20
-        CB2X_ID_STD = 21
-        CB3N_ID_STD = 30
-        CB3X_ID_STD = 31
-       AT91S_ID_STD = 40
-       L17UC_ID_STD = 50
-       NIT6Q_ID_STD = 61
-   OMAP5UEVM_ID_STD = 81
-   DRA7XXEVM_ID_STD = 82
-        CI20_ID_STD = 91
-         BT1_ID_STD = A1
-    FFRK3288_ID_STD = B1
-        M201_ID_STD = C1
-         MXV_ID_STD = C2
-        P201_ID_STD = D1
- NEXBOX_A95X_ID_STD = D2
-   ODROID_C2_ID_STD = D4
-        P212_ID_STD = E1
-  KHADAS_VIM_ID_STD = E2
-        Q201_ID_STD = F1
-   ENYBOX_X2_ID_STD = F2
+        PC32_ID_STD = 0001
+        PC64_ID_STD = 0002
+       PC32M_ID_STD = 0004
+       PC64M_ID_STD = 0008
+        CB1N_ID_STD = 0100
+        CB1X_ID_STD = 0101
+        CB2N_ID_STD = 0200
+        CB2X_ID_STD = 0201
+        CB3N_ID_STD = 0300
+        CB3X_ID_STD = 0301
+       AT91S_ID_STD = 0400
+       L17UC_ID_STD = 0500
+       NIT6Q_ID_STD = 0601
+   OMAP5UEVM_ID_STD = 0801
+   DRA7XXEVM_ID_STD = 0802
+        CI20_ID_STD = 0901
+         BT1_ID_STD = 0A01
+    FFRK3288_ID_STD = 0B01
+       POIN2_ID_STD = 0B02
+        M201_ID_STD = 0C01
+         MXV_ID_STD = 0C02
+        P201_ID_STD = 0D01
+ NEXBOX_A95X_ID_STD = 0D02
+   ODROID_C2_ID_STD = 0D04
+        P212_ID_STD = 0E01
+  KHADAS_VIM_ID_STD = 0E02
+        Q201_ID_STD = 0F01
+   ENYBOX_X2_ID_STD = 0F02
+     MBC4_PC_ID_STD = 1000
+       S824L_ID_STD = 1100
+   S824L_LSB_ID_STD = 1101
+      VESNIN_ID_STD = 1200
+  VESNIN_LSB_ID_STD = 1201
+      TL2WK2_ID_STD = 1400
+  TL2WK2_LSB_ID_STD = 1401
+      TL2SV2_ID_STD = 1500
+  TL2SV2_LSB_ID_STD = 1501
 
 
 
@@ -509,7 +609,7 @@ RK328X_GLIBC_DEST_SYSROOT    = yes
 
 RK328X_GLIBC_HAS_CHRPATH     = yes
 
-RK328X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_FFRK3288)
+RK328X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_FFRK3288) $(HARDWARE_POIN2)
 
 
 
@@ -681,6 +781,119 @@ P5600_GLIBC_DEST_SYSROOT     = yes
 P5600_GLIBC_HAS_CHRPATH      = yes
 
 P5600_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_BT1)
+
+
+
+# ======= R1000-GLIBC =======================================================
+
+TOOLCHAIN_R1000_GLIBC        = r1000-glibc
+
+R1000_GLIBC_ARCH             = sparc64-r1000-linux-gnu
+R1000_GLIBC_VERSION          = 1.2.1
+R1000_GLIBC_DIR              = sparc64-R1000-linux-glibc
+R1000_GLIBC_PATH             = $(TOOLCHAINS_BASE_PATH)/$(R1000_GLIBC_DIR)
+R1000_GLIBC_TARBALL          = $(TOOLCHAINS_FTP_BASE)/$(R1000_GLIBC_VERSION)/$(R1000_GLIBC_DIR)-$(R1000_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+R1000_GLIBC_ARCH_DEFS        = -D__R1000_GLIBC__=1
+R1000_GLIBC_ARCH_FLAGS       = -mcpu=ultrasparc3 -mvis2 -mptr64 -mhard-float -mlong-double-128 -mglibc
+R1000_GLIBC_OPTIMIZATION     = -O3
+
+R1000_GLIBC_SYSROOT          = sys-root
+R1000_GLIBC_DEST_SYSROOT     = yes
+
+R1000_GLIBC_HAS_CHRPATH      = yes
+
+R1000_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_MBC4_PC)
+
+
+
+# ======= POWER8-GLIBC ======================================================
+
+TOOLCHAIN_POWER8_GLIBC       = power8-glibc
+
+POWER8_GLIBC_ARCH            = ppc64-power8-linux-gnu
+POWER8_GLIBC_VERSION         = 1.2.1
+POWER8_GLIBC_DIR             = ppc64-POWER8-linux-glibc
+POWER8_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(POWER8_GLIBC_DIR)
+POWER8_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(POWER8_GLIBC_VERSION)/$(POWER8_GLIBC_DIR)-$(POWER8_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+POWER8_GLIBC_ARCH_DEFS       = -D__POWER8_GLIBC__=1
+POWER8_GLIBC_ARCH_FLAGS      = -mcpu=power8 -mlong-double-128
+POWER8_GLIBC_OPTIMIZATION    = -O3
+
+POWER8_GLIBC_SYSROOT         = sys-root
+POWER8_GLIBC_DEST_SYSROOT    = yes
+
+POWER8_GLIBC_HAS_CHRPATH     = yes
+
+POWER8_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_S824L) $(HARDWARE_VESNIN)
+
+
+# ======= POWER8LE-GLIBC ====================================================
+
+TOOLCHAIN_POWER8LE_GLIBC     = power8le-glibc
+
+POWER8LE_GLIBC_ARCH          = ppc64le-power8-linux-gnu
+POWER8LE_GLIBC_VERSION       = 1.2.1
+POWER8LE_GLIBC_DIR           = ppc64le-POWER8-linux-glibc
+POWER8LE_GLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(POWER8LE_GLIBC_DIR)
+POWER8LE_GLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(POWER8LE_GLIBC_VERSION)/$(POWER8LE_GLIBC_DIR)-$(POWER8LE_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+POWER8LE_GLIBC_ARCH_DEFS     = -D__POWER8LE_GLIBC__=1
+POWER8LE_GLIBC_ARCH_FLAGS    = -mcpu=power8 -mlong-double-128
+POWER8LE_GLIBC_OPTIMIZATION  = -O3
+
+POWER8LE_GLIBC_SYSROOT       = sys-root
+POWER8LE_GLIBC_DEST_SYSROOT  = yes
+
+POWER8LE_GLIBC_HAS_CHRPATH   = yes
+
+POWER8LE_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_S824L_LSB) $(HARDWARE_VESNIN_LSB)
+
+
+
+# ======= POWER9-GLIBC ======================================================
+
+TOOLCHAIN_POWER9_GLIBC       = power9-glibc
+
+POWER9_GLIBC_ARCH            = ppc64-power9-linux-gnu
+POWER9_GLIBC_VERSION         = 1.2.1
+POWER9_GLIBC_DIR             = ppc64-POWER9-linux-glibc
+POWER9_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(POWER9_GLIBC_DIR)
+POWER9_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(POWER9_GLIBC_VERSION)/$(POWER9_GLIBC_DIR)-$(POWER9_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+POWER9_GLIBC_ARCH_DEFS       = -D__POWER9_GLIBC__=1
+POWER9_GLIBC_ARCH_FLAGS      = -mcpu=power9 -mlong-double-128
+POWER9_GLIBC_OPTIMIZATION    = -O3
+
+POWER9_GLIBC_SYSROOT         = sys-root
+POWER9_GLIBC_DEST_SYSROOT    = yes
+
+POWER9_GLIBC_HAS_CHRPATH     = yes
+
+POWER9_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_TL2WK2) $(HARDWARE_TL2SV2)
+
+
+# ======= POWER9LE-GLIBC ====================================================
+
+TOOLCHAIN_POWER9LE_GLIBC     = power9le-glibc
+
+POWER9LE_GLIBC_ARCH          = ppc64le-power9-linux-gnu
+POWER9LE_GLIBC_VERSION       = 1.2.1
+POWER9LE_GLIBC_DIR           = ppc64le-POWER9-linux-glibc
+POWER9LE_GLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(POWER9LE_GLIBC_DIR)
+POWER9LE_GLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(POWER9LE_GLIBC_VERSION)/$(POWER9LE_GLIBC_DIR)-$(POWER9LE_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+POWER9LE_GLIBC_ARCH_DEFS     = -D__POWER9LE_GLIBC__=1
+POWER9LE_GLIBC_ARCH_FLAGS    = -mcpu=power9 -mlong-double-128
+POWER9LE_GLIBC_OPTIMIZATION  = -O3
+
+POWER9LE_GLIBC_SYSROOT       = sys-root
+POWER9LE_GLIBC_DEST_SYSROOT  = yes
+
+POWER9LE_GLIBC_HAS_CHRPATH   = yes
+
+POWER9LE_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_TL2WK2_LSB) $(HARDWARE_TL2SV2_LSB)
 
 
 
