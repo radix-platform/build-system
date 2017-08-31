@@ -460,9 +460,9 @@ endif
 PKG_CONFIG_PATH   = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_X86_32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 
-ARCH_FLAGS        = -m32 -march=i486 -mtune=i686
+ARCH_FLAGS        = -m32 -march=i686 -mtune=i686
 
-TARGET32          = $(shell echo $(TARGET) | sed 's/x86_64/i486/')
+TARGET32          = $(shell echo $(TARGET) | sed 's/x86_64/i686/')
 
 endif
 endif
