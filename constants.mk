@@ -120,24 +120,28 @@ HARDWARE_PC32                  = pc32
 ###                             |---HW-spec-handy-ruler-----------------------|
 PC32_SPEC                      = Intel x86_32 generic Linux machine
 PC32_USE_BUILT_GCC_LIBS        = yes
+PC32_ENABLE_STATIC             = no
 
 ####### {x86|x86_64} Personal Computer:
 HARDWARE_PC64                  = pc64
 ###                             |---HW-spec-handy-ruler-----------------------|
 PC64_SPEC                      = Intel x86_64 generic Linux machine
 PC64_USE_BUILT_GCC_LIBS        = yes
+PC64_ENABLE_STATIC             = no
 
 ####### x86 micro Linux:
 HARDWARE_PC32M                 = pc32m
 ###                             |---HW-spec-handy-ruler-----------------------|
 PC32M_SPEC                     = x86_32 micro Linux
 PC32M_USE_BUILT_GCC_LIBS       = no
+PC32M_ENABLE_STATIC            = no
 
 ####### x86_64 micro Linux:
 HARDWARE_PC64M                 = pc64m
 ###                             |---HW-spec-handy-ruler-----------------------|
 PC64M_SPEC                     = x86_64 micro Linux
 PC64M_USE_BUILT_GCC_LIBS       = no
+PC64M_ENABLE_STATIC            = no
 
 
 ####### Allwinner devices:
@@ -148,36 +152,42 @@ HARDWARE_CB1N                  = cb1n
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB1N_SPEC                      = Cubieboard A10 \(Newlib based\)
 CB1N_USE_BUILT_GCC_LIBS        = no
+CB1N_ENABLE_STATIC             = yes
 
 ####### A1X devices (cubieboard 1 glibc):
 HARDWARE_CB1X                  = cb1x
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB1X_SPEC                      = Cubieboard A10 \(Linux, GNU Libc based\)
 CB1X_USE_BUILT_GCC_LIBS        = yes
+CB1X_ENABLE_STATIC             = no
 
 ####### A2N newlib devices (cubieboard 2):
 HARDWARE_CB2N                  = cb2n
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB2N_SPEC                      = Cubieboard A20 \(Newlib based\)
 CB2N_USE_BUILT_GCC_LIBS        = no
+CB2N_ENABLE_STATIC             = yes
 
 ####### A2X devices (cubieboard 2 glibc):
 HARDWARE_CB2X                  = cb2x
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB2X_SPEC                      = Cubieboard A20 \(Linux, GNU Libc based\)
 CB2X_USE_BUILT_GCC_LIBS        = yes
+CB2X_ENABLE_STATIC             = no
 
 ####### A3N newlib devices (cubieboard 3):
 HARDWARE_CB3N                  = cb3n
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB3N_SPEC                      = Cubietrack A20 \(Newlib based\)
 CB3N_USE_BUILT_GCC_LIBS        = no
+CB3N_ENABLE_STATIC             = yes
 
 ####### A3X devices (cubieboard 3 glibc):
 HARDWARE_CB3X                  = cb3x
 ###                             |---HW-spec-handy-ruler-----------------------|
 CB3X_SPEC                      = Cubietrack A20 \(Linux, GNU Libc based\)
 CB3X_USE_BUILT_GCC_LIBS        = yes
+CB3X_ENABLE_STATIC             = no
 
 
 ####### Microcontrollers:
@@ -188,12 +198,14 @@ HARDWARE_AT91S                 = at91s
 ###                             |---HW-spec-handy-ruler-----------------------|
 AT91S_SPEC                     = Atmel at91sam7s \(Newlib based\)
 AT91S_USE_BUILT_GCC_LIBS       = no
+AT91S_ENABLE_STATIC            = yes
 
 ####### LPC17XX devices:
 HARDWARE_L17UC                 = l17uc
 ###                             |---HW-spec-handy-ruler-----------------------|
 L17UC_SPEC                     = NXP lpc17xx \(uCLibc based\)
 L17UC_USE_BUILT_GCC_LIBS       = no
+L17UC_ENABLE_STATIC            = yes
 
 ####### i.MX6 devices:
 ####### -------------
@@ -203,6 +215,7 @@ HARDWARE_NIT6Q                 = nit6q
 ###                             |---HW-spec-handy-ruler-----------------------|
 NIT6Q_SPEC                     = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
 NIT6Q_USE_BUILT_GCC_LIBS       = yes
+NIT6Q_ENABLE_STATIC            = no
 
 
 ####### OMAP543X devices:
@@ -212,11 +225,13 @@ HARDWARE_OMAP5UEVM             = omap5uevm
 ###                             |---HW-spec-handy-ruler-----------------------|
 OMAP5UEVM_SPEC                 = Texas OMAP5 uEVM \(Linux, GNU Libc based\)
 OMAP5UEVM_USE_BUILT_GCC_LIBS   = yes
+OMAP5UEVM_ENABLE_STATIC        = no
 
 HARDWARE_DRA7XXEVM             = dra7xxevm
 ###                             |---HW-spec-handy-ruler-----------------------|
 DRA7XXEVM_SPEC                 = Texas DRA7xx EVM \(Linux, GNU Libc based\)
 DRA7XXEVM_USE_BUILT_GCC_LIBS   = yes
+DRA7XXEVM_ENABLE_STATIC        = no
 
 
 ####### JZ47XX devices:
@@ -227,6 +242,7 @@ HARDWARE_CI20                  = ci20
 ###                             |---HW-spec-handy-ruler-----------------------|
 CI20_SPEC                      = MIPS Creator CI20 \(Linux, GNU Libc based\)
 CI20_USE_BUILT_GCC_LIBS        = yes
+CI20_ENABLE_STATIC             = no
 
 
 ####### MIPS Warrior P-class P5600 devices:
@@ -237,6 +253,7 @@ HARDWARE_BT1                   = bt1
 ###                             |---HW-spec-handy-ruler-----------------------|
 BT1_SPEC                       = MIPS Baikal T1 \(Linux, GNU Libc based\)
 BT1_USE_BUILT_GCC_LIBS         = yes
+BT1_ENABLE_STATIC              = no
 
 
 ####### RK328X devices:
@@ -247,12 +264,14 @@ HARDWARE_FFRK3288              = ffrk3288
 ###                             |---HW-spec-handy-ruler-----------------------|
 FFRK3288_SPEC                  = Firefly RK3288 \(Linux, GNU Libc based\)
 FFRK3288_USE_BUILT_GCC_LIBS    = yes
+FFRK3288_ENABLE_STATIC         = no
 
 ####### Poin2 RK3288 Chromebook [https://poin2.com/chromebook11]:
 HARDWARE_POIN2                 = poin2
 ###                             |---HW-spec-handy-ruler-----------------------|
 POIN2_SPEC                     = Poin2 RK3288 \(Linux, GNU Libc based\)
 POIN2_USE_BUILT_GCC_LIBS       = yes
+POIN2_ENABLE_STATIC            = no
 
 
 ####### S8XX devices:
@@ -263,11 +282,13 @@ HARDWARE_M201                  = m201
 ###                             |---HW-spec-handy-ruler-----------------------|
 M201_SPEC                      = Amlogic M201 S805 \(Linux, GNU Libc based\)
 M201_USE_BUILT_GCC_LIBS        = yes
+M201_ENABLE_STATIC             = no
 
 HARDWARE_MXV                   = mxv
 ###                             |---HW-spec-handy-ruler-----------------------|
 MXV_SPEC                       = MXV OTT Box S805 \(Linux, GNU Libc based\)
 MXV_USE_BUILT_GCC_LIBS         = yes
+MXV_ENABLE_STATIC              = no
 
 
 ####### S9XX devices:
@@ -278,38 +299,45 @@ HARDWARE_P201                  = p201
 ###                             |---HW-spec-handy-ruler-----------------------|
 P201_SPEC                      = Amlogic P201 S905 \(Linux, GNU Libc based\)
 P201_USE_BUILT_GCC_LIBS        = yes
+P201_ENABLE_STATIC             = no
 
 HARDWARE_NEXBOX_A95X           = nexbox-a95x
 ###                             |---HW-spec-handy-ruler-----------------------|
 NEXBOX_A95X_SPEC               = NEXBOX A95X S905 \(Linux, GNU Libc based\)
 NEXBOX_A95X_USE_BUILT_GCC_LIBS = yes
+NEXBOX_ENABLE_STATIC           = no
 
 HARDWARE_ODROID_C2             = odroid-c2
 ###                             |---HW-spec-handy-ruler-----------------------|
 ODROID_C2_SPEC                 = ODROID C2 S905 \(Linux, GNU Libc based\)
 ODROID_C2_USE_BUILT_GCC_LIBS   = yes
+ODROID_C2_ENABLE_STATIC        = no
 
 ####### Amlogic S905X meson-gxl p212:
 HARDWARE_P212                  = p212
 ###                             |---HW-spec-handy-ruler-----------------------|
 P212_SPEC                      = Amlogic P212 S905X \(Linux, GNU Libc based\)
 P212_USE_BUILT_GCC_LIBS        = yes
+P212_ENABLE_STATIC             = no
 
 HARDWARE_KHADAS_VIM            = khadas-vim
 ###                             |---HW-spec-handy-ruler-----------------------|
 KHADAS_VIM_SPEC                = Khadas Vim S905X \(Linux, GNU Libc based\)
 KHADAS_VIM_USE_BUILT_GCC_LIBS  = yes
+KHADAS_VIM_ENABLE_STATIC       = no
 
 ####### Amlogic S912 meson-gxm q201:
 HARDWARE_Q201                  = q201
 ###                             |---HW-spec-handy-ruler-----------------------|
 Q201_SPEC                      = Amlogic Q201 S912 \(Linux, GNU Libc based\)
 Q201_USE_BUILT_GCC_LIBS        = yes
+Q201_ENABLE_STATIC             = no
 
 HARDWARE_ENYBOX_X2             = enybox-x2
 ###                             |---HW-spec-handy-ruler-----------------------|
 ENYBOX_X2_SPEC                 = Enybox X2 S912 \(Linux, GNU Libc based\)
 ENYBOX_X2_USE_BUILT_GCC_LIBS   = yes
+ENYBOX_X2_ENABLE_STATIC        = no
 
 
 ####### MCST devices:
@@ -320,6 +348,7 @@ HARDWARE_MBC4_PC               = mbc4-pc
 ###                             |---HW-spec-handy-ruler-----------------------|
 MBC4_PC_SPEC                   = MCST MBC4-PC R1000 \(Linux, GNU Libc based\)
 MBC4_PC_USE_BUILT_GCC_LIBS     = yes
+MBC4_PC_ENABLE_STATIC          = no
 
 
 ####### OpenPOWER (POWER8) devices:
@@ -330,24 +359,28 @@ HARDWARE_S824L                 = s824l
 ###                             |---HW-spec-handy-ruler-----------------------|
 S824L_SPEC                     = IBM Power S824L \(Linux, GNU Libc based\)
 S824L_USE_BUILT_GCC_LIBS       = yes
+S824L_ENABLE_STATIC            = no
 
 ####### IBM Power S824L Server (Least Significant Bit/Byte):
 HARDWARE_S824L_LSB             = s824l-lsb
 ###                             |---HW-spec-handy-ruler-----------------------|
 S824L_LSB_SPEC                 = IBM Power S824L LSB \(Linux, GNU Libc based\)
 S824L_LSB_USE_BUILT_GCC_LIBS   = yes
+S824L_LSB_ENABLE_STATIC        = no
 
 ####### VESNIN Server (Most Significant Bit/Byte) [http://yadro.com/products/vesnin]:
 HARDWARE_VESNIN                = vesnin
 ###                             |---HW-spec-handy-ruler-----------------------|
 VESNIN_SPEC                    = Vesnin Server \(Linux, GNU Libc based\)
 VESNIN_USE_BUILT_GCC_LIBS      = yes
+VESNIN_ENABLE_STATIC           = no
 
 ####### VESNIN Server (Least Significant Bit/Byte):
 HARDWARE_VESNIN_LSB            = vesnin-lsb
 ###                             |---HW-spec-handy-ruler-----------------------|
 VESNIN_LSB_SPEC                = Vesnin Server LSB \(Linux, GNU Libc based\)
 VESNIN_LSB_USE_BUILT_GCC_LIBS  = yes
+VESNIN_LSB_ENABLE_STATIC       = no
 
 
 ####### RAPTOR devices (POWER9) [https://www.raptorcs.com]:
@@ -358,29 +391,34 @@ HARDWARE_TL2WK2                = tl2wk2
 ###                             |---HW-spec-handy-ruler-----------------------|
 TL2WK2_SPEC                    = Talos II PC \(Linux, GNU Libc based\)
 TL2WK2_USE_BUILT_GCC_LIBS      = yes
+TL2WK2_ENABLE_STATIC           = no
 
 ####### Talos II Secure Workstation (Least Significant Bit/Byte):
 HARDWARE_TL2WK2_LSB            = tl2wk2-lsb
 ###                             |---HW-spec-handy-ruler-----------------------|
 TL2WK2_LSB_SPEC                = Talos II PC LSB \(Linux, GNU Libc based\)
 TL2WK2_LSB_USE_BUILT_GCC_LIBS  = yes
+TL2WK2_LSB_ENABLE_STATIC       = no
 
 ####### Talos II Rack Mount Development Platform [https://www.raptorcs.com/content/TL2SV2/intro.html]:
 HARDWARE_TL2SV2                = tl2sv2
 ###                             |---HW-spec-handy-ruler-----------------------|
 TL2SV2_SPEC                    = Talos II Server \(Linux, GNU Libc based\)
 TL2SV2_USE_BUILT_GCC_LIBS      = yes
+TL2SV2_ENABLE_STATIC           = no
 
 ####### Talos II Rack Mount Development Platform (Least Significant Bit/Byte):
 HARDWARE_TL2SV2_LSB            = tl2sv2-lsb
 ###                             |---HW-spec-handy-ruler-----------------------|
 TL2SV2_LSB_SPEC                = Talos II Server LSB \(Linux, GNU Libc based\)
 TL2SV2_LSB_USE_BUILT_GCC_LIBS  = yes
+TL2SV2_LSB_ENABLE_STATIC       = no
 
 
 
 HW_SPEC                = $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_SPEC) | sed "s, (.*),,")
 __USE_BUILT_GCC_LIBS__ = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_USE_BUILT_GCC_LIBS)))
+__ENABLE_STATIC__      = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[a-z-]' '[A-Z_]')_ENABLE_STATIC)))
 
 
 #######
