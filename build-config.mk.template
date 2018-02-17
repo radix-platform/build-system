@@ -30,6 +30,7 @@ ENABLE_CB3X        = true
 
 # TARGET: arm-rk328x-linux-gnueabihf:
 ENABLE_FFRK3288    = true
+ENABLE_POIN2       = true
 
 # TARGET: arm-s8xx-linux-gnueabihf:
 ENABLE_M201        = true
@@ -43,6 +44,7 @@ ENABLE_P212        = false
 ENABLE_KHADAS_VIM  = true
 ENABLE_Q201        = false
 ENABLE_ENYBOX_X2   = true
+ENABLE_KHADAS_VIM2 = true
 
 # TARGET: arm-at91sam7s-elf-newlib:
 ENABLE_AT91S       = true
@@ -62,3 +64,22 @@ ENABLE_CI20        = true
 
 # TARGETS: mipsel-p5600-linux-gnu:
 ENABLE_BT1         = true
+
+# TARGETS: sparc64-r1000-linux-gnu:
+ENABLE_MBC4_PC     = true
+
+# TARGETS: ppc64-power8-linux-gnu:
+ENABLE_S824L       = true
+ENABLE_VESNIN      = true
+
+# TARGETS: ppc64le-power8-linux-gnu:
+ENABLE_S824L_LSB   = true
+ENABLE_VESNIN_LSB  = true
+
+# TARGETS: ppc64-power9-linux-gnu:
+ENABLE_TL2WK2      = true
+ENABLE_TL2SV2      = true
+
+# TARGETS: ppc64le-power9-linux-gnu:
+ENABLE_TL2WK2_LSB  = true
+ENABLE_TL2SV2_LSB  = true

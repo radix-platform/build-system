@@ -340,6 +340,12 @@ ENYBOX_X2_SPEC                 = Enybox X2 S912 \(Linux, GNU Libc based\)
 ENYBOX_X2_USE_BUILT_GCC_LIBS   = yes
 ENYBOX_X2_ENABLE_STATIC        = no
 
+HARDWARE_KHADAS_VIM2           = khadas-vim2
+###                             |---HW-spec-handy-ruler-----------------------|
+KHADAS_VIM2_SPEC               = Khadas Vim2 S912 \(Linux, GNU Libc based\)
+KHADAS_VIM2_USE_BUILT_GCC_LIBS = yes
+KHADAS_VIM2_ENABLE_STATIC      = no
+
 
 ####### MCST devices:
 ####### ------------
@@ -453,6 +459,7 @@ __ENABLE_STATIC__      = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
   KHADAS_VIM_ID_STD = 0E02
         Q201_ID_STD = 0F01
    ENYBOX_X2_ID_STD = 0F02
+ KHADAS_VIM2_ID_STD = 0F03
      MBC4_PC_ID_STD = 1000
        S824L_ID_STD = 1100
    S824L_LSB_ID_STD = 1101
@@ -694,8 +701,8 @@ S9XX_GLIBC_HAS_CHRPATH       = yes
 S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_NEXBOX_A95X) \
                                                  $(HARDWARE_ODROID_C2)   \
                                 $(HARDWARE_P212) $(HARDWARE_KHADAS_VIM)  \
-                                $(HARDWARE_Q201) $(HARDWARE_ENYBOX_X2)
-
+                                $(HARDWARE_Q201) $(HARDWARE_ENYBOX_X2)   \
+                                                 $(HARDWARE_KHADAS_VIM2)
 
 
 # ======= AT91SAM7S-NEWLIB ===================================================
