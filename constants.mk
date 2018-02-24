@@ -249,11 +249,11 @@ CI20_ENABLE_STATIC             = no
 ####### ----------------------------------
 
 ####### Baikal T1 based boards [http://baikalelectronics.com/products/168]:
-HARDWARE_BT1                   = bt1
+HARDWARE_BAIKAL_T1             = baikal-t1
 ###                             |---HW-spec-handy-ruler-----------------------|
-BT1_SPEC                       = MIPS Baikal T1 \(Linux, GNU Libc based\)
-BT1_USE_BUILT_GCC_LIBS         = yes
-BT1_ENABLE_STATIC              = no
+BAIKAL_T1_SPEC                 = MIPS Baikal T1 \(Linux, GNU Libc based\)
+BAIKAL_T1_USE_BUILT_GCC_LIBS   = yes
+BAIKAL_T1_ENABLE_STATIC        = no
 
 
 ####### RK328X devices:
@@ -446,7 +446,7 @@ __ENABLE_STATIC__      = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
    OMAP5UEVM_ID_STD = 0801
    DRA7XXEVM_ID_STD = 0802
         CI20_ID_STD = 0901
-         BT1_ID_STD = 0A01
+   BAIKAL_T1_ID_STD = 0A01
     FFRK3288_ID_STD = 0B01
        POIN2_ID_STD = 0B02
         M201_ID_STD = 0C01
@@ -824,7 +824,7 @@ P5600_GLIBC_DEST_SYSROOT     = yes
 
 P5600_GLIBC_HAS_CHRPATH      = yes
 
-P5600_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_BT1)
+P5600_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_BAIKAL_T1)
 
 
 
