@@ -839,7 +839,7 @@ R1000_GLIBC_PATH             = $(TOOLCHAINS_BASE_PATH)/$(R1000_GLIBC_DIR)
 R1000_GLIBC_TARBALL          = $(TOOLCHAINS_FTP_BASE)/$(R1000_GLIBC_VERSION)/$(R1000_GLIBC_DIR)-$(R1000_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 R1000_GLIBC_ARCH_DEFS        = -D__R1000_GLIBC__=1
-R1000_GLIBC_ARCH_FLAGS       = -mcpu=ultrasparc3 -mvis2 -mptr64 -mhard-float -mlong-double-128 -mglibc
+R1000_GLIBC_ARCH_FLAGS       = -mtune=ultrasparc3 -mhard-float -mlong-double-128 -mglibc
 R1000_GLIBC_OPTIMIZATION     = -O3
 
 R1000_GLIBC_SYSROOT          = sys-root
