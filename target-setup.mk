@@ -492,7 +492,7 @@ endif
 PKG_CONFIG_PATH   = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_SPARC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 PKG_CONFIG_LIBDIR = $(TARGET_DEST_DIR)/usr/lib$(MULTILIB_SPARC32_SUFFIX)/pkgconfig:$(TARGET_DEST_DIR)/usr/share/pkgconfig
 
-ARCH_FLAGS        = -m32 -mtune=ultrasparc3 -mv8plus -mptr32 -mhard-float -mlong-double-128 -mglibc
+ARCH_FLAGS        = -m32 -mtune=ultrasparc3 -mhard-float -mlong-double-128 -mglibc
 
 TARGET32          = $(shell echo $(TARGET) | sed 's/sparc64/sparc/')
 
