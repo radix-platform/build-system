@@ -8,7 +8,7 @@ SOURCE_REQUIRES = build-system/3pp/sources/packages/python3
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 3.6.2
+version         = 3.6.4
 tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/python3/Python-$(version).tar.xz
 SRC_ARCHIVE     = $(tar_xz_archive)
 SRC_DIR         = $(TARGET_BUILD_DIR)/Python-$(version)
