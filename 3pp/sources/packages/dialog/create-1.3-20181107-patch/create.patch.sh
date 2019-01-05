@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-VERSION=1.3-20170509
+VERSION=1.3-20181107
 
 tar --files-from=file.list -xzvf ../dialog-$VERSION.tgz
 mv dialog-$VERSION dialog-$VERSION-orig
