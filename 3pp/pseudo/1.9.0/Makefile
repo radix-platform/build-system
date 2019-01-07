@@ -5,11 +5,11 @@ include ../../../../build-system/constants.mk
 
 SOURCE_REQUIRES = build-system/3pp/sources/packages/pseudo
 
-REQUIRES        = build-system/3pp/sqlite/3.20.0.0
+REQUIRES        = build-system/3pp/sqlite/3.26.0.0
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 1.8.2
+version         = 1.9.0
 tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/pseudo/pseudo-$(version).tar.xz
 SRC_ARCHIVE     = $(tar_xz_archive)
 SRC_DIR         = $(TARGET_BUILD_DIR)/pseudo-$(version)
@@ -32,7 +32,7 @@ extra_configure_switches += --with-sqlite=$(BUILDSYSTEM)/usr
 extra_configure_switches += --bits=64
 extra_configure_switches += --enable-memory-db
 extra_configure_switches += --without-rpath
-extra_configure_switches += --cflags='-m64'
+extra_configure_switches += --cflags='-m64 -Wimplicit-fallthrough=0'
 
 
 BUILD_TARGETS = $(install_target)
