@@ -8,7 +8,7 @@ SOURCE_REQUIRES = build-system/3pp/sources/packages/python3
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 3.6.4
+version         = 3.7.2
 tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/python3/Python-$(version).tar.xz
 SRC_ARCHIVE     = $(tar_xz_archive)
 SRC_DIR         = $(TARGET_BUILD_DIR)/Python-$(version)
@@ -33,7 +33,7 @@ extra_configure_switches += --enable-ipv6
 extra_configure_switches += --enable-shared
 
 python_environment  = RFS=$(BUILDSYSTEM)
-python_environment += PYTHONHOME=$(BUILDSYSTEM)/usr/lib/python3.6
+python_environment += PYTHONHOME=$(BUILDSYSTEM)/usr/lib/python3.7
 python_environment += LDFLAGS='$(LDFLAGS)'
 
 
@@ -57,13 +57,13 @@ $(build_target): $(src_done)
 	@touch $@
 
 $(install_target): $(build_target)
-	@echo -e "\n======= Installing Python 3.6 binary =======\n"
+	@echo -e "\n======= Installing Python 3.7 binary =======\n"
 	@cd $(SRC_DIR) && $(MAKE) -j1 $(python_environment) install
-	@echo -e "\n======= tune python3.6m-config CFLAGS for target machine =======\n"
+	@echo -e "\n======= tune python3.7m-config CFLAGS for target machine =======\n"
 	@( cd $(BUILDSYSTEM)/usr/bin ; \
-	   sed -i 's,includedir=$$(echo "$${prefix},includedir=$$(echo "/usr,g' python3.6m-config ; \
-	   sed -i 's,LIBPL=$$(echo "$${prefix},LIBPL=$$(echo "/usr,g' python3.6m-config ; \
-	   sed -i "s,$(BUILDSYSTEM),,g" python3.6m-config ; \
+	   sed -i 's,includedir=$$(echo "$${prefix},includedir=$$(echo "/usr,g' python3.7m-config ; \
+	   sed -i 's,LIBPL=$$(echo "$${prefix},LIBPL=$$(echo "/usr,g' python3.7m-config ; \
+	   sed -i "s,$(BUILDSYSTEM),,g" python3.7m-config ; \
 	 )
 	@echo -e "\n======= Setup PYTHON3 build-system variable =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \

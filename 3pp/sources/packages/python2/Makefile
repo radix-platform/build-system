@@ -8,7 +8,7 @@ include ../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/d/python2
 
 
-versions    = 2.7.14
+versions    = 2.7.15
 pkgname     = Python
 suffix      = tar.xz
 
