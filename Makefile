@@ -3,13 +3,13 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 
 include constants.mk
 
-REQUIRES  = build-system/3pp/dialog/1.3-20170509
+REQUIRES  = build-system/3pp/dialog/1.3-20181107
 REQUIRES += build-system/3pp/genext2fs/1.4.1
 REQUIRES += build-system/3pp/populatefs/1.1
 REQUIRES += build-system/3pp/jsmin/0.0.1
-REQUIRES += build-system/3pp/pseudo/1.8.2
-REQUIRES += build-system/3pp/python2/2.7.14
-REQUIRES += build-system/3pp/python3/3.6.4
+REQUIRES += build-system/3pp/pseudo/1.9.0
+REQUIRES += build-system/3pp/python2/2.7.15
+REQUIRES += build-system/3pp/python3/3.7.2
 REQUIRES += build-system/progs
 
 

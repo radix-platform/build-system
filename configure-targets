@@ -25,24 +25,30 @@ export DIALOGRC
 : ${DIALOG_ITEM_HELP=4}
 : ${DIALOG_ESC=255}
 
+: ${SIG_NONE=0}
+: ${SIG_HUP=1}
+: ${SIG_INT=2}
+: ${SIG_QUIT=3}
+: ${SIG_KILL=9}
+: ${SIG_TERM=15}
+
 umask 002
 if [ ! -z "$TMPDIR" ] ; then mkdir -p $TMPDIR ; fi
 TMP=$(mkdir -p /tmp/radix && mktemp -d -p /tmp/radix build-system.XXXXXXXX) || { echo "Cannot create '/tmp/...' directory" ; exit 92; }
-trap "rm -rf $TMP" EXIT
+trap "rm -rf $TMP" 0 $SIG_NONE $SIG_HUP $SIG_INT $SIG_QUIT $SIG_TERM
 
 
 cat > $TMP/sel$$ << EOF
---colors \\
---backtitle "\Z7Build System\Zn" \\
---title " \Z1SELECTING HARDWARE TO BUILD\Zn " \\
---clear \\
---checklist "\\n\\
-Please confirm the hardwares, for which you wish to build\\n\\
-software. Use the UP/DOWN keys to scroll through the list,\\n\\
-and the SPACE key to deselect any items you don't want to\\n\\
-build.\\n\\n\\
-Press ENTER when you are done." \\
-21 68 8 \\
+--colors
+--backtitle "\Z7Build System\Zn"
+--title " \Z1SELECTING HARDWARE TO BUILD\Zn "
+--clear
+--checklist "\\n
+\Zb\Z4Please confirm the hardwares you want to build\Zn\ZB.\\n\\n
+Use the UP/DOWN keys to scroll through the list, and the SPACE key\\n
+to deselect any items you don't want to build.\\n\\n
+Press ENTER when you are done."
+21 72 8
 EOF
 
 
@@ -57,7 +63,7 @@ for hw in $hwlist ; do
   else
     en="off"
   fi
-  echo "\"$hw\" \"$spec\" $en \\" >> $TMP/sel$$
+  echo "\"$hw\" \"$spec\" \"$en\"" >> $TMP/sel$$
 done
 
 
