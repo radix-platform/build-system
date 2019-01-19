@@ -33,7 +33,7 @@ TARBALL_SUFFIX       = tar.gz
 
 CACHED_CC_OUTPUT     = /opt/extra/ccache
 
-TOOLCHAINS_BASE_PATH = /opt/toolchain
+TOOLCHAINS_BASE_PATH = /opt/toolchains
 
 
 
@@ -190,6 +190,49 @@ CB3X_USE_BUILT_GCC_LIBS        = yes
 CB3X_ENABLE_STATIC             = no
 
 
+####### H3 devices:
+####### ----------
+
+####### Orange Pi Plus 2E [http://www.orangepi.org/orangepiplus2e]:
+HARDWARE_ORANGE_PP2E           = orange-pp2e
+###                             |---HW-spec-handy-ruler-----------------------|
+ORANGE_PP2E_SPEC               = Orange Pi Plus 2E \(Linux, GNU Libc based\)
+ORANGE_PP2E_USE_BUILT_GCC_LIBS = yes
+ORANGE_PP2E_ENABLE_STATIC      = no
+
+####### NanoPi NEO Air [http://wiki.friendlyarm.com/wiki/index.php/NanoPi_NEO_Air]:
+HARDWARE_NANOPI_NEO            = nanopi-neo
+###                             |---HW-spec-handy-ruler-----------------------|
+NANOPI_NEO_SPEC                = NanoPi NEO Air \(Linux, GNU Libc based\)
+NANOPI_NEO_USE_BUILT_GCC_LIBS  = yes
+NANOPI_NEO_ENABLE_STATIC       = no
+
+####### H5 devices:
+####### ----------
+
+####### Orange Pi Prime [http://www.orangepi.org/OrangePiPrime]:
+HARDWARE_ORANGE_PP             = orange-pp
+###                             |---HW-spec-handy-ruler-----------------------|
+ORANGE_PP_SPEC                 = Orange Pi Prime \(Linux, GNU Libc based\)
+ORANGE_PP_USE_BUILT_GCC_LIBS   = yes
+ORANGE_PP_ENABLE_STATIC        = no
+
+####### Orange Pi Lite 2 [http://www.orangepi.org/Orange Pi Lite 2/]:
+HARDWARE_ORANGE_PL2            = orange-pl2
+###                             |---HW-spec-handy-ruler-----------------------|
+ORANGE_PL2_SPEC                = Orange Pi Lite 2 \(Linux, GNU Libc based\)
+ORANGE_PL2_USE_BUILT_GCC_LIBS  = yes
+ORANGE_PL2_ENABLE_STATIC       = no
+
+####### Wechip TX6 [https://aliexpress.com]:
+HARDWARE_WECHIP_TX6            = wechip-tx6
+###                             |---HW-spec-handy-ruler-----------------------|
+WECHIP_TX6_SPEC                = WeChip TX6 OTT Box \(Linux, GNU Libc based\)
+WECHIP_TX6_USE_BUILT_GCC_LIBS  = yes
+WECHIP_TX6_ENABLE_STATIC       = no
+
+
+
 ####### Microcontrollers:
 ####### ----------------
 
@@ -273,6 +316,29 @@ HARDWARE_POIN2                 = poin2
 POIN2_SPEC                     = Poin2 RK3288 \(Linux, GNU Libc based\)
 POIN2_USE_BUILT_GCC_LIBS       = yes
 POIN2_ENABLE_STATIC            = no
+
+
+####### RK33XX devices:
+####### --------------
+
+####### ROC-RK3328-CC [http://en.t-firefly.com/doc/product/index/id/34.html]:
+HARDWARE_RK3328_CC             = rk3328-cc
+###                             |---HW-spec-handy-ruler-----------------------|
+RK3328_CC_SPEC                 = ROC RK3288 CC \(Linux, GNU Libc based\)
+RK3328_CC_USE_BUILT_GCC_LIBS   = yes
+RK3328_CC_ENABLE_STATIC        = no
+
+
+####### RK339X devices:
+####### --------------
+
+####### KHADAS EDGE [https://www.khadas.com/edge]:
+HARDWARE_KHADAS_EDGE           = khadas-edge
+###                             |---HW-spec-handy-ruler-----------------------|
+KHADAS_EDGE_SPEC               = Khadas Edge RK3399 \(Linux, GNU Libc based\)
+KHADAS_EDGE_USE_BUILT_GCC_LIBS = yes
+KHADAS_EDGE_ENABLE_STATIC      = no
+
 
 
 ####### S8XX devices:
@@ -450,25 +516,32 @@ __ENABLE_STATIC__      = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
    BAIKAL_T1_ID_STD = 0A01
     FFRK3288_ID_STD = 0B01
        POIN2_ID_STD = 0B02
-        M201_ID_STD = 0C01
-         MXV_ID_STD = 0C02
-        P201_ID_STD = 0D01
- NEXBOX_A95X_ID_STD = 0D02
-   ODROID_C2_ID_STD = 0D04
-        P212_ID_STD = 0E01
-  KHADAS_VIM_ID_STD = 0E02
-        Q201_ID_STD = 0F01
-   ENYBOX_X2_ID_STD = 0F02
- KHADAS_VIM2_ID_STD = 0F03
-     MBC4_PC_ID_STD = 1000
-       S824L_ID_STD = 1100
-   S824L_LSB_ID_STD = 1101
-      VESNIN_ID_STD = 1200
-  VESNIN_LSB_ID_STD = 1201
-      TL2WK2_ID_STD = 1400
-  TL2WK2_LSB_ID_STD = 1401
-      TL2SV2_ID_STD = 1500
-  TL2SV2_LSB_ID_STD = 1501
+   RK3328_CC_ID_STD = 0C01
+ KHADAS_EDGE_ID_STD = 0D01
+ ORANGE_PP2E_ID_STD = 0E01
+  NANOPI_NEO_ID_STD = 0E02
+   ORANGE_PP_ID_STD = 0F01
+  ORANGE_PL2_ID_STD = 0F02
+  WECHIP_TX6_ID_STD = 0F03
+        M201_ID_STD = 1001
+         MXV_ID_STD = 1002
+        P201_ID_STD = 1101
+ NEXBOX_A95X_ID_STD = 1102
+   ODROID_C2_ID_STD = 1104
+        P212_ID_STD = 1201
+  KHADAS_VIM_ID_STD = 1202
+        Q201_ID_STD = 1401
+   ENYBOX_X2_ID_STD = 1402
+ KHADAS_VIM2_ID_STD = 1403
+     MBC4_PC_ID_STD = 1500
+       S824L_ID_STD = 1600
+   S824L_LSB_ID_STD = 1601
+      VESNIN_ID_STD = 1700
+  VESNIN_LSB_ID_STD = 1701
+      TL2WK2_ID_STD = 1800
+  TL2WK2_LSB_ID_STD = 1801
+      TL2SV2_ID_STD = 1900
+  TL2SV2_LSB_ID_STD = 1901
 
 
 
@@ -522,7 +595,7 @@ BUILD_MACHINE_HARDWARE_VARIANTS := $(HARDWARE_BUILD)
 TOOLCHAIN_I686_GLIBC         = i686-glibc
 
 I686_GLIBC_ARCH              = i686-radix-linux-gnu
-I686_GLIBC_VERSION           = 1.2.2
+I686_GLIBC_VERSION           = 1.2.3
 I686_GLIBC_DIR               = i686-PC-linux-glibc
 I686_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(I686_GLIBC_DIR)
 I686_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(I686_GLIBC_VERSION)/$(I686_GLIBC_DIR)-$(I686_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -544,7 +617,7 @@ I686_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC32) $(HARDWARE_PC32M)
 TOOLCHAIN_X86_64_GLIBC       = x86_64-glibc
 
 X86_64_GLIBC_ARCH            = x86_64-radix-linux-gnu
-X86_64_GLIBC_VERSION         = 1.2.2
+X86_64_GLIBC_VERSION         = 1.2.3
 X86_64_GLIBC_DIR             = x86_64-PC-linux-glibc
 X86_64_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(X86_64_GLIBC_DIR)
 X86_64_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(X86_64_GLIBC_VERSION)/$(X86_64_GLIBC_DIR)-$(X86_64_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -564,13 +637,14 @@ X86_64_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_PC64) $(HARDWARE_PC64M)
 
 TOOLCHAIN_A1X_NEWLIB         = a1x-newlib
 
-A1X_NEWLIB_ARCH              = arm-a1x-eabi
-A1X_NEWLIB_VERSION           = 1.2.2
-A1X_NEWLIB_DIR               = arm-A1X-eabi-newlib
+A1X_NEWLIB_ARCH              = arm-none-eabi
+A1X_NEWLIB_VERSION           = 1.2.3
+A1X_NEWLIB_DIR               = arm-NONE-eabi-newlib
 A1X_NEWLIB_PATH              = $(TOOLCHAINS_BASE_PATH)/$(A1X_NEWLIB_DIR)
 A1X_NEWLIB_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(A1X_NEWLIB_VERSION)/$(A1X_NEWLIB_DIR)-$(A1X_NEWLIB_VERSION).$(TARBALL_SUFFIX)
 
 A1X_NEWLIB_ARCH_DEFS         = -D__ALLWINNER_1N__=1
+A1X_NEWLIB_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=hard -mlittle-endian -fomit-frame-pointer
 
 A1X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB1N)
 
@@ -581,13 +655,13 @@ A1X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB1N)
 TOOLCHAIN_A1X_GLIBC          = a1x-glibc
 
 A1X_GLIBC_ARCH               = arm-a1x-linux-gnueabihf
-A1X_GLIBC_VERSION            = 1.2.2
+A1X_GLIBC_VERSION            = 1.2.3
 A1X_GLIBC_DIR                = arm-A1X-linux-glibc
 A1X_GLIBC_PATH               = $(TOOLCHAINS_BASE_PATH)/$(A1X_GLIBC_DIR)
 A1X_GLIBC_TARBALL            = $(TOOLCHAINS_FTP_BASE)/$(A1X_GLIBC_VERSION)/$(A1X_GLIBC_DIR)-$(A1X_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 A1X_GLIBC_ARCH_DEFS          = -D__ALLWINNER_1X_GLIBC__=1
-A1X_GLIBC_ARCH_FLAGS         = -march=armv7-a -mtune=cortex-a8 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -fomit-frame-pointer
+A1X_GLIBC_ARCH_FLAGS         = -march=armv7-a -mtune=cortex-a8 -mfpu=neon -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
 
 A1X_GLIBC_SYSROOT            = sys-root
 A1X_GLIBC_DEST_SYSROOT       = yes
@@ -602,13 +676,14 @@ A1X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_CB1X)
 
 TOOLCHAIN_A2X_NEWLIB         = a2x-newlib
 
-A2X_NEWLIB_ARCH              = arm-a2x-eabi
-A2X_NEWLIB_VERSION           = 1.2.2
-A2X_NEWLIB_DIR               = arm-A2X-eabi-newlib
+A2X_NEWLIB_ARCH              = arm-none-eabi
+A2X_NEWLIB_VERSION           = 1.2.3
+A2X_NEWLIB_DIR               = arm-NONE-eabi-newlib
 A2X_NEWLIB_PATH              = $(TOOLCHAINS_BASE_PATH)/$(A2X_NEWLIB_DIR)
 A2X_NEWLIB_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(A2X_NEWLIB_VERSION)/$(A2X_NEWLIB_DIR)-$(A2X_NEWLIB_VERSION).$(TARBALL_SUFFIX)
 
 A2X_NEWLIB_ARCH_DEFS         = -D__ALLWINNER_2N__=1
+A2X_NEWLIB_ARCH_FLAGS        = -march=armv7ve -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -mlittle-endian -fomit-frame-pointer
 
 A2X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB2N) $(HARDWARE_CB3N)
 
@@ -619,13 +694,13 @@ A2X_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_CB2N) $(HARDWARE_CB3N)
 TOOLCHAIN_A2X_GLIBC          = a2x-glibc
 
 A2X_GLIBC_ARCH               = arm-a2x-linux-gnueabihf
-A2X_GLIBC_VERSION            = 1.2.2
+A2X_GLIBC_VERSION            = 1.2.3
 A2X_GLIBC_DIR                = arm-A2X-linux-glibc
 A2X_GLIBC_PATH               = $(TOOLCHAINS_BASE_PATH)/$(A2X_GLIBC_DIR)
 A2X_GLIBC_TARBALL            = $(TOOLCHAINS_FTP_BASE)/$(A2X_GLIBC_VERSION)/$(A2X_GLIBC_DIR)-$(A2X_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 A2X_GLIBC_ARCH_DEFS          = -D__ALLWINNER_2X_GLIBC__=1
-A2X_GLIBC_ARCH_FLAGS         = -march=armv7ve -mtune=cortex-a7 -mfloat-abi=hard -mfpu=neon-vfpv4 -mabi=aapcs-linux -fomit-frame-pointer
+A2X_GLIBC_ARCH_FLAGS         = -march=armv7ve -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
 
 A2X_GLIBC_SYSROOT            = sys-root
 A2X_GLIBC_DEST_SYSROOT       = yes
@@ -636,18 +711,62 @@ A2X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_CB2X) $(HARDWARE_CB3X)
 
 
 
+# ======= H3-GLIBC =========================================================
+
+TOOLCHAIN_H3_GLIBC           = h3-glibc
+
+H3_GLIBC_ARCH                = arm-h3-linux-gnueabihf
+H3_GLIBC_VERSION             = 1.2.3
+H3_GLIBC_DIR                 = arm-H3-linux-glibc
+H3_GLIBC_PATH                = $(TOOLCHAINS_BASE_PATH)/$(H3_GLIBC_DIR)
+H3_GLIBC_TARBALL             = $(TOOLCHAINS_FTP_BASE)/$(H3_GLIBC_VERSION)/$(H3_GLIBC_DIR)-$(H3_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+H3_GLIBC_ARCH_DEFS           = -D__ALLWINNER_H3_GLIBC__=1
+H3_GLIBC_ARCH_FLAGS          = -march=armv7ve -mtune=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
+
+H3_GLIBC_SYSROOT             = sys-root
+H3_GLIBC_DEST_SYSROOT        = yes
+
+H3_GLIBC_HAS_CHRPATH         = yes
+
+H3_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_ORANGE_PP2E) $(HARDWARE_NANOPI_NEO)
+
+
+
+# ======= H5-GLIBC ======================================================
+
+TOOLCHAIN_H5_GLIBC           = h5-glibc
+
+H5_GLIBC_ARCH                = aarch64-h5-linux-gnu
+H5_GLIBC_VERSION             = 1.2.3
+H5_GLIBC_DIR                 = aarch64-H5-linux-glibc
+H5_GLIBC_PATH                = $(TOOLCHAINS_BASE_PATH)/$(H5_GLIBC_DIR)
+H5_GLIBC_TARBALL             = $(TOOLCHAINS_FTP_BASE)/$(H5_GLIBC_VERSION)/$(H5_GLIBC_DIR)-$(H5_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+H5_GLIBC_ARCH_DEFS           = -D__ALLWINNER_H5_GLIBC__=1
+H5_GLIBC_ARCH_FLAGS          = -march=armv8-a -mcpu=cortex-a53 -mabi=lp64 -fomit-frame-pointer
+
+H5_GLIBC_SYSROOT             = sys-root
+H5_GLIBC_DEST_SYSROOT        = yes
+
+H5_GLIBC_HAS_CHRPATH         = yes
+
+H5_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_ORANGE_PP) $(HARDWARE_ORANGE_PL2) $(HARDWARE_WECHIP_TX6)
+
+
+
 # ======= RK328X-GLIBC ======================================================
 
 TOOLCHAIN_RK328X_GLIBC       = rk328x-glibc
 
 RK328X_GLIBC_ARCH            = arm-rk328x-linux-gnueabihf
-RK328X_GLIBC_VERSION         = 1.2.2
+RK328X_GLIBC_VERSION         = 1.2.3
 RK328X_GLIBC_DIR             = arm-RK328X-linux-glibc
 RK328X_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(RK328X_GLIBC_DIR)
 RK328X_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(RK328X_GLIBC_VERSION)/$(RK328X_GLIBC_DIR)-$(RK328X_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 RK328X_GLIBC_ARCH_DEFS       = -D__RK328X_GLIBC__=1
-RK328X_GLIBC_ARCH_FLAGS      = -march=armv7ve -mtune=cortex-a17 -mfloat-abi=hard -mfpu=neon-vfpv4 -mabi=aapcs-linux -fomit-frame-pointer
+RK328X_GLIBC_ARCH_FLAGS      = -march=armv7ve -mtune=cortex-a17 -mfpu=neon-vfpv4 -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
 
 RK328X_GLIBC_SYSROOT         = sys-root
 RK328X_GLIBC_DEST_SYSROOT    = yes
@@ -658,18 +777,62 @@ RK328X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_FFRK3288) $(HARDWARE_POIN2)
 
 
 
+# ======= RK33XX-GLIBC ======================================================
+
+TOOLCHAIN_RK33XX_GLIBC       = rk33xx-glibc
+
+RK33XX_GLIBC_ARCH            = aarch64-rk33xx-linux-gnu
+RK33XX_GLIBC_VERSION         = 1.2.3
+RK33XX_GLIBC_DIR             = aarch64-RK33XX-linux-glibc
+RK33XX_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(RK33XX_GLIBC_DIR)
+RK33XX_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(RK33XX_GLIBC_VERSION)/$(RK33XX_GLIBC_DIR)-$(RK33XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+RK33XX_GLIBC_ARCH_DEFS       = -D__RK33XX_GLIBC__=1
+RK33XX_GLIBC_ARCH_FLAGS      = -march=armv8-a -mcpu=cortex-a53 -mabi=lp64 -fomit-frame-pointer
+
+RK33XX_GLIBC_SYSROOT         = sys-root
+RK33XX_GLIBC_DEST_SYSROOT    = yes
+
+RK33XX_GLIBC_HAS_CHRPATH     = yes
+
+RK33XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_RK3328_CC)
+
+
+
+# ======= RK339X-GLIBC ======================================================
+
+TOOLCHAIN_RK339X_GLIBC       = rk339x-glibc
+
+RK339X_GLIBC_ARCH            = aarch64-rk339x-linux-gnu
+RK339X_GLIBC_VERSION         = 1.2.3
+RK339X_GLIBC_DIR             = aarch64-RK339X-linux-glibc
+RK339X_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(RK339X_GLIBC_DIR)
+RK339X_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(RK339X_GLIBC_VERSION)/$(RK339X_GLIBC_DIR)-$(RK339X_GLIBC_VERSION).$(TARBALL_SUFFIX)
+
+RK339X_GLIBC_ARCH_DEFS       = -D__RK339X_GLIBC__=1
+RK339X_GLIBC_ARCH_FLAGS      = -march=armv8-a -mcpu=cortex-a72.cortex-a53 -mabi=lp64 -fomit-frame-pointer
+
+RK339X_GLIBC_SYSROOT         = sys-root
+RK339X_GLIBC_DEST_SYSROOT    = yes
+
+RK339X_GLIBC_HAS_CHRPATH     = yes
+
+RK339X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_KHADAS_EDGE)
+
+
+
 # ======= S8XX-GLIBC =========================================================
 
 TOOLCHAIN_S8XX_GLIBC         = s8xx-glibc
 
 S8XX_GLIBC_ARCH              = arm-s8xx-linux-gnueabihf
-S8XX_GLIBC_VERSION           = 1.2.2
+S8XX_GLIBC_VERSION           = 1.2.3
 S8XX_GLIBC_DIR               = arm-S8XX-linux-glibc
 S8XX_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(S8XX_GLIBC_DIR)
 S8XX_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(S8XX_GLIBC_VERSION)/$(S8XX_GLIBC_DIR)-$(S8XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 S8XX_GLIBC_ARCH_DEFS         = -D__AMLOGIC_S8XX_GLIBC__=1
-S8XX_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a5 -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -fomit-frame-pointer
+S8XX_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a5 -mfpu=neon -mfloat-abi=hard -mfpu=neon -mabi=aapcs-linux -fomit-frame-pointer
 
 S8XX_GLIBC_SYSROOT           = sys-root
 S8XX_GLIBC_DEST_SYSROOT      = yes
@@ -685,7 +848,7 @@ S8XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_M201) $(HARDWARE_MXV)
 TOOLCHAIN_S9XX_GLIBC         = s9xx-glibc
 
 S9XX_GLIBC_ARCH              = aarch64-s9xx-linux-gnu
-S9XX_GLIBC_VERSION           = 1.2.2
+S9XX_GLIBC_VERSION           = 1.2.3
 S9XX_GLIBC_DIR               = aarch64-S9XX-linux-glibc
 S9XX_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(S9XX_GLIBC_DIR)
 S9XX_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(S9XX_GLIBC_VERSION)/$(S9XX_GLIBC_DIR)-$(S9XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -710,12 +873,13 @@ S9XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_P201) $(HARDWARE_NEXBOX_A95X) \
 TOOLCHAIN_AT91SAM7S_NEWLIB   = at91sam7s-newlib
 
 AT91SAM7S_NEWLIB_ARCH        = arm-at91sam7s-eabi
-AT91SAM7S_NEWLIB_VERSION     = 1.2.2
+AT91SAM7S_NEWLIB_VERSION     = 1.2.3
 AT91SAM7S_NEWLIB_DIR         = arm-AT91SAM7S-eabi-newlib
 AT91SAM7S_NEWLIB_PATH        = $(TOOLCHAINS_BASE_PATH)/$(AT91SAM7S_NEWLIB_DIR)
 AT91SAM7S_NEWLIB_TARBALL     = $(TOOLCHAINS_FTP_BASE)/$(AT91SAM7S_NEWLIB_VERSION)/$(AT91SAM7S_NEWLIB_DIR)-$(AT91SAM7S_NEWLIB_VERSION).$(TARBALL_SUFFIX)
 
 AT91SAM7S_NEWLIB_ARCH_DEFS   = -D__AT91SAM7S__=1
+AT91SAM7S_NEWLIB_ARCH_FLAGS  = -mcpu=arm7tdmi -mbig-endian -fomit-frame-pointer
 
 AT91SAM7S_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_AT91S)
 
@@ -726,12 +890,13 @@ AT91SAM7S_NEWLIB_HARDWARE_VARIANTS := $(HARDWARE_AT91S)
 TOOLCHAIN_LPC17XX_UCLIBC     = lpc17xx-uclibc
 
 LPC17XX_UCLIBC_ARCH          = arm-lpc17xx-uclinuxeabi
-LPC17XX_UCLIBC_VERSION       = 1.2.2
+LPC17XX_UCLIBC_VERSION       = 1.2.3
 LPC17XX_UCLIBC_DIR           = arm-LPC17XX-uclinuxeabi
 LPC17XX_UCLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(LPC17XX_UCLIBC_DIR)
 LPC17XX_UCLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(LPC17XX_UCLIBC_VERSION)/$(LPC17XX_UCLIBC_DIR)-$(LPC17XX_UCLIBC_VERSION).$(TARBALL_SUFFIX)
 
 LPC17XX_UCLIBC_ARCH_DEFS     = -D__LPC17XX__=1
+LPC17XX_UCLIBC_ARCH_FLAGS    = -mthumb -march=armv7-m -mfloat-abi=soft
 
 LPC17XX_UCLIBC_SYSROOT       = sys-root
 
@@ -744,13 +909,13 @@ LPC17XX_UCLIBC_HARDWARE_VARIANTS := $(HARDWARE_L17UC)
 TOOLCHAIN_IMX6_GLIBC         = imx6-glibc
 
 IMX6_GLIBC_ARCH              = arm-imx6-linux-gnueabihf
-IMX6_GLIBC_VERSION           = 1.2.2
+IMX6_GLIBC_VERSION           = 1.2.3
 IMX6_GLIBC_DIR               = arm-IMX6-linux-glibc
 IMX6_GLIBC_PATH              = $(TOOLCHAINS_BASE_PATH)/$(IMX6_GLIBC_DIR)
 IMX6_GLIBC_TARBALL           = $(TOOLCHAINS_FTP_BASE)/$(IMX6_GLIBC_VERSION)/$(IMX6_GLIBC_DIR)-$(IMX6_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 IMX6_GLIBC_ARCH_DEFS         = -D__IMX6_GLIBC__=1
-IMX6_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a9 -mfloat-abi=hard -mfpu=vfpv3 -mabi=aapcs-linux -fomit-frame-pointer
+IMX6_GLIBC_ARCH_FLAGS        = -march=armv7-a -mtune=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
 
 IMX6_GLIBC_SYSROOT           = sys-root
 IMX6_GLIBC_DEST_SYSROOT      = yes
@@ -766,13 +931,13 @@ IMX6_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_NIT6Q)
 TOOLCHAIN_OMAP543X_GLIBC     = omap543x-glibc
 
 OMAP543X_GLIBC_ARCH          = arm-omap543x-linux-gnueabihf
-OMAP543X_GLIBC_VERSION       = 1.2.2
+OMAP543X_GLIBC_VERSION       = 1.2.3
 OMAP543X_GLIBC_DIR           = arm-OMAP543X-linux-glibc
 OMAP543X_GLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(OMAP543X_GLIBC_DIR)
 OMAP543X_GLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(OMAP543X_GLIBC_VERSION)/$(OMAP543X_GLIBC_DIR)-$(OMAP543X_GLIBC_VERSION).$(TARBALL_SUFFIX)
 
 OMAP543X_GLIBC_ARCH_DEFS     = -D__OMAP543X_GLIBC__=1
-OMAP543X_GLIBC_ARCH_FLAGS    = -march=armv7-a -mtune=cortex-a15 -mfloat-abi=hard -mfpu=neon-vfpv4 -mabi=aapcs-linux -fomit-frame-pointer
+OMAP543X_GLIBC_ARCH_FLAGS    = -march=armv7ve -mtune=cortex-a15 -mfpu=neon-vfpv4 -mfloat-abi=hard -mabi=aapcs-linux -fomit-frame-pointer
 
 OMAP543X_GLIBC_SYSROOT       = sys-root
 OMAP543X_GLIBC_DEST_SYSROOT  = yes
@@ -788,7 +953,7 @@ OMAP543X_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_OMAP5UEVM) $(HARDWARE_DRA7XXEVM)
 TOOLCHAIN_JZ47XX_GLIBC       = jz47xx-glibc
 
 JZ47XX_GLIBC_ARCH            = mipsel-jz47xx-linux-gnu
-JZ47XX_GLIBC_VERSION         = 1.2.2
+JZ47XX_GLIBC_VERSION         = 1.2.3
 JZ47XX_GLIBC_DIR             = mipsel-JZ47XX-linux-glibc
 JZ47XX_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(JZ47XX_GLIBC_DIR)
 JZ47XX_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(JZ47XX_GLIBC_VERSION)/$(JZ47XX_GLIBC_DIR)-$(JZ47XX_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -811,7 +976,7 @@ JZ47XX_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_CI20)
 TOOLCHAIN_P5600_GLIBC        = p5600-glibc
 
 P5600_GLIBC_ARCH             = mipsel-p5600-linux-gnu
-P5600_GLIBC_VERSION          = 1.2.2
+P5600_GLIBC_VERSION          = 1.2.3
 P5600_GLIBC_DIR              = mipsel-P5600-linux-glibc
 P5600_GLIBC_PATH             = $(TOOLCHAINS_BASE_PATH)/$(P5600_GLIBC_DIR)
 P5600_GLIBC_TARBALL          = $(TOOLCHAINS_FTP_BASE)/$(P5600_GLIBC_VERSION)/$(P5600_GLIBC_DIR)-$(P5600_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -834,7 +999,7 @@ P5600_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_BAIKAL_T1)
 TOOLCHAIN_R1000_GLIBC        = r1000-glibc
 
 R1000_GLIBC_ARCH             = sparc64-r1000-linux-gnu
-R1000_GLIBC_VERSION          = 1.2.2
+R1000_GLIBC_VERSION          = 1.2.3
 R1000_GLIBC_DIR              = sparc64-R1000-linux-glibc
 R1000_GLIBC_PATH             = $(TOOLCHAINS_BASE_PATH)/$(R1000_GLIBC_DIR)
 R1000_GLIBC_TARBALL          = $(TOOLCHAINS_FTP_BASE)/$(R1000_GLIBC_VERSION)/$(R1000_GLIBC_DIR)-$(R1000_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -857,7 +1022,7 @@ R1000_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_MBC4_PC)
 TOOLCHAIN_POWER8_GLIBC       = power8-glibc
 
 POWER8_GLIBC_ARCH            = ppc64-power8-linux-gnu
-POWER8_GLIBC_VERSION         = 1.2.2
+POWER8_GLIBC_VERSION         = 1.2.3
 POWER8_GLIBC_DIR             = ppc64-POWER8-linux-glibc
 POWER8_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(POWER8_GLIBC_DIR)
 POWER8_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(POWER8_GLIBC_VERSION)/$(POWER8_GLIBC_DIR)-$(POWER8_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -879,7 +1044,7 @@ POWER8_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_S824L) $(HARDWARE_VESNIN)
 TOOLCHAIN_POWER8LE_GLIBC     = power8le-glibc
 
 POWER8LE_GLIBC_ARCH          = ppc64le-power8-linux-gnu
-POWER8LE_GLIBC_VERSION       = 1.2.2
+POWER8LE_GLIBC_VERSION       = 1.2.3
 POWER8LE_GLIBC_DIR           = ppc64le-POWER8-linux-glibc
 POWER8LE_GLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(POWER8LE_GLIBC_DIR)
 POWER8LE_GLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(POWER8LE_GLIBC_VERSION)/$(POWER8LE_GLIBC_DIR)-$(POWER8LE_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -902,7 +1067,7 @@ POWER8LE_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_S824L_LSB) $(HARDWARE_VESNIN_LSB)
 TOOLCHAIN_POWER9_GLIBC       = power9-glibc
 
 POWER9_GLIBC_ARCH            = ppc64-power9-linux-gnu
-POWER9_GLIBC_VERSION         = 1.2.2
+POWER9_GLIBC_VERSION         = 1.2.3
 POWER9_GLIBC_DIR             = ppc64-POWER9-linux-glibc
 POWER9_GLIBC_PATH            = $(TOOLCHAINS_BASE_PATH)/$(POWER9_GLIBC_DIR)
 POWER9_GLIBC_TARBALL         = $(TOOLCHAINS_FTP_BASE)/$(POWER9_GLIBC_VERSION)/$(POWER9_GLIBC_DIR)-$(POWER9_GLIBC_VERSION).$(TARBALL_SUFFIX)
@@ -924,7 +1089,7 @@ POWER9_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_TL2WK2) $(HARDWARE_TL2SV2)
 TOOLCHAIN_POWER9LE_GLIBC     = power9le-glibc
 
 POWER9LE_GLIBC_ARCH          = ppc64le-power9-linux-gnu
-POWER9LE_GLIBC_VERSION       = 1.2.2
+POWER9LE_GLIBC_VERSION       = 1.2.3
 POWER9LE_GLIBC_DIR           = ppc64le-POWER9-linux-glibc
 POWER9LE_GLIBC_PATH          = $(TOOLCHAINS_BASE_PATH)/$(POWER9LE_GLIBC_DIR)
 POWER9LE_GLIBC_TARBALL       = $(TOOLCHAINS_FTP_BASE)/$(POWER9LE_GLIBC_VERSION)/$(POWER9LE_GLIBC_DIR)-$(POWER9LE_GLIBC_VERSION).$(TARBALL_SUFFIX)
