@@ -30,11 +30,33 @@ TOOLCHAINS_FTP_BASE  = toolchains/x86_64
 TARBALL_SUFFIX       = tar.gz
 
 
-
 CACHED_CC_OUTPUT     = /opt/extra/ccache
 
 TOOLCHAINS_BASE_PATH = /opt/toolchains
 
+
+#
+# GnuPG options for make-package:
+# ==============================
+#
+# Usage:
+# -----
+#   GNUPG_OPTIONS = -p ~/.gnupg/.pkgtool-passphrase -k 0xA5ED710298807270
+#
+#   where:
+#     -p,--passphrase=<FILE>     File with passphrase of private certificate
+#                                for signing package. For example:
+#                                   ~/.gnupg/.passphrase
+#                                Passphrase should be placed in the first
+#                                line of the file (the new-line symbol at
+#                                end of passphrase is allowed). File must
+#                                have access mode 600.
+#     -k,--key-id=<USER-ID>      Use USER-ID to sign package, for example,
+#                                --key-id=0xA5ED710298807270
+#
+#     [see OpenPGP options of make-package utility].
+#
+GNUPG_OPTIONS =
 
 
 ################################################################
@@ -49,15 +71,17 @@ TOOLCHAINS_BASE_PATH = /opt/toolchains
 # extensions of these files are depend on pkgtool.
 
 pkg_arch_suffix = txz
+pkg_cert_suffix = asc
 pkg_sign_suffix = sha
 pkg_desc_suffix = txt
 
 #
 # functions:
 #
+cert-name = $(if $(GNUPG_OPTIONS),$(subst .$(pkg_arch_suffix),.$(pkg_cert_suffix),$1),)
 sign-name = $(subst .$(pkg_arch_suffix),.$(pkg_sign_suffix),$1)
 desc-name = $(subst .$(pkg_arch_suffix),.$(pkg_desc_suffix),$1)
-pkg-files = $1 $(call sign-name,$1) $(call desc-name,$1)
+pkg-files = $1 $(call cert-name,$1) $(call sign-name,$1) $(call desc-name,$1)
 
 #
 # usage:
