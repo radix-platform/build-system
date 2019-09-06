@@ -10,15 +10,6 @@ progs/config.log
 progs/config.status
 progs/configure
 
-# generated scripts
-pkgtool/check-db-integrity
-pkgtool/check-package
-pkgtool/check-requires
-pkgtool/install-package
-pkgtool/make-package
-pkgtool/remove-package
-pkgtool/update-package
-
 # Target build dirs
 .build-machine/
 

@@ -49,7 +49,7 @@ TOOLCHAINS_BASE_PATH = /opt/toolchains
 # extensions of these files are depend on pkgtool.
 
 pkg_arch_suffix = txz
-pkg_sign_suffix = sha256
+pkg_sign_suffix = sha
 pkg_desc_suffix = txt
 
 #

@@ -616,6 +616,17 @@ configure_targets: $(BUILDSYSTEM)/build-config.mk
 	 CONSTANTS=$(BUILDSYSTEM)/constants.mk \
 	 $(BUILDSYSTEM)/configure-targets
 
+#
+# Print value of Makefile variable:
+# --------------------------------
+# usage:
+#   make -f Makefile print-BASH_PKG_VERSION
+# output:
+#   BASH_PKG_VERSION = 4.3
+#
+print-%:
+	@echo '$* = $($*)'
+
 #######
 ####### End of Build preparations & HW Independed GOALs Section.
 #######
@@ -759,7 +770,6 @@ pull-env-vo = $(shell $(BUILDSYSTEM)/transmitting_hash \
 ####### Include files with references to BUILD-SYSTEM scripts:
 #######
 
--include $(BUILDSYSTEM)/pkgtool/.config
 -include $(BUILDSYSTEM)/progs/.config
 -include $(BUILDSYSTEM)/scripts/.config
 -include $(BUILDSYSTEM)/sbin/.config
@@ -1861,10 +1871,10 @@ $(TARGET_BUILD_DIR)/%.o: %.c
 #######
 ####### HW depended macro for create PKG requires:
 #######
-    BUILD_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires $(REQUIRES)
-BUILD_ALL_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --pkg-type=all $(REQUIRES)
-BUILD_BIN_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --pkg-type=bin $(REQUIRES)
-BUILD_DEV_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --pkg-type=dev $(REQUIRES)
+    BUILD_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --toolchain=$(TOOLCHAIN) --hardware=$(HARDWARE) --flavour=$(FLAVOUR) $(REQUIRES)
+BUILD_ALL_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --toolchain=$(TOOLCHAIN) --hardware=$(HARDWARE) --flavour=$(FLAVOUR) --pkg-type=all $(REQUIRES)
+BUILD_BIN_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --toolchain=$(TOOLCHAIN) --hardware=$(HARDWARE) --flavour=$(FLAVOUR) --pkg-type=bin $(REQUIRES)
+BUILD_DEV_PKG_REQUIRES = $(BUILDSYSTEM)/build_pkg_requires --toolchain=$(TOOLCHAIN) --hardware=$(HARDWARE) --flavour=$(FLAVOUR) --pkg-type=dev $(REQUIRES)
 #######
 ####### HW depended macro for create PKG requires.
 #######
@@ -1904,8 +1914,6 @@ endif
 .PHONY: .global_clean .downloads_clean
 
 .SUFFIXES:
-
-
 
 
 

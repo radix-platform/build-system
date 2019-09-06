@@ -16,6 +16,10 @@ my $distro = _kxLab::distro_name();
 # Global variables
 my $header_printed = 0;
 
+my $rootfs_dest_dir;
+my ($toolchain, $hardware, $flavour);
+my $target_build_dir;
+
 my $cleanup = $ENV{DO_CREATE_DIST_FILES} ? 0 : 1;
 my ($tempfd, $tempname);
 
@@ -48,8 +52,13 @@ sub cleanpath
 sub rootfs
 {
   my $dest_dir = cleanpath( shift );
-  my $file = basename( shift, ".txz" );
-  print $tempfd "$dest_dir/var/log/$distro/packages/$file\n";
+  my $target = shift;
+
+  my $group  = dirname( $target ); # extract GROUP if present:
+  $group  =~ s!$target_build_dir/!!;
+
+  my $file = basename( $target, ".txz" );
+  print $tempfd "$dest_dir/var/log/$distro/packages/$group/$file\n";
 }
 
 # update( updatepkg, rootfs_dest_dir, verbose, targets )
@@ -70,14 +79,12 @@ sub update
       $header_printed = 1;
     }
     print "Update $target ...\n" if ( $verbose );
-    _kxLab::system( "cd $cdir; $updatepkg --root $rootfs_dest_dir $pkg" );
+    _kxLab::system( "mkdir -p $rootfs_dest_dir" );
+    _kxLab::system( "cd $cdir; $updatepkg --ignore-chrefs-errors --root=$rootfs_dest_dir $pkg" );
     rootfs( $rootfs_dest_dir, $target );
   }
 }
 
-my $rootfs_dest_dir;
-my ($toolchain, $hardware, $flavour);
-my $target_build_dir;
 my @targets;
 my $verbose    = $ENV{VERBOSE};
 my $curdir     = $ENV{CWD};
@@ -143,19 +150,19 @@ else
 #####################
 # LOCK procedure:
 #
-my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
-open( my $lock_fh, '+>', $lock_fname ) or
-  _kxLab::error( "$0: Could not open $lock_fname file: $!" );
-flock( $lock_fh, LOCK_EX ) or
-  _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
+#my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
+#open( my $lock_fh, '+>', $lock_fname ) or
+#  _kxLab::error( "$0: Could not open $lock_fname file: $!" );
+#flock( $lock_fh, LOCK_EX ) or
+#  _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
 
 
 update( $updatepkg, $rootfs_dest_dir, $verbose, \@targets );
 
 
-flock( $lock_fh, LOCK_UN ) or
-  _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
-close( $lock_fh );
+#flock( $lock_fh, LOCK_UN ) or
+#  _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
+#close( $lock_fh );
 #
 # UN LOCK procedure.
 #####################

@@ -5,11 +5,11 @@ COMPONENT_TARGETS = $(HARDWARE_NOARCH)
 include ../../../../../build-system/constants.mk
 
 
-url         = $(DOWNLOAD_SERVER)/sources/packages/a/pseudo
+url         = $(DOWNLOAD_SERVER)/sources/packages/a/pkgtools
 
 
-versions    = 1.8.2
-pkgname     = pseudo
+versions    = 0.1.2
+pkgname     = pkgtools
 suffix      = tar.xz
 
 tarballs    = $(addsuffix .$(suffix), $(addprefix $(pkgname)-, $(versions)))
