@@ -22,6 +22,7 @@ my $fname      = "";
 my $pkg        = "";
 
 my $pkg_name   = "";
+my $pkg_group  = "";
 my $pkg_dir    = "";
 my $rootfs_dir = "";
 
@@ -95,25 +96,27 @@ while( <F> )
   chomp;
 
   $pkg        = "$base/$_";
+  $pkg_group  = dirname( $pkg ); # extract GROUP if present:
+  $pkg_group  =~ s!/.+/var/log/$distro/packages/!!;
   $pkg_name   = basename( $pkg );
   $pkg_dir    = dirname( $pkg );
   $rootfs_dir = $pkg_dir;
-  $rootfs_dir =~ s!/var/log/$distro/packages$!!;
+  $rootfs_dir =~ s!/var/log/$distro/packages.*$!!;
 
   #####################
   # LOCK procedure:
   #
-  my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
-  open( my $lock_fh, '+>', $lock_fname ) or
-    _kxLab::error( "$0: Could not open $lock_fname file: $!" );
-  flock( $lock_fh, LOCK_EX ) or
-    _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
+  #my $lock_fname = _kxLab::build_system_tmpdir()  . "/." . $hardware . ".pkgtool-lock";
+  #open( my $lock_fh, '+>', $lock_fname ) or
+  #  _kxLab::error( "$0: Could not open $lock_fname file: $!" );
+  #flock( $lock_fh, LOCK_EX ) or
+  #  _kxLab::error( "$0: Cannot lock $lock_fname file: $!" );
 
-  _kxLab::system( "cd $pkg_dir && $removepkg --skip-refs --root $rootfs_dir $pkg_name" );
+  _kxLab::system( "$removepkg --ignore-chrefs-errors --root=$rootfs_dir $pkg" );
 
-  flock( $lock_fh, LOCK_UN ) or
-    _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
-  close( $lock_fh );
+  #flock( $lock_fh, LOCK_UN ) or
+  #  _kxLab::error( "$0: Cannot unlock $lock_fname file: $!" );
+  #close( $lock_fh );
   #
   # UN LOCK procedure.
   #####################

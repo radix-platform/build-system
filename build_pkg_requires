@@ -17,11 +17,14 @@
 # pkg=
 #
 
+my ($toolchain, $hardware, $flavour);
 
 sub read_requires
 {
   my %requires;
-  my ( $name, $version );
+  my ( $name, $version, $group );
+
+  my ( $file_name, $makefile );
 
   my $ptype = shift;
 
@@ -29,44 +32,146 @@ sub read_requires
   {
     $name    = "BIN_PKG_NAME";
     $version = "BIN_PKG_VERSION";
+    $group   = "BIN_PKG_GROUP";
   }
   elsif( $ptype eq "dev" )
   {
     $name    = "DEV_PKG_NAME";
     $version = "DEV_PKG_VERSION";
+    $group   = "DEV_PKG_GROUP";
   }
   else
   {
     $name    = "PKG_NAME";
     $version = "PKG_VERSION";
+    $group   = "PKG_GROUP";
   }
 
-  foreach my $req ( @_ )
+
+  foreach my $req ( reverse @_ )
   {
     my $d = `echo $req | cut -f 1 -d '^'`;
     $d =~ s/^\s+|\s+$//;
 
     $file_name = "${top_build_dir}/$d/Makefile";
     $makefile = `cat $file_name`;
-# start tabs are not allowed (only spaces) because we are parsing Makefile!
-    while( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$name(.+= +)(.+)/gm )
+    if( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$name(.+= +)(.+)/gm )
     {
-      my @p;
+      my ( @p, @n, @v );
+      my ( $n, $v, $g );
+
+      my $prefix = $1;
+
+      my $cdir = "${top_build_dir}/$d";
+      my $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$name 2>/dev/null
+exit 0
+SHELL
+      while( $shell_output =~ m/^ *$prefix$name(.+= +)(.+)/gm ) { $n = $2; }
+
+      $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$version 2>/dev/null
+exit 0
+SHELL
+      while( $shell_output =~ m/^ *$prefix$version(.+= +)(.+)/gm ) { $v = $2; }
+
+      $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$group 2>/dev/null
+exit 0
+SHELL
+      while( $shell_output =~ m/^ *$prefix$group(.+= +)(.+)/gm ) { $g = $2; }
 
       $requires{"$d"} = \@p;
-
-      @n = split / +/, $3;
+      if( $g ) { @n = split / +/, $g . '/' . $n; }
+      else     { @n = split / +/, $n; }
       push( @{ $requires{"$d"} }, @n );
-    }
-    $makefile = `cat $file_name`;
-    while( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$version(.+= +)(.+)/gm )
-    {
-      @v = split / +/, $3;
+      @v = split / +/, $v;
       if( $requires{"$d"} )
       {
-         push( @{ $requires{"$d"} }, @v );
+        push( @{ $requires{"$d"} }, @v );
       }
     }
+    else
+    {
+      #
+      # The ..._PKG_NAME is not found in a Makefile then
+      # assume that this Makefile is a collection (depth=1):
+      # ---------------------------------------------------
+      # NOTE:
+      # ----
+      #   We do not allow flavours in the package .REQUIRES file.
+      #
+      my $cdir = "${top_build_dir}/$d";
+      #
+      # We read the head of Makefile until '__END_OF_REQUIRES__' keyword.
+      # The 'build-system/constants.mk' should be included before requires.
+      #
+      my $requires_output = <<`SHELL`;
+cd $cdir
+head -n `cat Makefile | grep -n "__END_OF_REQUIRES__" | cut -f 1 -d ':'` Makefile | \
+  make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f - -p __build_requires__ 2>/dev/null | grep "REQUIRES"
+exit 0
+SHELL
+
+      while( $requires_output =~ m/^REQUIRES(.+= +)(.+)/gm )
+      {
+        my @r = split( " ", $2 );
+        foreach my $req ( reverse @r )
+        {
+          $d = `echo $req | cut -f 1 -d '^'`;
+          $d =~ s/^\s+|\s+$//;
+
+          $file_name = "${top_build_dir}/$d/Makefile";
+          $makefile = `cat $file_name`;
+          if( $makefile =~ m/^ *([_A-Za-z]*[_A-Za-z0-9]*)$name(.+= +)(.+)/gm )
+          {
+            my ( @p, @n, @v );
+            my ( $n, $v, $g );
+
+            my $prefix = $1;
+
+            my $cdir = "${top_build_dir}/$d";
+            my $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$name 2>/dev/null
+exit 0
+SHELL
+            while( $shell_output =~ m/^ *$prefix$name(.+= +)(.+)/gm ) { $n = $2; }
+
+            $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$version 2>/dev/null
+exit 0
+SHELL
+            while( $shell_output =~ m/^ *$prefix$version(.+= +)(.+)/gm ) { $v = $2; }
+
+            $shell_output = <<`SHELL`;
+cd $cdir
+make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f $file_name print-$prefix$group 2>/dev/null
+exit 0
+SHELL
+            while( $shell_output =~ m/^ *$prefix$group(.+= +)(.+)/gm ) { $g = $2; }
+
+            $requires{"$d"} = \@p;
+            if( $g ) { @n = split / +/, $g . '/' . $n; }
+            else     { @n = split / +/, $n; }
+            push( @{ $requires{"$d"} }, @n );
+            @v = split / +/, $v;
+            if( $requires{"$d"} )
+            {
+              push( @{ $requires{"$d"} }, @v );
+            }
+          }
+
+        } # end of foreach ( req )
+
+      } # End of while ( shell_output )
+
+    }
+
   }
 
   return %requires;
@@ -78,6 +183,9 @@ sub usage
 
 Usage: build_pkg_requires [options] dir ... dir output_file_name
 Options:
+   --toolchain={TOOLCHAIN}  - actual Toolchain name;
+   --hardware={HARDVARE}    - actual  Hardware name;
+   --flavour={FLAVOUR}      - actual   Flavour name;
    --pkg-type={all|bin|dev} - find required packages of defined type only;
    --all                    - find required packages of all types;
    --bin                    - find binary packages only;
@@ -94,7 +202,19 @@ my @dirs;
 
 foreach ( @ARGV )
 {
-  if( /--pkg-type=(\S*)/ )
+  if( /--toolchain=(\S*)/ )
+  {
+    $toolchain = $1;
+  }
+  elsif( /--hardware=(\S*)/ )
+  {
+    $hardware = $1;
+  }
+  elsif( /--flavour=(\S*)/ )
+  {
+    $flavour = $1;
+  }
+  elsif( /--pkg-type=(\S*)/ )
   {
     $pkg_type = $1;
   }
@@ -142,7 +262,6 @@ else
 {
   $top_build_dir = $ENV{TOP_BUILD_DIR_ABS};
 }
-
 
 # Open the output file
 open( REQUIRES_FILE, "> $reqfile" );

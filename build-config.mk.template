@@ -32,6 +32,21 @@ ENABLE_CB3X        = true
 ENABLE_FFRK3288    = true
 ENABLE_POIN2       = true
 
+# TARGET: aarch64-rk33xx-linux-gnu:
+ENABLE_RK3328_CC   = true
+
+# TARGET: aarch64-rk339x-linux-gnu:
+ENABLE_KHADAS_EDGE = true
+
+# TARGET: arm-h3-linux-gnueabihf:
+ENABLE_ORANGE_PP2E = true
+ENABLE_NANOPI_NEO  = true
+
+# TARGET: aarch64-h5-linux-gnu:
+ENABLE_ORANGE_PP   = true
+ENABLE_ORANGE_PL2  = true
+ENABLE_WECHIP_TX6  = true
+
 # TARGET: arm-s8xx-linux-gnueabihf:
 ENABLE_M201        = true
 ENABLE_MXV         = true
@@ -46,7 +61,7 @@ ENABLE_Q201        = false
 ENABLE_ENYBOX_X2   = true
 ENABLE_KHADAS_VIM2 = true
 
-# TARGET: arm-at91sam7s-elf-newlib:
+# TARGET: arm-at91sam7s-eabi:
 ENABLE_AT91S       = true
 
 # TARGET: arm-lpc17xx-uclinuxeabi:
