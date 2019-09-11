@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/bin/env perl
 
 #
 # Generate .REQUIRES file for package.

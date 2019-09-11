@@ -1,0 +1,6 @@
+
+/* begin *
+
+   perl-5.30.0-multilib.patch  - Install to lib32, lib64 depends on ARCH.
+
+ * end */

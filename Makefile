@@ -10,6 +10,7 @@ REQUIRES += build-system/3pp/app/jsmin/0.0.1
 REQUIRES += build-system/3pp/app/pseudo/1.8.2
 REQUIRES += build-system/3pp/app/python2/2.7.15
 REQUIRES += build-system/3pp/app/python3/3.7.2
+REQUIRES += build-system/3pp/app/perl/5.30.0
 REQUIRES += build-system/progs
 
 # ======= __END_OF_REQUIRES__ =======

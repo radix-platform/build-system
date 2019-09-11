@@ -56,6 +56,7 @@ endif
 endif
 
 
+PATH := $(BUILDSYSTEM):$(BUILDSYSTEM)/sbin:$(BUILDSYSTEM)/usr/bin:$(PATH)
 
 
 #######
