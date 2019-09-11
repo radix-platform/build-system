@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/bin/env perl
 
 (@ARGV < 2) && die <<EOF;
 
