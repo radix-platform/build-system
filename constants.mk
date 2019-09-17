@@ -348,7 +348,7 @@ POIN2_ENABLE_STATIC            = no
 ####### ROC-RK3328-CC [http://en.t-firefly.com/doc/product/index/id/34.html]:
 HARDWARE_RK3328_CC             = rk3328-cc
 ###                             |---HW-spec-handy-ruler-----------------------|
-RK3328_CC_SPEC                 = ROC RK3288 CC \(Linux, GNU Libc based\)
+RK3328_CC_SPEC                 = ROC RK3328 CC \(Linux, GNU Libc based\)
 RK3328_CC_USE_BUILT_GCC_LIBS   = yes
 RK3328_CC_ENABLE_STATIC        = no
 
