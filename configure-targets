@@ -13,8 +13,8 @@ if [ ! -r $CONFIG ] ; then
   exit 1
 fi
 
-: ${DIALOG=$BUILDSYSTEM/sbin/dialog}
-: ${DIALOGRC=$BUILDSYSTEM/pkgtool/dialogrc}
+: ${DIALOG=$BUILDSYSTEM/usr/bin/dialog}
+: ${DIALOGRC=$BUILDSYSTEM/usr/share/pkgtools/.dialogrc}
 
 export DIALOGRC
 
