@@ -16,7 +16,7 @@ DISTRO_CAPTION       = Radix
 
 DISTRO_VERSION       = 1.3
 
-BUG_URL              = http://www.radix.pro
+BUG_URL              = https://radix.pro
 
 
 #
