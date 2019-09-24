@@ -278,7 +278,7 @@ L17UC_ENABLE_STATIC            = yes
 ####### i.MX6 devices:
 ####### -------------
 
-####### Nitrogen6X [https://boundarydevices.com/product/nitrogen6x-board-imx6-arm-cortex-a9-sbc]:
+####### Nitrogen6X [https://boundarydevices.com/product/nitrogen6x]:
 HARDWARE_NIT6Q                 = nit6q
 ###                             |---HW-spec-handy-ruler-----------------------|
 NIT6Q_SPEC                     = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
