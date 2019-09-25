@@ -69,6 +69,8 @@ ENABLE_L17UC       = true
 
 # TARGET: arm-imx6-linux-gnueabihf:
 ENABLE_NIT6Q       = true
+ENABLE_OKMX6DL_C   = true
+ENABLE_OKMX6Q_C    = true
 
 # TARGETS: arm-omap543x-linux-gnueabihf:
 ENABLE_OMAP5UEVM   = true

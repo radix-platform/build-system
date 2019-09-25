@@ -285,6 +285,20 @@ NIT6Q_SPEC                     = Nitrogen6X Nit6Q \(Linux, GNU Libc based\)
 NIT6Q_USE_BUILT_GCC_LIBS       = yes
 NIT6Q_ENABLE_STATIC            = no
 
+####### OKMX6DL-C [http://www.forlinx.net/products_detail/productId=69.html]:
+HARDWARE_OKMX6DL_C             = okmx6dl-c
+###                             |---HW-spec-handy-ruler-----------------------|
+OKMX6DL_C_SPEC                 = Forlinx OKMX6DL-C \(Linux, GNU Libc based\)
+OKMX6DL_C_USE_BUILT_GCC_LIBS   = yes
+OKMX6DL_C_ENABLE_STATIC        = no
+
+####### OKMX6Q-C [http://www.forlinx.net/products_detail/productId=69.html]:
+HARDWARE_OKMX6Q_C              = okmx6q-c
+###                             |---HW-spec-handy-ruler-----------------------|
+OKMX6Q_C_SPEC                  = Forlinx OKMX6Q-C \(Linux, GNU Libc based\)
+OKMX6Q_C_USE_BUILT_GCC_LIBS    = yes
+OKMX6Q_C_ENABLE_STATIC         = no
+
 
 ####### OMAP543X devices:
 ####### ----------------
@@ -534,6 +548,8 @@ __ENABLE_STATIC__      = $(strip $(shell echo $($(shell echo $(HARDWARE) | tr '[
        AT91S_ID_STD = 0400
        L17UC_ID_STD = 0500
        NIT6Q_ID_STD = 0601
+   OKMX6DL_C_ID_STD = 0602
+    OKMX6Q_C_ID_STD = 0603
    OMAP5UEVM_ID_STD = 0801
    DRA7XXEVM_ID_STD = 0802
         CI20_ID_STD = 0901
@@ -946,7 +962,7 @@ IMX6_GLIBC_DEST_SYSROOT      = yes
 
 IMX6_GLIBC_HAS_CHRPATH       = yes
 
-IMX6_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_NIT6Q)
+IMX6_GLIBC_HARDWARE_VARIANTS := $(HARDWARE_NIT6Q) $(HARDWARE_OKMX6DL_C) $(HARDWARE_OKMX6Q_C)
 
 
 
