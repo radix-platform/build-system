@@ -3,7 +3,7 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 
 include constants.mk
 
-REQUIRES  = build-system/3pp/app/pkgtools/0.1.2
+REQUIRES  = build-system/3pp/app/pkgtools/0.1.3
 REQUIRES += build-system/3pp/app/genext2fs/1.4.1
 REQUIRES += build-system/3pp/app/populatefs/1.1
 REQUIRES += build-system/3pp/app/jsmin/0.0.1

@@ -10,8 +10,8 @@ REQUIRES = build-system/3pp/app/dialog/1.3-20190808
 # ======= __END_OF_REQUIRES__ =======
 
 
-tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/pkgtools/pkgtools-0.1.2.tar.xz
-src_dir         = pkgtools-0.1.2
+tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/pkgtools/pkgtools-0.1.3.tar.xz
+src_dir         = pkgtools-0.1.3
 build_dir       = $(TARGET_BUILD_DIR)/built
 
 src_done        = $(TARGET_BUILD_DIR)/.source-done
