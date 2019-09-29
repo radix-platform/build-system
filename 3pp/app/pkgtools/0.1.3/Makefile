@@ -15,7 +15,7 @@ src_dir         = pkgtools-0.1.3
 build_dir       = $(TARGET_BUILD_DIR)/built
 
 src_done        = $(TARGET_BUILD_DIR)/.source-done
-SRC_DIR         = $(TARGET_BUILD_DIR)/pkgtools-0.1.2
+SRC_DIR         = $(TARGET_BUILD_DIR)/pkgtools-0.1.3
 SRC_ARCHIVE     = $(tar_xz_archive)
 
 PATCHES = PATCHES
