@@ -54,11 +54,14 @@ $(build_target): $(src_done)
 	  --host=$(BUILD)  \
 	  $(extra_configure_switches)
 	@cd $(SRC_DIR) && $(python_environment) $(MAKE)
+	@cd $(SRC_DIR) && $(python_environment) $(MAKE) Parser/pgen
 	@touch $@
 
 $(install_target): $(build_target)
 	@echo -e "\n======= Installing Python 3.7 binary =======\n"
 	@cd $(SRC_DIR) && $(MAKE) -j1 $(python_environment) install
+	@cp -a $(SRC_DIR)/Parser/pgen $(BUILDSYSTEM)/usr/bin/pgen3.7
+	@( cd $(BUILDSYSTEM)/usr/bin ; ln -sf pgen3.7 pgen3 )
 	@echo -e "\n======= tune python3.7m-config CFLAGS for target machine =======\n"
 	@( cd $(BUILDSYSTEM)/usr/bin ; \
 	   sed -i 's,includedir=$$(echo "$${prefix},includedir=$$(echo "/usr,g' python3.7m-config ; \
@@ -67,5 +70,6 @@ $(install_target): $(build_target)
 	 )
 	@echo -e "\n======= Setup PYTHON3 build-system variable =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \
-	  echo "PYTHON3            := $(BUILDSYSTEM)/usr/bin/python3" >> $(BUILDSYSTEM)/sbin/.config
+	  echo "PYTHON3            := $(BUILDSYSTEM)/usr/bin/python3" >> $(BUILDSYSTEM)/sbin/.config ; \
+	  echo "PGEN3              := $(BUILDSYSTEM)/usr/bin/pgen3"   >> $(BUILDSYSTEM)/sbin/.config
 	@touch $@

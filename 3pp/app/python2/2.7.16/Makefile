@@ -54,17 +54,21 @@ $(build_target): $(src_done)
 	  --host=$(BUILD)  \
 	  $(extra_configure_switches)
 	@cd $(SRC_DIR) && $(python_environment) $(MAKE)
+	@cd $(SRC_DIR) && $(python_environment) $(MAKE) Parser/pgen
 	@touch $@
 
 $(install_target): $(build_target)
 	@echo -e "\n======= Installing Python 2.7 binary =======\n"
 	@cd $(SRC_DIR) && $(MAKE) -j1 $(python_environment) install
+	@cp -a $(SRC_DIR)/Parser/pgen $(BUILDSYSTEM)/usr/bin/
 	@( cd $(BUILDSYSTEM)/usr/bin ; \
 	   mv 2to3  2to3-2.7 ; ln -sf 2to3-2.7 2to3   ; \
 	   mv idle  idle2.7  ; ln -sf idle2.7  idle2  ; ln -sf idle2  idle ; \
 	   mv pydoc pydoc2.7 ; ln -sf pydoc2.7 pydoc2 ; ln -sf pydoc2 pydoc; \
+	   mv pgen  pgen2.7  ; ln -sf pgen2.7  pgen2  ; ln -sf pgen2  pgen ; \
 	 )
 	@echo -e "\n======= Setup PYTHON2 build-system variable =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \
-	  echo "PYTHON2            := $(BUILDSYSTEM)/usr/bin/python2" >> $(BUILDSYSTEM)/sbin/.config
+	  echo "PYTHON2            := $(BUILDSYSTEM)/usr/bin/python2" >> $(BUILDSYSTEM)/sbin/.config ; \
+	  echo "PGEN2              := $(BUILDSYSTEM)/usr/bin/pgen2"   >> $(BUILDSYSTEM)/sbin/.config
 	@touch $@
