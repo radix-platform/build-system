@@ -80,7 +80,7 @@ $(install_target): $(build_target)
 	   echo ''                                      >> pyconfig.h ; \
 	   echo '#if defined(__x86_64__)    || \'       >> pyconfig.h ; \
 	   echo '    defined(__sparc64__)   || \'       >> pyconfig.h ; \
-	   echo '    defined(__arch64__)    || \'       >> pyconfig.h ; \
+	   echo '    defined(__aarch64__)   || \'       >> pyconfig.h ; \
 	   echo '    defined(__powerpc64__) || \'       >> pyconfig.h ; \
 	   echo '    defined (__s390x__)'               >> pyconfig.h ; \
 	   echo '#include "pyconfig-64.h"'              >> pyconfig.h ; \
