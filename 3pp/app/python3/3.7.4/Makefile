@@ -70,37 +70,35 @@ $(install_target): $(build_target)
 	 )
 	@( cd $(BUILDSYSTEM)/usr/include/python3.7m ; \
 	   mv pyconfig.h pyconfig-64.h ; \
-	   echo ''                                       > pyconfig.h ; \
-	   echo '/******************************'       >> pyconfig.h ; \
-	   echo '  pyconfig.h - Multilib Header'        >> pyconfig.h ; \
-	   echo ' ******************************/'      >> pyconfig.h ; \
-	   echo ''                                      >> pyconfig.h ; \
-	   echo '#ifndef __MULTILIB__PYCONFIG_H__'      >> pyconfig.h ; \
-	   echo '#define __MULTILIB__PYCONFIG_H__'      >> pyconfig.h ; \
-	   echo ''                                      >> pyconfig.h ; \
-	   echo '#if defined(__x86_64__)    || \'       >> pyconfig.h ; \
-	   echo '    defined(__arch64__)    || \'       >> pyconfig.h ; \
-	   echo '    defined(__sparc64__)   || \'       >> pyconfig.h ; \
-	   echo '    defined(__aarch64__)   || \'       >> pyconfig.h ; \
-	   echo '    defined(__powerpc64__) || \'       >> pyconfig.h ; \
-	   echo '    defined (__s390x__)'               >> pyconfig.h ; \
-	   echo '#include "pyconfig-64.h"'              >> pyconfig.h ; \
-	   echo '#else'                                 >> pyconfig.h ; \
-	   echo '#include "pyconfig-32.h"'              >> pyconfig.h ; \
-	   echo '#endif'                                >> pyconfig.h ; \
-	   echo ''                                      >> pyconfig.h ; \
-	   echo '#endif /* __MULTILIB__PYCONFIG_H__ */' >> pyconfig.h ; \
+	   echo ''                                               > pyconfig.h ; \
+	   echo '/******************************'               >> pyconfig.h ; \
+	   echo '  pyconfig.h - Multilib Header'                >> pyconfig.h ; \
+	   echo ' ******************************/'              >> pyconfig.h ; \
+	   echo ''                                              >> pyconfig.h ; \
+	   echo '#ifndef __MULTILIB__PYCONFIG_H__'              >> pyconfig.h ; \
+	   echo '#define __MULTILIB__PYCONFIG_H__'              >> pyconfig.h ; \
+	   echo ''                                              >> pyconfig.h ; \
+	   echo '#if defined(__x86_64__)    || \'               >> pyconfig.h ; \
+	   echo '    defined(__aarch64__)   || \'               >> pyconfig.h ; \
+	   echo '    defined(__powerpc64__) || \'               >> pyconfig.h ; \
+	   echo '    defined(__sparc__) && defined(__arch64__)' >> pyconfig.h ; \
+	   echo '#include "pyconfig-64.h"'                      >> pyconfig.h ; \
+	   echo '#else'                                         >> pyconfig.h ; \
+	   echo '#include "pyconfig-32.h"'                      >> pyconfig.h ; \
+	   echo '#endif'                                        >> pyconfig.h ; \
+	   echo ''                                              >> pyconfig.h ; \
+	   echo '#endif /* __MULTILIB__PYCONFIG_H__ */'         >> pyconfig.h ; \
 	   cat pyconfig-64.h | \
-	     sed -e 's,^#define HAVE_GCC_ASM_FOR_X64 1,/* #undef HAVE_GCC_ASM_FOR_X64 */,'     \
-	         -e 's,^#define HAVE_GCC_UINT128_T 1,/* #undef HAVE_GCC_UINT128_T */,'         \
-	         -e 's,^/* #undef HAVE_LARGEFILE_SUPPORT */,#define HAVE_LARGEFILE_SUPPORT 1,' \
-	         -e 's,^#define SIZEOF_LONG 8,#define SIZEOF_LONG 4,'                          \
-	         -e 's,^#define SIZEOF_LONG_DOUBLE 16,#define SIZEOF_LONG_DOUBLE 12,'          \
-	         -e 's,^#define SIZEOF_PTHREAD_T 8,#define SIZEOF_PTHREAD_T 4,'                \
-	         -e 's,^#define SIZEOF_SIZE_T 8,#define SIZEOF_SIZE_T 4,'                      \
-	         -e 's,^#define SIZEOF_TIME_T 8,#define SIZEOF_TIME_T 4,'                      \
-	         -e 's,^#define SIZEOF_UINTPTR_T 8,#define SIZEOF_UINTPTR_T 4,'                \
-	         -e 's,^#define SIZEOF_VOID_P 8,#define SIZEOF_VOID_P 4,'                      \
+	     sed -e 's,^#define HAVE_GCC_ASM_FOR_X64 1,\/\* #undef HAVE_GCC_ASM_FOR_X64 \*\/,'     \
+	         -e 's,^#define HAVE_GCC_UINT128_T 1,/* #undef HAVE_GCC_UINT128_T */,'             \
+	         -e 's,^\/\* #undef HAVE_LARGEFILE_SUPPORT \*\/,#define HAVE_LARGEFILE_SUPPORT 1,' \
+	         -e 's,^#define SIZEOF_LONG 8,#define SIZEOF_LONG 4,'                              \
+	         -e 's,^#define SIZEOF_LONG_DOUBLE 16,#define SIZEOF_LONG_DOUBLE 12,'              \
+	         -e 's,^#define SIZEOF_PTHREAD_T 8,#define SIZEOF_PTHREAD_T 4,'                    \
+	         -e 's,^#define SIZEOF_SIZE_T 8,#define SIZEOF_SIZE_T 4,'                          \
+	         -e 's,^#define SIZEOF_TIME_T 8,#define SIZEOF_TIME_T 4,'                          \
+	         -e 's,^#define SIZEOF_UINTPTR_T 8,#define SIZEOF_UINTPTR_T 4,'                    \
+	         -e 's,^#define SIZEOF_VOID_P 8,#define SIZEOF_VOID_P 4,'                          \
 	     > pyconfig-32.h ; \
 	 )
 	@echo -e "\n======= Setup PYTHON3 build-system variable =======\n"
