@@ -79,6 +79,7 @@ $(install_target): $(build_target)
 	   echo '#define __MULTILIB__PYCONFIG_H__'      >> pyconfig.h ; \
 	   echo ''                                      >> pyconfig.h ; \
 	   echo '#if defined(__x86_64__)    || \'       >> pyconfig.h ; \
+	   echo '    defined(__arch64__)    || \'       >> pyconfig.h ; \
 	   echo '    defined(__sparc64__)   || \'       >> pyconfig.h ; \
 	   echo '    defined(__aarch64__)   || \'       >> pyconfig.h ; \
 	   echo '    defined(__powerpc64__) || \'       >> pyconfig.h ; \
