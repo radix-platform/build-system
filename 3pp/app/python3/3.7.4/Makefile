@@ -101,6 +101,11 @@ $(install_target): $(build_target)
 	         -e 's,^#define SIZEOF_VOID_P 8,#define SIZEOF_VOID_P 4,'                          \
 	     > pyconfig-32.h ; \
 	 )
+	@echo -e "\n======= Install Python3 PLY package =======\n"
+	@( cd $(BUILDSYSTEM)/usr/bin ; \
+	   ./pip3.7 install --upgrade pip ; \
+	   ./pip3.7 install ply ; \
+	 )
 	@echo -e "\n======= Setup PYTHON3 build-system variable =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \
 	  echo "PYTHON3            := $(BUILDSYSTEM)/usr/bin/python3" >> $(BUILDSYSTEM)/sbin/.config ; \
