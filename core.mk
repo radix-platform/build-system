@@ -1338,9 +1338,9 @@ endif
 #######
 
 #
-# $(HARDWARE).html - is a main target of `make requires_tree' procedure:
+# $(HARDWARE).tree.html - is a main target of `make requires_tree' procedure:
 #
-requires_tree: $(TARGET_BUILD_DIR)/$(HARDWARE).html
+requires_tree: $(TARGET_BUILD_DIR)/$(HARDWARE).tree.html
 
 #
 # Requires Tree perform only if goal 'all' is done and all packages installed
@@ -1351,7 +1351,7 @@ requires_tree: $(TARGET_BUILD_DIR)/$(HARDWARE).html
 #   during Makefile works. For normal work all tested files should be
 #   created before the Makefile starting my make command.
 #
-$(TARGET_BUILD_DIR)/$(HARDWARE).html:
+$(TARGET_BUILD_DIR)/$(HARDWARE).tree.html:
 ifneq ($(shell pwd),$(BUILDSYSTEM))
 ifeq ($(shell pwd | grep $(TOP_BUILD_DIR_ABS)/$(SRC_PACKAGE_DIR))$(shell pwd | grep $(BUILDSYSTEM)/3pp/sources),)
 ifeq ($(shell pwd),$(TOP_BUILD_DIR_ABS))

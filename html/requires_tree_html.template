@@ -1,500 +1,717 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta name="Owner" content="Andrey V.Kosteltsev">
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="owner" content="Andrey V.Kosteltsev">
   <meta name="author" content="Andrey V.Kosteltsev">
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <META HTTP-EQUIV="Content-script-type" CONTENT="text/javascript">
-  <META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+  <meta http-equiv="Content-script-type" content="text/javascript">
+  <meta http-equiv="Content-Style-Type" content="text/css">
 
-  <title>Requires Tree</title>
+  <link href="data:image/x-icon;base64,AAABAAMAMDAAAAEAIACoJQAANgAAACAgAAABACAAqBAAAN4lAAAQEAAAAQAgAGgEAACGNgAAKAAAADAAAABgAAAAAQAgAAAAAAAAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACsrKysrKyuPKysr2SsrK/grKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr+CsrK9krKyuPKysrKwAAAAAAAAAAAAAAAAAAAAArKysDKysrWSsrK9krKyv+Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv+Kysr2SsrK1krKysDAAAAAAAAAAArKytZKysr7isrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK+4rKytZAAAAACsrKywrKyvYKysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyvYKysrLCsrK48rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KysrjysrK9grKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr2CsrK/crKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Ly8v/zIzM/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr9ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf8oKCj/KCgo/ykpKf8rKyv/cnh4/1NWVv8mJib/KCgo/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/ygoKP8oKCj/KSgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/LS0t/05QUf9YW1v/WFtc/0VHSP9UV1f/ho2O/0hKSv9YW1z/V1tb/1FUVP8vLy//Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/PT8//1daW/9XW1v/VFdX/zMzM/8rKyr/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKCj/W15f/9Lf4f/g7e//2ebo/3h+f/+LkpP/RUdH/1NWV//N2dv/4e7w/9nm6P9xdnf/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8zNDT/p7Cy/+Hu8P/h7/H/p7Cx/zQ0NP8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv85Ojr/t8HD/+r4+v/q+Pr/pa6v/3uBgv9qb2//KSkp/ysrK/98goP/5PHz/+r4+v/P3N3/UVRU/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf94fn//5PLz/+n4+v/U4eP/U1dX/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/+GjI3/5vT2/+n3+f/M2Nr/cHV2/4aNjv8yMjL/Kioq/yoqKv8xMjL/n6ip/+n3+f/p+Pr/tL7A/zo7O/8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/0xOT//O2tz/6ff5/+b09v+BiIn/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSgo/1ZZWf/W4uT/6ff5/+Px8/+BiIj/iZCR/0pNTf8pKSn/Kysr/ysrK/8pKSn/QUND/7/Ky//q+Pr/5/X3/5GZmv8tLi7/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/MjIy/6avsP/p9/n/6fj6/7K8vv83ODj/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/Njc3/7G7vf/p+Pr/6fj6/6mytP94fn//bnN0/ykpKf8rKyv/Kysr/ysrK/8rKyv/KSgo/1teX//W4+T/6ff5/9/s7v9scXL/KSkp/ysrK/8rKyv/Kysr/ysrK/8pKSn/dHl6/+Pw8v/p9/n/1uPl/1ZaWv8pKCj/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/f4aG/+Xz9f/p9/n/z9vd/3B1dv+Ij5D/NDQ0/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv98goP/4/Hz/+n4+v/M2Nr/TVBQ/ykpKf8rKyv/Kysr/ykpKf9JS0z/zNjZ/+n3+f/m9Pb/hoyN/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf9RVFT/0t/h/+n3+f/k8vT/hIuM/4iPkP9OUVH/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8xMjL/n6ip/+n3+f/p+Pr/sLq7/zg5Of8qKir/Kioq/zExMf+iq6z/6ff5/+n4+v+2wML/OTo6/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/zQ0Nf+stbb/6fj6/+n4+v+tt7j/dnt8/3F3d/8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/QUND/7/KzP/q+Pr/5/T2/4yUlf8tLS3/KSgo/3B1dv/h7/H/6ff5/9jl5/9aXV7/KSgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/3l/gP/k8vT/6ff5/9Lf4P9wdXb/ipGS/0JERP8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSgo/1tfX//W4+X/6fj6/93q7P9mamv/REZH/8nV1v/p9/n/5/X3/4qRkv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/TE9P/8/b3f/p9/n/5fP1/4eOj/+Ei4z/b3R1/7G7vP9obW7/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv98goP/5PHz/+b09v9+hYX/nKSm/+n3+f/p+Pr/usTG/zs8PP8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8zNDT/qLGy/+v6/P/r+fv/sbu9/3N4ef97gYL/n6ip/+v5+//V4eP/XmJj/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8yMjL/oaqr/6q0tf92fH3/3+3v/+n3+f/a5+n/XWFi/ykoKP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf9dYWL/w87Q/8nV1/++ycv/b3R1/4qRkv99hIX/4O3v/+j2+P/q+Pr/ws3P/0BCQv8qKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKSn/PD09/1tfX//E0NL/6ff5/+j2+P+OlZb/LCws/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/80NTX/PD09/zs8PP88PT3/hIuM/2BkZP+zvb7/6vn7/+f19//n9ff/6Pb4/4mQkf8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/LS0t/5mhov/p9/n/6fj6/7vGyP86Ozv/Jycn/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/Kioq/ygnJ/9iZmf/e4GC/ysrK/9iZmf/2OTm/+j2+P/n9ff/6ff5/8jU1f8+QED/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKCj/aGxt/9/s7v/p9/n/2+jq/32Dg/9yd3j/VVhZ/ywsLP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kikp/0BCQv+OlZb/Ozw8/yoqKv8qKir/j5eY/+j2+P/n9ff/5/X3/+Pw8v9kaGn/KCgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf9BQ0P/w87Q/+n3+v/n9ff/oqqs/7vGyP/p9/n/0t7g/1JUVf8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/LS0t/4GHiP9bX1//KSgo/ysrK/8pKCj/UVRV/9rn6f/o9vj/5/X3/+n3+f+GjY7/KCgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/y0uLv+Wnp//6Pb4/+n4+v++ycv/XmFi/9fk5v/q+Pr/5/X3/2lub/8nJyf/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKCj/XmJj/3+Fhv8sLS3/Kysr/ysrK/8qKir/Ojs7/8fS1P/p9/n/5/X3/+r4+v+ZoqP/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSgo/2Roaf/d6uz/6ff5/93r7f9kaWn/Ly8v/5ObnP/T3+H/s72//4qRkv9eYmP/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv89Pz//jpWW/z4/QP8qKir/Kysr/ysrK/8qKir/Nzg4/8LOz//p9/n/5/X3/+r4+/+dpab/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKSn/P0BA/8DLzP/p+Pr/6Pb4/5aen/8uLi7/Kioq/y8wMP9NUFD/o6yt/+Px8//I09X/SEpK/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ywsLP9+hIX/X2Nk/ykoKP8rKyv/Kysr/ysrK/8pKSn/REZG/9He3//o9vn/5/X3/+r4+v+Ql5n/KSkp/ysrK/8rKyv/Kysr/ysrK/8tLS3/kZma/+j2+P/p9/n/w8/Q/0FDQ/8pKSn/Kysr/yoqKv8yMzP/qLKz/+r4+v/p9/n/qrO0/zU2Nv8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSgo/1pdXv+CiIn/Li4u/ysrK/8rKyv/Kysr/ysrK/8oKCj/cHV2/+Ty9P/n9ff/5/X3/+f19/9zeXn/KCgo/ysrK/8rKyv/Kysr/ykoKP9gZGX/2+nr/+n3+f/f7O7/aW1u/ykoKP8rKyv/Kysr/ysrK/8pKSn/R0lK/8bS1P/p+Pr/5vP1/4eOj/8sLCz/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/Ojs8/46Vlv9BQ0P/Kikp/ysrK/8rKyv/Kysr/ykpKf8+QED/vsjK/+n3+f/n9ff/6Pb4/9fj5f9NT0//KSkp/ysrK/8rKyv/Kioq/zw+Pv+8x8n/6fj6/+n3+f+ao6T/Li8v/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/2Roaf/b6Or/6ff5/9vo6v9kaWn/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/eoCB/2Roaf8pKSn/Kysr/yoqKv8pKSn/KCgo/z9AQP+mr7H/5/X4/+f19//n9ff/6vj6/6ewsf8vLzD/Kysr/ysrK/8rKyv/LCws/42Vlv/n9ff/6ff5/8bS1P9ERkb/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ywsLP+Hjo//5vP1/+n4+v/H09T/SEpK/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ykpKf9WWVn/hYyM/y8vL/8qKir/Li4u/zk6Ov9GSEn/cnh5/7/Ky//o9vj/5/X3/+f19//o9vj/2ufp/1peXv8pKCj/Kysr/ysrK/8pKSn/XWFi/9rn6f/p9/r/4O7w/2xxcv8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv81Njb/qrS1/+n3+f/p9/n/qrO0/zU2Nv8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/zg5Of+NlJX/RUdH/ykpKf8pKSn/TVBQ/77Jy//U4OL/5fP1/+n3+f/n9ff/5/X3/+j2+P/m9Pb/iZCR/ywsLP8rKyv/Kysr/yoqKv84OTn/r7m6/9/t7//f7O7/nKSm/zAwMP8rKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/SUtL/8jT1f/p+Pr/5vP1/4eOj/8sLCz/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/3Z8ff9obW7/KSkp/ysrK/8oKCj/VVhZ/+Dt7//p9/n/5/X3/+f19//n9ff/6Pb4/+b09v+aoqT/NDU1/yoqKv8rKyv/Kysr/yoqKv80NDX/UlVV/1RXV/9TVlf/OTo6/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/2Zqa//c6ev/6ff5/9vo6v9kaWn/KSkp/ysrK/8rKyv/Kysr/ysrK/8pKSn/UVRV/4eOj/8xMTH/Kyoq/ysrK/8oKCj/VVhY/97r7f/o9vj/5/X3/+j2+P/q+Pr/2ufp/4mQkf80NTX/Kioq/ysrK/8rKyv/Kysr/ysrK/8qKir/KSko/ykoKP8pKCj/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ywsLP+JkJH/5vT2/+n4+v/H09T/SEpK/ykpKf8rKyv/Kysr/yoqKv83ODj/jJSV/0hLS/8pKSn/Kysr/ysrK/8oKCj/VVlZ/+Hu8P/q+fv/5/X3/9fk5f+nsLL/Wl5e/ywsLP8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv82Nzf/rLa3/+v6/P/s+/3/rbe4/zg5Of8qKir/Kysr/ykpKf9JTEz/XmJj/yoqKv8rKyv/Kysr/ysrK/8pKSn/REZG/5Wcnv+QmJn/dHl6/01PUP8vMDD/KSgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/SEpL/5Wdnv+bpKX/mKCh/09SUv8pKSn/Kysr/ysrK/8rKyv/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8pKSn/KCgo/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/yoqKv8qKir/Kioq/ywsLP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/krKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr+SsrK9wrKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr3CsrK5crKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KysrlysrKzQrKyveKysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyveKysrNAAAAAArKytmKysr9CsrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/QrKytmAAAAAAAAAAArKysFKysraCsrK+QrKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr5CsrK2grKysFAAAAAAAAAAAAAAAAKysrAisrKzorKyulKysr6ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK+srKyulKysrOisrKwIAAAAAAAAAAPAAAAAADwAA4AAAAAAHAADAAAAAAAMAAIAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAEAAMAAAAAAAwAA4AAAAAAHAADwAAAAAA8AACgAAAAgAAAAQAAAAAEAIAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKysrEisrK30rKyvcKysr/CsrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv8Kysr3CsrK30rKysSAAAAACsrKxIrKyueKysr+ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr+ysrK54rKysSKysrfisrK/orKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr+isrK34rKyvbKysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr2ysrK/srKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/KSkp/ykpKf87PDz/Nzg4/ygoKP8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/KSkp/ykpKf8rKyv/Kysr/ysrK/8rKyv7Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Li4u/0lMTP9QU1P/QUJD/21ycv9TVlb/UFNT/0JERP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/zY3N/9PUlL/TE5P/zAwMP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ygoKP9hZWb/1ODi/8jU1f+Ahof/U1ZW/2NoaP/U4eP/xM/R/0pNTf8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8uLi7/lJyd/9/s7v+fp6n/MTIy/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/PT4+/73Iyv/o9vj/nKSl/2xxcf8uLi7/Li4u/5OanP/q+Pr/rLa3/zY3N/8qKir/Kysr/ysrK/8rKyv/KSgo/2Vqav/f7e//09/h/1BTU/8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ywsLP+NlZb/6vj6/7rFxv96gIH/PkBA/yoqKv8qKir/Ojs7/7S+wP/o9/n/iI+Q/ywsLP8rKyv/Kysr/ykpKf8/QUH/wczO/+f19/99g4T/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8oKCj/XGBg/9vo6v/X5Ob/h46P/1daW/8pKSn/Kysr/ysrK/8pKSn/UFNT/9Dc3v/d6uz/ZGhp/ykoKP8rKyv/LS0t/5ObnP/r+fv/r7i6/zU2Nv8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/zk7O/+4w8T/6Pb4/52mp/9tcnL/LzAw/ysrK/8rKyv/Kysr/ysrK/8pKSn/b3R1/+Lv8f/H09X/R0lK/ycmJv9hZmb/3uvt/9Xh4/9TVlb/KSgo/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/h46P/+n3+f+9yMn/fIKD/0pMTP8pKCj/Kysr/ysrK/8rKyv/Kysr/ysrK/8uLi7/kpqb/+r4+v+nsLH/RkhI/73Iyv/o9vj/gYeI/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/1hcXP/Z5uj/2ufp/4aNjv+DiYr/q7W2/05QUf8pKSn/Kysr/ysrK/8rKyv/Kysr/yoqKv86Ozv/tsDC/7nExf+bo6T/6fj6/7K8vv83ODj/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8xMTH/mKCh/87a3P+ZoaL/fIKD/7bBwv/s+vz/tsDB/zo7O/8qKir/Kysr/ysrK/8rKyv/Kysr/ykpKf9JS0z/g4mK/9rn6f/W4+X/VVhZ/ykoKP8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/y0uLv88PT3/P0FB/21yc/9obG3/09/h/+n3+f/n9ff/eoCB/ykpKf8rKyv/Kysr/ysrK/8rKyv/Kioq/zo7O/+5xMX/6Pb4/4yUlf80NTX/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ygoKP9RVFX/X2Nj/yoqKv+Ei4z/5/T2/+r4+v+2wML/MjMz/ysqKv8rKyv/Kysr/ysrK/8rKyv/ipGT/+n3+f/Czc//sbu9/7K8vf9CQ0T/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/Ojs7/290df8zMzT/KCgo/0dKSv/U4eL/6vj6/9Hd3/9DRUX/KSkp/ysrK/8rKyv/KSgo/1peXv/a5+n/2OXm/290df/K1tj/3Onr/2JmZ/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ywsLP9obG3/SEpL/ykpKf8qKir/Ojw8/8jU1f/q+Pr/1+Tm/0pMTf8pKSn/Kysr/yoqKv85Ojr/t8HD/+r4+v+JkJH/LCws/1ZZWv+bo6T/xM/R/2BkZf8pKCj/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8pKSn/T1JT/2JmZ/8qKir/Kysr/ykpKf9JS0z/1eLk/+r4+v/Q3N7/QkRE/yopKf8rKyv/Kysr/4aNjv/p9/n/usTG/zo8PP8qKir/Jycn/3B2dv/l8/X/xM/R/0RGR/8pKSn/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kioq/zc4Of9wdXX/NTU2/yoqKv8qKir/Kioq/4mQkf/n9ff/6vj6/7O9v/8yMjL/Kysr/ykoKP9XWlr/1+Tm/9vo6v9dYWH/KCgo/ysrK/8rKir/MDAw/5mhov/q+Pr/pa6v/zM0NP8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Zmpr/0tOTv8pKSn/Kysr/zY3N/97gYL/2+jq/+j2+P/m8/X/dnt8/ykoKP8qKir/ODk5/7S+wP/q+fv/jpWW/ywsLP8rKyv/Kysr/ysrK/8pKSn/Pj8//7vFx//n9ff/gYiJ/ysrK/8rKyv/Kysr/ysrK/8rKyv/KSkp/0xPT/9laWr/Kioq/z9BQf+Wnp//vsnK/+Px8v/o9vj/6vj6/7C6u/83ODj/Kioq/yoqKv93fX3/2ufp/7fBw/89Pj7/Kioq/ysrK/8rKyv/Kysr/ysrK/8pKCj/Vlla/9Th4//a5+n/YGNk/ykoKP8rKyv/Kysr/yoqKv81Njb/cHV1/zc4OP8oKCj/TlFR/93q7P/q+fv/6ff5/+n3+f+4wsT/R0lK/ykpKf8rKyv/LCws/0RFRv9OUVH/PkBA/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/d3x9/+Ty9P/Ez9H/RUZH/ykpKf8rKyv/Kysr/2JnZ/9OUVH/KSkp/ykpKf9OUVH/2+jq/+Ty9P/O2tz/jpaX/z5AQP8pKSn/Kysr/ysrK/8rKyv/Kikp/ykpKf8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8wMDD/m6Ok/+r4+v+mr7H/NTU1/yoqKv8wMDD/SkxN/y0tLf8rKyv/Kioq/zo7O/9yd3j/ZWpq/0NFRf8rKyv/Kioq/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yopKf89Pj7/dXp7/3Z7fP89Pj7/Kioq/ysrK/8qKir/Kysr/ysrK/8rKyv/Kioq/ygoKP8oKCj/KSkp/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/yoqKv8oKCj/KCgo/yoqKv8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv8Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/CsrK94rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyveKysrhSsrK/wrKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/CsrK4UrKysWKysrqCsrK/0rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/0rKyuoKysrFgAAAAArKysXKysriysrK+grKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyvoKysriysrKxcAAAAA4AAAB4AAAAGAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAcAAAAMoAAAAEAAAACAAAAABACAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAKysrTCsrK9QrKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyvUKysrTCsrK9QrKyv/Kysr/ysrK/8rKyv/KSkp/yoqKv8qKir/Kioq/ysrK/8rKyv/Kysr/ysqKv8pKSn/Kysr/ysrK9QrKyv9Kysr/ysrK/8rKyv/Li4u/0NFRf9GSUn/SkxM/zY3N/8qKir/Kysr/yoqKv8yMjL/REVG/y4uLv8rKyv9Kysr/ysrK/8rKyv/KSgo/2lubv+0v8D/Wl5e/3l+f/+epqf/MzQ0/yoqKv8qKir/g4qL/5aeoP8vLzD/Kysr/ysrK/8rKyv/KSkp/0FDQ/+7xsf/iI+Q/zIzM/81Njb/pa6w/4GIif8oKCj/Vlla/73Iyf9OUVH/KSkp/ysrK/8rKyv/Kysr/y4uLv+Wnp//sLq7/0pNTf8pKSn/KSkp/0hKSv+1wMH/Z2xt/6u1tv97gYL/KSkp/ysrK/8rKyv/Kysr/ykpKf9UV1j/sry+/5ykpf+ZoqP/NTY2/yoqKv8pKSn/XWFh/7G7vP+kra//MzQ0/yoqKv8rKyv/Kysr/ysrK/8rKyv/Njc3/1hbW/+Bh4j/4O7w/2ltbv8oKCj/KSgo/1FUVf/G0dP/j5eY/zM0NP8qKir/Kysr/ysrK/8rKyv/Kioq/0BBQf9CRET/QUND/9Tg4v+NlZb/KCgn/zQ1Nf+qs7X/i5KT/5mio/9zeHn/Kysr/ysrK/8rKyv/Kioq/zM0NP9NUFD/KSkp/1ZaWv/c6ev/gIaH/ycnJ/9+hIX/rLW3/zM0NP9FR0f/tsDC/11hYf8pKCj/Kysr/ywsLP9KTE3/QUND/3B1df/Ez9H/z9vd/0hLS/9FR0f/sLq8/1RXV/8pKCj/KSkp/2htbf+0v8D/QkRE/ykpKf8/QUH/REZG/0VHSP/N2dv/ws7P/2FlZf8qKir/NTY2/0FDQ/8sLCz/Kysr/ysrK/8sLCz/ipGS/5igof8yMjL/NTY2/y4uLv8yMzP/UFNU/zo7O/8pKSn/Kysr/yoqKv8qKin/Kysr/ysrK/8rKyv/Kioq/zQ1Nf9SVVb/MzM0/yoqKv4rKyv/Kysr/ykpKf8qKir/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8qKir/KSkp/ysrK/4rKyvXKysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyvXKysrUSsrK9orKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyv/Kysr/ysrK/8rKyvaKysrUYABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAAA=" rel="icon" type="image/x-icon" />
 
-<!-- styles .css -->
-<style>
-@import url(http://fonts.googleapis.com/css?family=Roboto:400,700italic,700,500italic,500,400italic&subset=cyrillic-ext,latin);
-@import url(http://fonts.googleapis.com/css?family=Cousine:400,400italic,700,700italic&subset=cyrillic-ext,latin);
-</style>
+  <title>@ROOT@ &#8211; Requires Tree</title>
 
-<style>
-body, html {
-  margin: 0 0 0 0;
-}
+  <style>
+   @import url(https://fonts.googleapis.com/css?family=Roboto:400,700italic,700,500italic,500,400italic&subset=cyrillic-ext,latin);
+   @import url(https://fonts.googleapis.com/css?family=Cousine:400,400italic,700,700italic&subset=cyrillic-ext,latin);
+  </style>
 
-#front_wrapper {
-  margin: 0 auto;
-  height: 100vh;
-  position: relative;
-  overflow: auto;
-  background-color: #ececec;
-}
+  <style>
+   body, html {
+     margin: 0 0 0 0;
+   }
 
-#tree_view {
-  overflow-y: hidden;
-  overflow-x: hidden;
-  margin: 0 auto;
-  min-height: 256px;
-  width: 2720px;
-  border: 0px solid #e7e7e7;
-}
+   #front_wrapper {
+     margin: 0 auto;
+     height: 100vh;
+     position: relative;
+     overflow: auto;
+     background-color: #ececec;
+   }
 
-.header-wrapper {
-  height: 160px;
-  width: 100%;
-  margin: 0 auto;
-  position: relative;
-  background: transparent;
-}
+   #spinner {
+     margin: 0 auto;
+     min-height: 256px;
+     text-align: center;
+     display: flex;
+     align-items: center;
+   }
 
-.content-wrapper {
-  background-color: #ffffff;
-}
+   #tree_view {
+     margin: 0 auto;
+     min-height: 256px;
+     width: 2720px;
+     border: 0px solid #e7e7e7;
+   }
 
-.footer-wrapper {
-  background: #ececec;
-}
+   .header-wrapper {
+     height: 160px;
+     width: 100%;
+     margin: 0 auto;
+     position: relative;
+     background: transparent;
+   }
 
-.content {
-  width: 1018px;
-  min-height: 256px;
-  padding: 18px 3px 12px 3px; /* top, right, bottom, left */
-  margin: 0 auto;
-  background-color: #fdfdfd;
-  position: relative;
-  overflow: hidden;
-  align: center;
-  border: 1px solid #e7e7e7;
-}
+   .content-wrapper {
+     background-color: #ffffff;
+   }
 
-.footer {
-  width: 1022px;
-  height: 48px;
-  margin: 0 auto;
+   .footer-wrapper {
+     background: #ececec;
+   }
 
-  -moz-border-radius-topleft: 0px;
-  -moz-border-radius-topright: 0px;
-  -moz-border-radius-bottomright: 8px;
-  -moz-border-radius-bottomleft: 8px;
+   .content {
+     width: 1018px;
+     min-height: 256px;
+     padding: 18px 3px 12px 3px;
+     margin: 0 auto;
+     background-color: #fdfdfd;
+     position: relative;
+     overflow: hidden;
+     align: center;
+     border: 1px solid #e7e7e7;
+   }
 
-  -webkit-border-top-left-radius: 0px;
-  -webkit-border-top-right-radius: 0px;
-  -webkit-border-bottom-left-radius: 8px;
-  -webkit-border-bottom-right-radius: 8px;
+   .footer {
+     width: 1022px;
+     height: 48px;
+     margin: 0 auto;
 
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+     -moz-border-radius-topleft: 0px;
+     -moz-border-radius-topright: 0px;
+     -moz-border-radius-bottomright: 4px;
+     -moz-border-radius-bottomleft: 4px;
 
-  border: 1px solid #000000;
-  background-color: #212121;
+     -webkit-border-top-left-radius: 0px;
+     -webkit-border-top-right-radius: 0px;
+     -webkit-border-bottom-left-radius: 4px;
+     -webkit-border-bottom-right-radius: 4px;
 
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#212121), to(#000000));
-  background-image: -webkit-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:    -moz-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:      -o-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:         linear-gradient(to bottom, #212121 0%, #000000 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#212121', endColorstr='#000000', GradientType=0);
-  background-repeat: repeat-x;
-}
+     border-top-left-radius: 0px;
+     border-top-right-radius: 0px;
+     border-bottom-left-radius: 4px;
+     border-bottom-right-radius: 4px;
 
-.footer-top {
-  margin: 2px auto 1px auto;
-  color: #ffffff;
-  text-align: center;
-}
+     border: 1px solid #545454;
+     background-color: #4c4c4c;
+     background: linear-gradient(288deg, rgb(84, 84, 84), rgb(76, 76, 76));
+   }
 
-.footer-bottom {
-  margin: 0 8px 0 8px;
-  min-height: 20px;
-  color: #ffffff;
-  font-size: 10px;
-}
+   .footer-top {
+     margin: 2px auto 1px auto;
+     color: #ffffff;
+     text-align: center;
+   }
 
-.logo {
-  height: 80px;
-  width: 1024px;
-  margin: 0 auto;
-  background-color: transparent;
-}
+   .footer-bottom {
+     margin: 0 8px 0 8px;
+     min-height: 20px;
+     color: #ffffff;
+     font-size: 10px;
+   }
 
-.navigator {
-  height: 79px;
-  width: 1024px;
-  margin: 0 auto;
-  padding: 1px 0 0; /* top, right, bottom, left */
+   .logo {
+     width: 1024px;
+     height: 80px;
+     margin: 0 auto;
+     background-color: transparent;
+   }
 
-  -moz-border-radius-topleft: 8px;
-  -moz-border-radius-topright: 8px;
-  -moz-border-radius-bottomright: 0px;
-  -moz-border-radius-bottomleft: 0px;
+   .navigator {
+     width: 1024px;
+     height: 79px;
+     margin: 0 auto;
+     padding: 1px 0 0;
 
-  -webkit-border-top-left-radius: 8px;
-  -webkit-border-top-right-radius: 8px;
-  -webkit-border-bottom-left-radius: 0px;
-  -webkit-border-bottom-right-radius: 0px;
+     -moz-border-radius-topleft: 4px;
+     -moz-border-radius-topright: 4px;
+     -moz-border-radius-bottomright: 0px;
+     -moz-border-radius-bottomleft: 0px;
 
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
+     -webkit-border-top-left-radius: 4px;
+     -webkit-border-top-right-radius: 4px;
+     -webkit-border-bottom-left-radius: 0px;
+     -webkit-border-bottom-right-radius: 0px;
 
-  border: 1px solid #000000;
-  background-color: #212121;
+     border-top-left-radius: 4px;
+     border-top-right-radius: 4px;
+     border-bottom-left-radius: 0px;
+     border-bottom-right-radius: 0px;
 
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#212121), to(#000000));
-  background-image: -webkit-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:    -moz-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:      -o-linear-gradient(top, #212121 0%, #000000 100%);
-  background-image:         linear-gradient(to bottom, #212121 0%, #000000 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#212121', endColorstr='#000000', GradientType=0);
-  background-repeat: repeat-x;
-}
+     border: 1px solid #545454;
+     background-color: #4c4c4c;
+     background: linear-gradient(288deg, rgb(84, 84, 84), rgb(76, 76, 76));
+   }
 
-.copyright {
-  color: #ffffff;
-  text-decoration: none;
-  font-family: 'Roboto', helvetica, arial, sans-serif;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 11px;
-}
-</style>
+   .copyright {
+     color: #f0f0ea;
+     text-decoration: none;
+     font-family: 'Roboto', helvetica, arial, sans-serif;
+     font-weight: bold;
+     font-style: normal;
+     font-size: 12px;
+   }
+
+   .copyright:hover {
+     text-decoration: underline;
+   }
 
 
-<style>
-.node {
-  cursor: pointer;
-}
-.node text {
-  font: 14px 'Cousine', monospace;
-}
-/* Requires Tree Styling Examples *
- **********************************
-.node {
-  cursor: pointer;
-}
-.node circle {
-  fill: #ffffff;
-  stroke: SteelBlue;
-  stroke-width: 1.5px;
-}
-.link {
-  fill: none;
-  stroke: #cccccc;
-  stroke-width: 1.5px;
-}
-.node text {
-  font: 12px sans-serif;
-  font-weight: bold;
-}
- **********************************/
+   .date-title {
+     height: 16px;
+     font: 12px 'Roboto', sans-serif;
+     font-weight: bold;
+     padding-top: 6px;
+     margin-bottom: -10px;
+     padding-left: 16px;
+     color: #c0c0c0;
+   }
+   .time-title {
+     color: #82946f;
+   }
+   .hardware-title {
+     height: 20px;
+     float: right;
+     text-align: right;
+     padding-right: 16px;
+     width: 512px; font: 14px 'Roboto', sans-serif;
+     font-weight: bold;
+     color: #f0f0ea;
+   }
+   .hw-title {
+     font: 10px 'Roboto', sans-serif;
+     font-weight: bold;
+     color: #cadaba;
+   }
+   .tree-title {
+     height: 42px;
+     padding-left: 16px;
+     font: 28px 'Roboto', sans-serif;
+     font-weight: bold;
+     color: #f0f0ea;
+   }
+   .tree-hw-title {
+     color: #cadaba;
+   }
 
-.tree-tooltip {
-  position: absolute;
-  text-align: left;
-  padding: 15px;
-  font: 11px Cousine,monospace;
-  font-weight: bold;
-  background-color: #fafafa;
-  border: 1px solid #71ad93;
-  border-radius: 8px;
-  pointer-events: none;
-  color: #343434;
-  -webkit-box-shadow: 0 0 5px #aaa;
-  box-shadow: 0 0 5px #aaa;
-}
-</style>
-<!-- End of styles .css -->
+   /* SVG spinner icon animation */
+   .spinner {
+     -webkit-animation: rotate 2s linear infinite;
+             animation: rotate 2s linear infinite;
+     z-index: 2;
+     position: relative;
+     top: 50%;
+     left: 50%;
+     margin: -25px 0 0 -25px;
+     width: 50px;
+     height: 50px;
+   }
+   .spinner-text {
+     z-index: 2;
+     position: absolute;
+     top: 0;
+     left: 0;
+     margin: 36px;
+     font: 28px 'Roboto', sans-serif;
+     color: #c0c0c0;
+   }
+   .spinner .path {
+     stroke: #cccccc;
+     stroke-linecap: round;
+     -webkit-animation: dash 1.5s ease-in-out infinite;
+             animation: dash 1.5s ease-in-out infinite;
+   }
 
-<!-- scripts -->
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-  <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+   @-webkit-keyframes rotate {
+     100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+   }
+   @keyframes rotate {
+     100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+   }
+   @-webkit-keyframes dash {
+       0% { stroke-dasharray:  1, 150; stroke-dashoffset:    0; }
+      50% { stroke-dasharray: 90, 150; stroke-dashoffset:  -35; }
+     100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+   }
+   @keyframes dash {
+       0% { stroke-dasharray:  1, 150; stroke-dashoffset:    0; }
+      50% { stroke-dasharray: 90, 150; stroke-dashoffset:  -35; }
+     100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+   }
+
+
+   .node {
+     cursor: pointer;
+   }
+   .node text {
+     font: 14px 'Cousine', monospace;
+   }
+
+   .tree-tooltip {
+     position: absolute;
+     text-align: left;
+     padding: 16px 16px 8px;
+     background-color: #fafafa;
+     border: 1px solid #71ad93;
+     border-radius: 8px;
+     pointer-events: none;
+     color: #343434;
+     -webkit-box-shadow: 0 0 5px #aaa;
+     box-shadow: 0 0 5px #aaa;
+   }
+   .tooltip-header {
+     font: 14px Roboto, sans-serif;
+     font-weight: bold;
+     color: DarkRed;
+
+     white-space: nowrap;
+     text-align: left;
+   }
+   .tooltip-header-not-packaged {
+     font: 11px Cousine,monospace;
+     font-weight: bold;
+     color: DarkRed;
+
+     white-space: nowrap;
+
+     padding-left: 8px;
+     padding-right: 8px;
+     padding-bottom: 8px;
+     text-align: left;
+   }
+   .tooltip-description {
+     font: 14px Roboto, sans-serif;
+     font-style: italic;
+     font-weight: bold;
+     color: #343434;
+
+     white-space: nowrap;
+     text-align: left;
+     padding-left: 1.5em;
+     padding-top: .5em;
+     font-style: italic;
+   }
+   .tooltip-content {
+     font: 11px 'Cousine', monospace;
+     font-weight: bold;
+
+     white-space: pre;
+     margin: 12px 0 8px;
+   }
+   .flavour {
+     color: DarkBlue;
+   }
+
+
+   @media (min-width: 1200px) {
+     .navigator { width: 1140px; }
+     .logo      { width: 1140px; }
+     .footer    { width: 1140px; }
+     .content   { width: 1134px; }
+   }
+   @media (min-width: 992px) and (max-width: 1199px) {
+     .navigator { width: 960px; }
+     .logo      { width: 960px; }
+     .footer    { width: 960px; }
+     .content   { width: 954px; }
+   }
+   @media (min-width: 768px) and (max-width: 991px) {
+     .navigator { width: 720px; }
+     .logo      { width: 720px; }
+     .footer    { width: 720px; }
+     .content   { width: 714px; }
+   }
+   @media (min-width: 576px) and (max-width: 767px) {
+     .navigator { width: 540px; }
+     .logo      { width: 540px; }
+     .footer    { width: 540px; }
+     .content   { width: 534px; }
+
+     .node text { font-size: 12px; }
+
+     .tooltip-header      { font-size: 12px; }
+     .tooltip-description { font-size: 12px; }
+     .tooltip-content     { font-size: 10px; }
+   }
+   @media (max-width: 575px) {
+     .navigator { width: 480px; }
+     .logo      { width: 480px; }
+     .footer    { width: 480px; }
+     .content   { width: 474px; }
+
+     .node text { font-size: 12px; }
+
+     .tooltip-header      { font-size: 12px; }
+     .tooltip-description { font-size: 12px; }
+     .tooltip-content     { font-size: 10px; }
+   }
+  </style>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
   <script>
-  $(function() {
-    $( "#tree_view" ).draggable();
-  });
+   !function(o){function t(o,t){if(!(o.originalEvent.touches.length>1)){o.preventDefault();var e=o.originalEvent.changedTouches[0],n=document.createEvent("MouseEvents");n.initMouseEvent(t,!0,!0,window,1,e.screenX,e.screenY,e.clientX,e.clientY,!1,!1,!1,!1,0,null),o.target.dispatchEvent(n)}}if(o.support.touch="ontouchend"in document,o.support.touch){var e,n,u=o.ui.mouse.prototype,c=u._mouseInit,i=u._mouseDestroy;u._touchStart=function(o){var u=this;!n&&u._mouseCapture(o.originalEvent.changedTouches[0])&&(n=!0,u._touchMoved=!1,e=o,t(o,"mouseover"),t(o,"mousemove"),t(o,"mousedown"))},u._touchMove=function(o){if(n){var u=e.originalEvent.touches[0].screenX,c=e.originalEvent.touches[0].screenY,i=o.originalEvent.touches[0].screenX,r=o.originalEvent.touches[0].screenY;if(u===i&&c===r)return void(this._touchMoved=!1);this._touchMoved=!0,t(o,"mousemove")}},u._touchEnd=function(o){n&&(t(o,"mouseup"),t(o,"mouseout"),this._touchMoved||t(o,"click"),n=!1)},u._mouseInit=function(){var t=this;t.element.bind({touchstart:o.proxy(t,"_touchStart"),touchmove:o.proxy(t,"_touchMove"),touchend:o.proxy(t,"_touchEnd")}),c.call(t)},u._mouseDestroy=function(){var t=this;t.element.unbind({touchstart:o.proxy(t,"_touchStart"),touchmove:o.proxy(t,"_touchMove"),touchend:o.proxy(t,"_touchEnd")}),i.call(t)}}}(jQuery);
+   $(function() {
+     $( "#tree_view" ).draggable();
+   });
   </script>
-  <script type="text/javascript">
-  function show_link( id )
-  {
-    var label = document.getElementById( id );
-    label.style.textDecoration = "underline";
-  }
-  function hide_link( id )
-  {
-    var label = document.getElementById( id );
-    label.style.textDecoration = "none";
-  }
+  <script>
+   function load_json( url, callback ) {
+     var xobj = new XMLHttpRequest();
+     xobj.overrideMimeType("application/json");
+     xobj.open('GET', url, true);
+     xobj.onreadystatechange = function () {
+       if (xobj.readyState == 4 && xobj.status == "200") {
+         callback(xobj.responseText);
+       }
+     };
+     xobj.send(null);
+   }
+
+   var pkgs;
+
+   $(document).ready(function() {
+     load_json( '@JSON_PKGS_FILE@', function(response) {
+       pkgs = JSON.parse(response);
+     });
+
+     $('#tree_view')
+       .mousedown(function() { $(this).css( 'cursor', 'grab' ); })
+       .mouseup(  function() { $(this).css( 'cursor', 'auto' ); });
+   });
   </script>
-<!-- End of scripts -->
-
-</head>
-
-<body>
-
-<div id="front_wrapper">
-  <div class="header-wrapper">
-    <div class="logo">
-    </div> <!-- "logo" -->
+ </head>
+ <body>
+  <div id="front_wrapper">
+   <div class="header-wrapper">
+    <div class="logo"></div>
     <div class="navigator">
-      <div style="height: 36px;">
-        <div style="height: 16px; font: 14px 'Roboto', sans-serif; font-weight: bold; color: White;"></div>
-        <div style="height: 20px; float: right; text-align: right; padding-right: 16px; width:512px; font: 14px 'Roboto', sans-serif; font-weight: bold; color: White;">
-        <span style="font: 10px 'Roboto', sans-serif; font-weight: bold;  color: Lavender;">HARDWARE:</span> @HARDWARE@
-        </div>
-      </div>
-      <div style="height: 42px; padding-left: 16px; font: 28px 'Roboto', sans-serif; font-weight: bold; color: White;">
-      <span style="color: Lavender;">@ROOT@</span> - Requires Tree
-      </div>
+     <div style="height: 36px;">
+       <div class="date-title">@YEAR@-@MONTH@-@DAY@&nbsp;&nbsp;<span class="time-title">@HOUR@:@MINUTE@:@SECOND@</span></div>
+       <div class="hardware-title">
+        <span class="hw-title">HARDWARE:</span> @HARDWARE@
+       </div>
+     </div>
+     <div class="tree-title">
+      <span class="tree-hw-title">@ROOT@</span> &#8211; Requires Tree
+     </div>
     </div> <!-- "navigator" -->
-  </div> <!-- "header_wrapper" -->
+   </div> <!-- "header_wrapper" -->
 
-  <div class="content-wrapper">
+   <div class="content-wrapper">
     <div class="content">
-
-      <div id="tree_view" class="ui-widget-content">
-      </div>
-
+     <div id="spinner">
+      <svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+      <div class="spinner-text">Loading ...</div>
+     </div>
+     <div id="tree_view" class="ui-widget-content">
+     </div>
     </div> <!-- "content" -->
-  </div> <!-- "content_wrapper" -->
+   </div> <!-- "content_wrapper" -->
 
-  <div class="footer-wrapper">
+   <div class="footer-wrapper">
     <div class="footer">
-
-      <div class="footer-top">
-        <a class="copyright" target="_blank" href="@BUG_URL@"
-          onmouseover="show_link( 'copyright' );"
-          onmouseout="hide_link( 'copyright' );">Copyright</a>
-      </div>
-      <div class="footer-bottom">
-      </div>
+     <div class="footer-top">
+      <a class="copyright" target="_blank" href="@BUG_URL@">&#169; @COPYING@</a>
+     </div>
+     <div class="footer-bottom">
+     </div>
     </div> <!-- "footer" -->
-  </div> <!-- "footer_wrapper" -->
-</div> <!-- "front_wrapper" -->
+   </div> <!-- "footer_wrapper" -->
+  </div> <!-- "front_wrapper" -->
 
-<script type="text/javascript">
-  var margin = {top: 20, right: 120, bottom: 20, left: 220},
-      width = @SVG_WIDTH@ - margin.right - margin.left,
-      height = @SVG_HEIGHT@ - margin.top - margin.bottom;
+  <script>
+   var margin = {top: 20, right: 120, bottom: 20, left: 220},
+       width = @SVG_WIDTH@ - margin.right - margin.left,
+       height = @SVG_HEIGHT@ - margin.top - margin.bottom;
 
-  var i = 0,
-      duration = 750,
-      root;
+   var i = 0,
+       duration = 750,
+       root = 0;
 
-  var tree = d3.layout.tree()
-      .size([height, width]);
+   var treemap = d3.tree()
+       .size([height, width]);
 
-  var diagonal = d3.svg.diagonal()
-      .projection(function(d) { return [d.y, d.x]; });
+   var svg = d3.select(document.getElementById( 'tree_view' )).append("svg")
+       .attr("width", width + margin.right + margin.left)
+       .attr("height", height + margin.top + margin.bottom)
+       .append("g")
+       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var svg = d3.select(document.getElementById( 'tree_view' )).append("svg")
-      .attr("width", width + margin.right + margin.left)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+   var div = d3.select(document.getElementById( 'front_wrapper' )).append("div")
+       .attr("class", "tree-tooltip")
+       .style("display", "none")
+       .style("opacity", 0);
 
-  var div = d3.select(document.getElementById( 'front_wrapper' )).append("div")
-      .attr("class", "tree-tooltip")
-      .style("opacity", 0);
 
-  d3.json("@JSON_DATA_FILE@", function(error, requires) {
-    root = requires;
-    root.x0 = height / 2;
-    root.y0 = 0;
+   load_json( '@JSON_TREE_FILE@', function(response) {
+     var treeData = JSON.parse(response);
 
-    function collapse(d) {
-      if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
-      }
-    }
+     /* Assigns parent, children, height, depth: */
+     root = d3.hierarchy(treeData, function(d) { return d.children; });
 
-    root.children.forEach(collapse);
-    update(root);
-  });
+     root.x0 = height / 2;
+     root.y0 = 0;
 
-  function update(source) {
+     function collapse(d) {
+       if( d.children ) {
+         d._children = d.children;
+         d._children.forEach(collapse);
+         d.children = null;
+       }
+     }
 
-    /* Compute the new tree layout. */
-    var nodes = tree.nodes(root).reverse(),
-        links = tree.links(nodes);
+     document.getElementById('spinner').remove();
+     root.children.forEach(collapse);
+     update(root);
+   });
 
-    /* Normalize for fixed-depth. */
-    nodes.forEach(function(d) { d.y = d.depth * 180; });
 
-    /* Update the nodes . . . */
-    var node = svg.selectAll("g.node")
-        .data(nodes, function(d) { return d.id || (d.id = ++i); });
+   function update(source) {
 
-    /* Enter any new nodes at the parent's previous position. */
-    var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", click)
-        .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", .92);
-            if (d.group == undefined) {
-              if (d.name == "void") {
-                div.html('<div style="text-align: left; padding-left: 0.5em; padding-right: 0.5em; font: 11px Cousine,monospace; font-weight: bold; color: DarkRed;">' + "void" + "</div>")
-                    .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
-                    .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
-              }
-              else
-              {
-                div.html('<div style="text-align: left; padding-left: 0.5em; padding-right: 0.5em; font: 11px Cousine,monospace; font-weight: bold; color: DarkRed;">' + "not packaged collection" + "</div>")
-                    .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
-                    .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
-              }
-            }
-            else
-            {
-              var content = '<div style="text-align: left; font: 14px Roboto,sans-serif; font-weight: bold; color: DarkRed;">' +
-                            d.name + "</div>" +
-                            '<div style="text-align: left; padding-left: 1.5em; padding-top: .5em; font: 14px Roboto,sans-serif; font-weight: bold; font-style: italic; color: #343434;">' +
-                            d.description + "</div><br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group: " + d.group + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;architecture: " + d.arch + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hardware: " + d.hardware + "<br/>";
-              if( d.flavour != "" )
-              {
-                 content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: DarkBlue;">edition</span>: ' + d.flavour + "<br/>";
-              }
-                 content += "&nbsp;&nbsp;&nbsp;distribution name: " + root.distro[0] + "<br/>" +
-                            "distribution version: " + root.distro[1] + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bug report url: " + root.distro[2] + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package tarball: " + d.name + "-" +
-                               d.version + "-" + d.arch + "-" + root.distro[0] + "-" + root.distro[1] + "."+ "@TARBALL_SUFFIX@" + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;uncompressed size: " + d.uncompressed_size + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number of files: " + d.total_files + "<br/>" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;license: " + d.license;
+     var tree = treemap( root );
 
-              div.html( content )
-                  .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
-                  .style("top", (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop + 12) + "px");
-            }
-        })
-        .on("mouseout", function(d) {
-            div.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
+     /* Compute the new tree layout. */
+     var nodes = tree.descendants(),
+         links = tree.descendants().slice(1);
 
-    nodeEnter.append("circle")
-    /* Additional attributes (see the 'style' section) */
-        .attr("stroke", "#5d5d5d")
-        .attr("stroke-width", "1.0")
-    /* End of additional attributes */
-        .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "#abd8d4" : "#fff"; });
+     /* Normalize for fixed-depth. */
+     nodes.forEach(function(d) { d.y = d.depth * 220; });
 
-    nodeEnter.append("text")
-        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-        .attr("dy", "-.35em")
-        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-        .text(function(d) { return d.version ? d.name + "-" + d.version : d.name; })
-        .style("fill-opacity", 1e-6);
+     /* Update the nodes . . . */
+     var node = svg.selectAll("g.node")
+       .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-    /* Transition nodes to their new position. */
-    var nodeUpdate = node.transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+     /* Enter any new nodes at the parent's previous position. */
+     var nodeEnter = node.enter().append("g")
+       .attr("class", "node")
+       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+       .on("click", click)
+       .on("mouseover", function(d) {
+         div.transition()
+           .duration(200)
+           .style("opacity", .92);
+         {
+           var content = '<div class="tooltip-header-not-packaged">' + 'void' + '</div>';
 
-    nodeUpdate.select("circle")
-        .attr("r", 4.5)
-        .style("fill", function(d) {
-          if( d._children )
-          {
-            return "#abd8d4";
-          }
-          else
-          {
-            if( d.children == undefined )
-            {
-              if( d.name == "void" )
-              {
-                return "#c9c9c9";
-              }
-              else
-              {
-                return "#fff";
-              }
-            }
-            else
-            {
-              return "#d2ebd8";
-            }
-          }
-        });
+           if( d.name === "void" ) {
+             /* draw div.tree-tooltip to get actual size */
+             div.html( content )
+               .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+               .style("top",  (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop  + 12) + "px");
+           }
+           else
+           {
+             /* find package in the pkgs array: */
+             var pkg = pkgs.find(obj => { return obj.id === d.data.name; });
 
-    nodeUpdate.select("text")
-        .style("fill-opacity", 1);
+             if( pkg === undefined )
+             {
+               content = '<div class="tooltip-header-not-packaged">' + 'not packaged collection' + '</div>';
+               /* draw div.tree-tooltip to get actual size */
+               div.html( content )
+                 .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+                 .style("top",  (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop  + 12) + "px");
+             }
+             else
+             {
+               content  = '<div class="tooltip-header">' + pkg.name + '</div>' +
+                           '<div class="tooltip-description">' + pkg.description + '</div>' +
+                            '<div class="tooltip-content">' +
+                            '               group: ' + pkg.group + '\n' +
+                            '        architecture: ' + pkg.arch + '\n' +
+                            '            hardware: ' + pkg.hardware + '\n';
+               if( pkg.flavour !== undefined )
+               {
+                 content += '             <span class="flavour">edition</span>: ' + pkg.flavour + '\n';
+               }
+                 content += '             license: ' + pkg.license + '\n' +
+                            '      bug report url: ' + root.data.distro[2] + '\n' +
+                            '        distribution: ' + root.data.distro[0] + '-' + root.data.distro[1] + '\n' +
+                            '     package tarball: ' + pkg.name + '-' + pkg.version + '-' + pkg.arch + '-' + root.data.distro[0] + '-' + root.data.distro[1] + '.' + '@TARBALL_SUFFIX@' + '\n' +
+                            '   uncompressed size: ' + pkg.uncompressed_size + '\n' +
+                            '     number of files: ' + pkg.total_files + '\n' +
+                            '</div>' +
+                           '</div>' +
+                          '</div>';
 
-    /* Transition exiting nodes to the parent's new position. */
-    var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-        .remove();
+               /* draw div.tree-tooltip to get actual size */
+               div.html( content )
+                 .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + 12) + "px")
+                 .style("top",  (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop  + 12) + "px");
+             }
+           }
 
-    nodeExit.select("circle")
-        .attr("r", 1e-6);
+           /* draw div.tree-tooltip at actual position */
 
-    nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
+           var cW = $( window ).width();
+           var cH = $( window ).height();
+           var cX = d3.event.pageX;
+           var cY = d3.event.pageY;
+           var tW = $('div.tree-tooltip').width();
+           var tH = $('div.tree-tooltip').height();
+           var oX;
+           var oY;
+           var dX = ( cW - cX ) - ( tW + 12 );
+           var dY = ( cH - cY ) - ( tH + 12 );
 
-    /* Update the links . . . */
-    var link = svg.selectAll("path.link")
-        .data(links, function(d) { return d.target.id; });
+           /* shift left to according to width=16 of browser vertical scroll bar */
+           if( dX <= 24 ) { dX = 24 - dX; }
+           else           { dX = 0;       }
 
-    /* Enter any new links at the parent's previous position. */
-    link.enter().insert("path", "g")
-        .attr("class", "link")
-        .attr("d", function(d) {
-          var o = {x: source.x0, y: source.y0};
-          return diagonal({source: o, target: o});
-        });
+           /* shift top to according to width=16 of browser horizontal scroll bar */
+           if( dY <= 24 ) { dY = 24 - dY; }
+           else           { dY = 0;       }
 
-    /* Transition links to their new position. */
-    link.transition()
-        .duration(duration)
-    /* Additional attributes (see the 'style' section) */
-        .style("fill", "none")
-        .attr("stroke", "DarkGray")
-        .attr("stroke-width", "1.5")
-    /* End of additional attributes */
-        .attr("d", diagonal);
+           if( ( cW - cX ) < ( tW + 12 ) ) { oX = - 12 - tW; } else { oX = 12 - dX; }
+           if( ( cH - cY ) < ( tH + 12 ) ) { oY = - 12 - tH; } else { oY = 12 - dY; }
 
-    /* Transition exiting nodes to the parent's new position. */
-    link.exit().transition()
-        .duration(duration)
-        .attr("d", function(d) {
-          var o = {x: source.x, y: source.y};
-          return diagonal({source: o, target: o});
-        })
-        .remove();
+           if( (( cW - cX ) < ( tW + 12 )) && (cX < ( tW + 12 )) )
+           {
+             /* in this case we have to center tooltip */
+             oX = - (tW + 12) / 2 + (cW/2 - cX);
+           }
 
-    /* Stash the old positions for transition. */
-    nodes.forEach(function(d) {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
-  }
+           div.html( content )
+             .style("left", (d3.event.pageX + document.getElementById( 'front_wrapper' ).scrollLeft + oX) + "px")
+             .style("top",  (d3.event.pageY + document.getElementById( 'front_wrapper' ).scrollTop +  oY) + "px")
+             .style("display","block");
+         }
+       })
+       .on("mouseout", function(d) {
+         div.transition()
+           .duration(500)
+           .style("opacity", 0);
+       });
 
-  /* Toggle children on click. */
-  function click(d) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else {
-      d.children = d._children;
-      d._children = null;
-    }
-    update(d);
-  }
-</script>
+     nodeEnter.append("circle")
+       .attr('class', 'node')
+     /* Additional attributes (see the 'style' section) */
+       .attr("stroke", "#5d5d5d")
+       .attr("stroke-width", "1.0")
+     /* End of additional attributes */
+       .attr("r", 1e-6)
+       .style("fill", function(d) { return d._children ? "#abd8d4" : "#fff"; });
 
-</body>
+     nodeEnter.append("text")
+       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+       .attr("dy", "-.35em")
+       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+       .text(function(d) { return (d.data.name.indexOf(":",0) > 0 ) ? d.data.name.substr(d.data.name.indexOf(":",0) + 1) : d.data.name; })
+       .style("fill-opacity", 1);
+
+     /* Update */
+     var nodeUpdate = nodeEnter.merge(node);
+
+     /* Transition nodes to their new position. */
+     nodeUpdate.transition()
+       .duration(duration)
+       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+     nodeUpdate.select("circle.node")
+       .attr("r", 4.5)
+       .style("fill", function(d) {
+         if( d._children )
+         {
+           return "#abd8d4";
+         }
+         else
+         {
+           if( d.children == undefined )
+           {
+             if( d.name == "void" )
+             {
+               return "#c9c9c9";
+             }
+             else
+             {
+               return "#fff";
+             }
+           }
+           else
+           {
+             return "#d2ebd8";
+           }
+         }
+       })
+       .attr('cursor', 'pointer');
+
+     /* Transition exiting nodes to the parent's new position. */
+     var nodeExit = node.exit().transition()
+       .duration(duration)
+       .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+       .remove();
+
+     nodeExit.select("circle")
+       .attr("r", 1e-6);
+
+     nodeExit.select("text")
+       .style("fill-opacity", 1e-6);
+
+     /* Update the links . . . */
+     var link = svg.selectAll('path.link')
+       .data(links, function(d) { return d.id; });
+
+     /* Enter any new links at the parent's previous position. */
+     var linkEnter = link.enter().insert('path', 'g')
+       .attr("class", "link")
+       .attr("d", function(d) {
+         var o = {x: source.x0, y: source.y0};
+         return diagonal(o, o);
+       });
+
+     /* Update */
+     var linkUpdate = linkEnter.merge(link);
+
+     /* Transition links to their new position. */
+     linkUpdate.transition()
+       .duration(duration)
+     /* Additional attributes (see the 'style' section) */
+       .style("fill", "none")
+       .attr("stroke", "DarkGray")
+       .attr("stroke-width", "1.5")
+     /* End of additional attributes */
+       .attr("d", function(d){ return diagonal(d, d.parent) });
+
+     /* Transition exiting nodes to the parent's new position. */
+     var linkExit = link.exit().transition()
+       .duration(duration)
+       .attr("d", function(d) {
+         var o = {x: source.x, y: source.y};
+         return diagonal(o, o);
+       })
+       .remove();
+
+     /* Stash the old positions for transition. */
+     nodes.forEach(function(d) {
+       d.x0 = d.x;
+       d.y0 = d.y;
+     });
+
+     /* Creates a curved (diagonal) path from parent to the child nodes. */
+     function diagonal(s, d) {
+       path = `M ${s.y} ${s.x}
+               C ${(s.y + d.y) / 2} ${s.x},
+                 ${(s.y + d.y) / 2} ${d.x},
+                 ${d.y} ${d.x}`;
+       return path;
+     }
+
+     /* Toggle children on click. */
+     function click(d) {
+       if (d.children) {
+         d._children = d.children;
+         d.children = null;
+       } else {
+         d.children = d._children;
+         d._children = null;
+       }
+       update(d);
+     }
+   }
+  </script>
+ </body>
 </html>

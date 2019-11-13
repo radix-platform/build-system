@@ -29,7 +29,7 @@ my ($build_system);
 my ($topdir, $toolchain, $hardware, $flavour);
 my ($target_build_dir, $requires_file);
 my ($pkglist_file);
-my ($distro_name, $distro_version, $url);
+my ($system_version, $distro_name, $distro_version, $url);
 my $tarball_suffix = "txz";
 
 my %sub_trees;
@@ -53,6 +53,25 @@ EOF
 #
 # Getting information from build-system/constants.mk
 #
+sub system_version
+{
+  my $build_system = shift;
+  my $version;
+
+  open( FILE, "< $build_system/constants.mk" );
+
+  while( <FILE> )
+  {
+    if( /^SYSTEM_VERSION(.+= +)(.+)/ )
+    {
+      $version = $2;
+    }
+  }
+  close( FILE );
+
+  return $version;
+}
+
 sub distro_name
 {
   my $build_system = shift;
@@ -108,6 +127,48 @@ sub bug_url
   close( FILE );
 
   return $url;
+}
+
+#
+# value_from_makefile( $makefile, $variable_name, $stop_line ):
+# ------------------------------------------------------------
+#   This function returns the value of variable defined in the
+#   Makefile on global level before od REQUIRES declaration.
+#
+#   The optional $stop_line argument presents the start of the
+#   line which terminates the analized part of Makefile.
+#
+sub value_from_makefile
+{
+  my $makefile  = shift;
+  my $vname     = shift;
+  my $stop_line = shift;
+  my $value     = "";
+
+  if( !defined $stop_line || $stop_line eq '' )
+  {
+    $stop_line = "__END_OF_REQUIRES__";
+  }
+  else
+  {
+    $stop_line = "^" . $stop_line;
+  }
+
+  my $cdir = dirname( $makefile );
+
+  my $shell_output = <<`SHELL`;
+cd $cdir
+head -n `cat Makefile | grep -n "$stop_line" | cut -f 1 -d ':'` Makefile | \
+  make TOOLCHAIN=$toolchain HARDWARE=$hardware FLAVOUR=$flavour -f - -p __build_requires__ 2>/dev/null | grep "$vname"
+exit 0
+SHELL
+
+  if( $shell_output =~ m/^$vname(.+= +)(.+)/gm )
+  {
+    $value = $2;
+  }
+
+  return $value;
 }
 
 #
@@ -181,16 +242,28 @@ sub pkg_version
   my $makefile = shift;
   my $version;
 
+  my $stop_line;
+
   open( FILE, "< $makefile" );
 
   while( <FILE> )
   {
-    if( /^[A-Z_0-9]*_PKG_VERSION(.+= +)(.+)/ )
+    if( /^([A-Z_0-9]*_PKG_VERSION)(.+= +)(.+)/ )
     {
-      $version = $2;
+      $stop_line  = $1;
+      $version    = $3;
     }
   }
   close( FILE );
+
+  # check if version is present as a reference to some variable:
+  if( $version =~ m/^\$\((.+)\)/ )
+  {
+    my $vname = $1;
+
+    # get value of referenced variable
+    $version = value_from_makefile( $makefile, $vname, $stop_line );
+  }
 
   return $version;
 }
@@ -386,6 +459,7 @@ _kxLab::error( "$0: Makefile missing: $makefile" ) if ( ! -f $makefile );
 
 $build_system = $topdir . "/build-system";
 
+$system_version = system_version( $build_system );
 $distro_name    = distro_name( $build_system );
 $distro_version = distro_version( $build_system );
 $url            = bug_url( $build_system );

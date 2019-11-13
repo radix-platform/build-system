@@ -1,7 +1,0 @@
-
-Download:
-========
-
-wget http://code.jquery.com/jquery-1.10.2.js
-wget http://code.jquery.com/ui/1.11.2/jquery-ui.js
-wget http://d3js.org/d3.v3.min.js
