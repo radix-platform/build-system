@@ -5,6 +5,7 @@ include ../../../../../build-system/constants.mk
 
 SOURCE_REQUIRES = build-system/3pp/sources/packages/python3
 
+REQUIRES = build-system/3pp/app/python2-modules/pip/19.3.1
 
 # ======= __END_OF_REQUIRES__ =======
 
@@ -101,13 +102,16 @@ $(install_target): $(build_target)
 	         -e 's,^#define SIZEOF_VOID_P 8,#define SIZEOF_VOID_P 4,'                          \
 	     > pyconfig-32.h ; \
 	 )
-	@echo -e "\n======= Install Python3 PLY package =======\n"
+	@echo -e "\n======= Install Python3 PLY, M2Crypto packages =======\n"
 	@( cd $(BUILDSYSTEM)/usr/bin ; \
 	   ./pip3.7 install --upgrade pip ; \
-	   ./pip3.7 install ply ; \
+	   ./pip3.7 install ply           ; \
+	   ./pip3.7 install M2Crypto      ; \
+	   rm -f pip ; ln -sf pip2 pip    ; \
 	 )
 	@echo -e "\n======= Setup PYTHON3 build-system variable =======\n"
 	@mkdir -p $(BUILDSYSTEM)/sbin && \
 	  echo "PYTHON3            := $(BUILDSYSTEM)/usr/bin/python3" >> $(BUILDSYSTEM)/sbin/.config ; \
-	  echo "PGEN3              := $(BUILDSYSTEM)/usr/bin/pgen3"   >> $(BUILDSYSTEM)/sbin/.config
+	  echo "PGEN3              := $(BUILDSYSTEM)/usr/bin/pgen3"   >> $(BUILDSYSTEM)/sbin/.config ; \
+	  echo "PIP3               := $(BUILDSYSTEM)/usr/bin/pip3"    >> $(BUILDSYSTEM)/sbin/.config
 	@touch $@

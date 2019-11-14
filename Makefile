@@ -8,7 +8,6 @@ REQUIRES += build-system/3pp/app/genext2fs/1.4.1
 REQUIRES += build-system/3pp/app/populatefs/1.1
 REQUIRES += build-system/3pp/app/jsmin/0.0.1
 REQUIRES += build-system/3pp/app/pseudo/1.8.2
-REQUIRES += build-system/3pp/app/python2/2.7.16
 REQUIRES += build-system/3pp/app/python3/3.7.4
 REQUIRES += build-system/3pp/app/perl/5.30.0
 REQUIRES += build-system/progs
