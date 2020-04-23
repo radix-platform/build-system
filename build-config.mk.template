@@ -61,16 +61,19 @@ ENABLE_Q201        = false
 ENABLE_ENYBOX_X2   = true
 ENABLE_KHADAS_VIM2 = true
 
+# TARGET: aarch64-a311x-linux-gnu:
+ENABLE_KHADAS_VIM3 = true
+
 # TARGET: arm-at91sam7s-eabi:
 ENABLE_AT91S       = true
-
-# TARGET: arm-lpc17xx-uclinuxeabi:
-ENABLE_L17UC       = true
 
 # TARGET: arm-imx6-linux-gnueabihf:
 ENABLE_NIT6Q       = true
 ENABLE_OKMX6DL_C   = true
 ENABLE_OKMX6Q_C    = true
+
+# TARGET: arm-imx6ull-linux-gnueabihf:
+ENABLE_SK6ULL      = true
 
 # TARGETS: arm-omap543x-linux-gnueabihf:
 ENABLE_OMAP5UEVM   = true
@@ -81,9 +84,6 @@ ENABLE_CI20        = true
 
 # TARGETS: mipsel-p5600-linux-gnu:
 ENABLE_BAIKAL_T1   = true
-
-# TARGETS: sparc64-r1000-linux-gnu:
-ENABLE_MBC4_PC     = true
 
 # TARGETS: ppc64-power8-linux-gnu:
 ENABLE_S824L       = true
