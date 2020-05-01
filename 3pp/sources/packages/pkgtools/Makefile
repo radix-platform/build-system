@@ -8,7 +8,7 @@ include ../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/a/pkgtools
 
 
-versions    = 0.1.3
+versions    = 0.1.5
 pkgname     = pkgtools
 suffix      = tar.xz
 

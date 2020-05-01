@@ -8,7 +8,7 @@ SOURCE_REQUIRES = build-system/3pp/sources/packages/perl
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 5.30.0
+version         = 5.30.2
 tar_xz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/perl/perl-$(version).tar.xz
 SRC_ARCHIVE     = $(tar_xz_archive)
 SRC_DIR         = $(TARGET_BUILD_DIR)/perl-$(version)

@@ -8,7 +8,7 @@ include ../../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/d/python-modules/pip
 
 
-versions    = 19.3.1
+versions    = 20.1
 pkgname     = pip
 suffix      = tar.gz
 

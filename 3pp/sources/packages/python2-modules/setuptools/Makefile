@@ -8,7 +8,7 @@ include ../../../../../../build-system/constants.mk
 url         = $(DOWNLOAD_SERVER)/sources/packages/d/python-modules/setuptools
 
 
-versions    = 41.6.0
+versions    = 46.1.3
 pkgname     = setuptools
 suffix      = tar.gz
 

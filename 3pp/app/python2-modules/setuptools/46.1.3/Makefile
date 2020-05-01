@@ -3,16 +3,16 @@ COMPONENT_TARGETS = $(HARDWARE_BUILD)
 
 include ../../../../../../build-system/constants.mk
 
-SOURCE_REQUIRES = build-system/3pp/sources/packages/python2-modules/pip
+SOURCE_REQUIRES = build-system/3pp/sources/packages/python2-modules/setuptools
 
-REQUIRES = build-system/3pp/app/python2-modules/setuptools/41.6.0
+REQUIRES = build-system/3pp/app/python2/2.7.18
 
 # ======= __END_OF_REQUIRES__ =======
 
-version         = 19.3.1
-tar_gz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/python2-modules/pip/pip-$(version).tar.gz
+version         = 46.1.3
+tar_gz_archive  = $(BUILDSYSTEM)/3pp/sources/packages/python2-modules/setuptools/setuptools-$(version).tar.gz
 SRC_ARCHIVE     = $(tar_gz_archive)
-SRC_DIR         = $(TARGET_BUILD_DIR)/pip-$(version)
+SRC_DIR         = $(TARGET_BUILD_DIR)/setuptools-$(version)
 src_done        = $(TARGET_BUILD_DIR)/.source-done
 
 PATCHES = PATCHES
@@ -31,6 +31,7 @@ $(src_done): $(SRC_ARCHIVE) $(PATCHES_DEP)
 
 $(build_target): $(src_done)
 	@( cd $(SRC_DIR) ; \
+	   $(BUILDSYSTEM)/usr/bin/python2 bootstrap.py   ; \
 	   $(BUILDSYSTEM)/usr/bin/python2 setup.py build ; \
 	 )
 	@touch $@
@@ -40,14 +41,4 @@ $(install_target): $(build_target)
 	@( cd $(SRC_DIR) ; \
 	   $(BUILDSYSTEM)/usr/bin/python2 setup.py install ; \
 	 )
-	@( cd $(BUILDSYSTEM)/usr/bin ; \
-	   rm -f pip ; ln -sf pip2 pip ; \
-	 )
-	@echo -e "\n======= Install Python2 M2Crypto package =======\n"
-	@( cd $(BUILDSYSTEM)/usr/bin ; \
-	   ./pip2.7 install M2Crypto ; \
-	 )
-	@echo -e "\n======= Setup PIP2 build-system variable =======\n"
-	@mkdir -p $(BUILDSYSTEM)/sbin && \
-	  echo "PIP2               := $(BUILDSYSTEM)/usr/bin/pip2"    >> $(BUILDSYSTEM)/sbin/.config
 	@touch $@
